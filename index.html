@@ -172,6 +172,25 @@ tr.tx-row:hover{background:#f9fafb;cursor:pointer;}
 .combo-item:hover,.combo-item.ativo{background:var(--accent-dim);}
 .combo-item.ativo .c,.combo-item:hover .c{color:var(--accent-700);}
 .combo-item mark{background:#fde68a;color:inherit;padding:0 1px;border-radius:2px;}
+.panel-panorama{padding:14px 18px;}
+.panel-panorama h2{margin-bottom:8px;}
+.panorama-table{width:100%;border-collapse:collapse;font-size:12.5px;}
+.panorama-table th{
+  text-align:left;padding:5px 10px;background:none;border:none;border-bottom:1px solid var(--border);
+  color:var(--text-soft);font-weight:600;font-size:10px;text-transform:uppercase;letter-spacing:.05em;
+}
+.panorama-table td{padding:7px 10px;border-bottom:1px solid #f2f4f7;}
+.panorama-table tr:last-child td{border-bottom:none;}
+.panorama-conta{font-weight:600;color:var(--text);white-space:nowrap;}
+.panorama-qtd{color:var(--text-dim);}
+.panorama-qtd-atual{color:var(--text-soft);font-size:12px;}
+.panorama-saldo{text-align:right;font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap;}
+.panorama-badge{display:inline-block;padding:2px 8px;border-radius:6px;font-size:11px;font-weight:700;}
+.panorama-badge.ok{background:var(--green-dim);color:var(--green);}
+.panorama-badge.falta{background:var(--amber-dim);color:var(--amber);}
+.panorama-badge.neutro{background:var(--panel-alt);color:var(--text-dim);}
+.panorama-aviso{margin-left:8px;font-size:11px;color:var(--amber);font-weight:600;}
+.panorama-linha.falta .panorama-conta{color:#92400e;}
 .mc-obs{margin-top:16px;padding-top:14px;border-top:1px dashed var(--border);}
 .mc-obs textarea{width:100%;font-family:inherit;font-size:13px;resize:vertical;min-height:52px;}
 .mc-obs-aviso{font-size:11.5px;margin-top:4px;min-height:14px;}
@@ -546,6 +565,10 @@ footer strong{color:var(--text-dim);font-weight:700;letter-spacing:.02em;}
 
   <!-- IMPORTAR -->
   <section id="tab-importar" class="tab-content">
+    <div class="panel panel-panorama">
+      <h2>Panorama do mês <span class="muted" id="panoramaMesLabel" style="text-transform:none;letter-spacing:0;font-weight:500;"></span></h2>
+      <div id="panoramaTabela"></div>
+    </div>
     <div class="panel">
       <h2>Importar extrato (.ofx)</h2>
       <div class="drop" id="dropZone">
@@ -1569,6 +1592,7 @@ const UI = {
   mudarAba(nome) {
     document.querySelectorAll('nav .tab').forEach(b => b.classList.toggle('active', b.dataset.tab === nome));
     document.querySelectorAll('.tab-content').forEach(s => s.classList.toggle('hidden', s.id !== 'tab-' + nome));
+    if (nome === 'importar') Panorama.render();
     if (nome === 'conciliar') Conciliacao.render();
     if (nome === 'previstos') Previstos.render();
     if (nome === 'saldo') Saldo.render();
@@ -2981,6 +3005,106 @@ const Analises = {
     toast('Metas restauradas para o padrão.', 'ok');
     this.render();
   },
+};
+
+/* ======================================================================
+   PANORAMA DO MÊS — "bateu o olho e já viu o que falta lançar"
+   ======================================================================
+   Uma tabelinha na tela de Importar com, por conta: quantos lançamentos
+   existem no mês corrente e o saldo atual. A ideia é simples — quando o
+   extrato do mês já foi importado, a conta tem uma quantidade de lançamentos
+   parecida com a dos meses anteriores; quando ainda não foi, tem zero ou
+   quase nada. O sistema compara com o histórico da própria conta (não tem
+   número fixo cravado) e sinaliza em amarelo o que parece faltando. */
+const Panorama = {
+  mesAtual() {
+    const d = new Date();
+    return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
+  },
+
+  // desloca uma chave "AAAA-MM" em `delta` meses (delta negativo = pra trás)
+  deslocar(aaaaMm, delta) {
+    const [ano, mes] = aaaaMm.split('-').map(Number);
+    const d = new Date(ano, mes - 1 + delta, 1);
+    return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
+  },
+
+  nomeMes(aaaaMm) {
+    const [ano, mes] = aaaaMm.split('-').map(Number);
+    const nomes = ['janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho', 'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro'];
+    return nomes[mes - 1] + '/' + ano;
+  },
+
+  // conta quantos lançamentos essa conta teve em cada mês (chave "AAAA-MM")
+  contagemPorMes(contaId) {
+    const porMes = {};
+    for (const t of State.transacoes) {
+      if (t.conta !== contaId || !t.data) continue;
+      const m = t.data.slice(0, 7);
+      porMes[m] = (porMes[m] || 0) + 1;
+    }
+    return porMes;
+  },
+
+  render() {
+    const alvo = document.getElementById('panoramaTabela');
+    const labelMes = document.getElementById('panoramaMesLabel');
+    if (!alvo) return;
+
+    // O lançamento aqui é sempre do OFX FECHADO do mês — então o mês CORRENTE fica vazio até
+    // o mês virar, e não é o que interessa olhar. Quem importa é o mês ANTERIOR (o último que já
+    // devia estar fechado): esse é o que vira coluna principal e recebe o aviso. O mês corrente
+    // aparece do lado só como contexto ("já começou a entrar algo aqui"), sem cobrança nenhuma.
+    const mesAtual = this.mesAtual();
+    const mesFechado = this.deslocar(mesAtual, -1);
+    const mesReferencia = this.deslocar(mesFechado, -1);
+    if (labelMes) labelMes.textContent = '— fechamento de ' + this.nomeMes(mesFechado);
+
+    if (!State.contas.length) {
+      alvo.innerHTML = '<p class="muted" style="margin:0;font-size:12.5px;">Importe um extrato para começar — o panorama aparece aqui assim que houver contas cadastradas.</p>';
+      return;
+    }
+
+    const contasOrdenadas = State.contas.slice().sort((a, b) => a.nome.localeCompare(b.nome, 'pt-BR'));
+    const linhas = contasOrdenadas.map(c => {
+      const porMes = this.contagemPorMes(c.contaId);
+      const qtdFechado = porMes[mesFechado] || 0;
+      const qtdAtual = porMes[mesAtual] || 0;
+      const referencia = porMes[mesReferencia] || null;
+      const { saldo } = Saldo.calcular(c);
+
+      // classifica o mês FECHADO em 3 estados — só sinaliza "falta lançar" quando existe
+      // histórico suficiente pra comparar (o mês anterior a ele) e o volume está bem abaixo disso
+      let status = 'neutro', rotulo = qtdFechado + (qtdFechado === 1 ? ' lançamento' : ' lançamentos');
+      if (referencia && referencia >= 5 && qtdFechado < referencia * 0.3) {
+        status = 'falta';
+      } else if (qtdFechado > 0) {
+        status = 'ok';
+      }
+
+      return `
+        <tr class="panorama-linha panorama-${status}">
+          <td class="panorama-conta">${c.nome}</td>
+          <td class="panorama-qtd">
+            <span class="panorama-badge ${status}">${rotulo}</span>
+            ${status === 'falta' ? '<span class="panorama-aviso">provavelmente falta importar</span>' : ''}
+          </td>
+          <td class="panorama-qtd-atual muted">${qtdAtual ? qtdAtual + (qtdAtual === 1 ? ' lançamento' : ' lançamentos') : '—'}</td>
+          <td class="panorama-saldo ${saldo >= 0 ? 'valC' : 'valD'}">${fmtMoeda(saldo)}</td>
+        </tr>`;
+    }).join('');
+
+    alvo.innerHTML = `
+      <table class="panorama-table">
+        <thead><tr>
+          <th>Conta</th>
+          <th>Lançamentos em ${this.nomeMes(mesFechado)}</th>
+          <th>Em ${this.nomeMes(mesAtual)} <span class="muted" style="text-transform:none;font-weight:500;">(mês em andamento)</span></th>
+          <th style="text-align:right;">Saldo atual</th>
+        </tr></thead>
+        <tbody>${linhas}</tbody>
+      </table>`;
+  }
 };
 
 /* ======================================================================
