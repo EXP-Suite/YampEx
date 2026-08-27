@@ -1597,7 +1597,11 @@ const UI = {
     el.textContent = n === 1 ? 'salvando…' : 'salvando ' + n + '…';
   },
   async atualizarAgora() {
-    await App.sincronizar({ avisar: true });
+    // botão clicado de propósito: força baixar a base de novo, sem confiar na assinatura —
+    // é a rede de segurança para quando alguma edição manual na planilha não tiver disparado
+    // o gatilho que atualiza a assinatura sozinho.
+    State.assinatura = null;
+    await App.sincronizar({ avisar: true, forcarDownload: true });
   },
   closeConciliar() { document.getElementById('modalConciliar').classList.add('hidden'); }
 };
