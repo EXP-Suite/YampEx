@@ -156,6 +156,30 @@ tr.tx-row:hover{background:#f9fafb;cursor:pointer;}
 .ind-metas-form{margin-top:10px;border-top:1px dashed var(--border);padding-top:10px;margin-bottom:14px;}
 .ind-metas-row{display:grid;grid-template-columns:180px 100px 100px;gap:8px;align-items:center;margin-bottom:6px;font-size:12.5px;}
 .ind-metas-row input{width:100%;}
+/* ---------- campo de busca com autocompletar (códigos do plano de contas) ---------- */
+.combo{position:relative;}
+.combo .combo-busca{width:100%;}
+.combo .combo-busca.tem-valor{border-color:var(--accent-600);background:#fbfdff;font-weight:600;}
+.combo-lista{
+  position:absolute;left:0;right:0;top:calc(100% + 4px);z-index:80;
+  background:#fff;border:1px solid var(--border-strong);border-radius:9px;
+  box-shadow:0 12px 32px -10px rgba(15,23,42,.32);
+  max-height:260px;overflow-y:auto;
+}
+.combo-item{padding:8px 11px;font-size:13px;cursor:pointer;border-bottom:1px solid #f2f4f7;line-height:1.35;}
+.combo-item:last-child{border-bottom:none;}
+.combo-item .c{font-family:ui-monospace,Menlo,monospace;font-size:11px;color:var(--text-dim);margin-right:7px;}
+.combo-item:hover,.combo-item.ativo{background:var(--accent-dim);}
+.combo-item.ativo .c,.combo-item:hover .c{color:var(--accent-700);}
+.combo-item mark{background:#fde68a;color:inherit;padding:0 1px;border-radius:2px;}
+.mc-obs{margin-top:16px;padding-top:14px;border-top:1px dashed var(--border);}
+.mc-obs textarea{width:100%;font-family:inherit;font-size:13px;resize:vertical;min-height:52px;}
+.mc-obs-aviso{font-size:11.5px;margin-top:4px;min-height:14px;}
+.tx-obs{display:block;font-size:11.5px;color:var(--amber);margin-top:2px;}
+.combo-vazio{padding:10px 11px;font-size:12.5px;color:var(--text-dim);}
+.code-item.ativo{background:var(--accent-dim);}
+.code-item mark{background:#fde68a;color:inherit;padding:0 1px;border-radius:2px;}
+.code-item.selected mark{background:rgba(255,255,255,.28);color:#fff;}
 .tx-mais{display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;
   padding:14px 10px 4px;font-size:12.5px;border-top:1px solid var(--border);margin-top:6px;}
 .pill-filter{display:flex;gap:6px;flex-wrap:wrap;}
@@ -793,6 +817,12 @@ footer strong{color:var(--text-dim);font-weight:700;letter-spacing:.02em;}
       </div>
     </div>
 
+    <div class="field mc-obs">
+      <label for="mcObservacao">Observação <span class="muted" style="text-transform:none;letter-spacing:0;font-weight:500;">(opcional — salva sozinha ao sair do campo)</span></label>
+      <textarea id="mcObservacao" rows="2" placeholder="ex: adiantamento combinado com o fornecedor, referente à NF 1234"></textarea>
+      <span class="mc-obs-aviso muted" id="mcObsAviso"></span>
+    </div>
+
     <div class="row" style="justify-content:space-between;margin-top:16px;">
       <button class="btn secondary" onclick="UI.closeConciliar()">Cancelar</button>
       <button class="btn" id="mcSalvar" onclick="Conciliacao.salvarModal()">Salvar conciliação</button>
@@ -902,7 +932,7 @@ const Api = {
    isso é a diferença entre uns 3 MB e uns 300 KB. */
 const CAMPOS_TX = ['chaveUnica', 'conta', 'data', 'descricao', 'memo', 'valor', 'tipo',
                    'fitid', 'codigo', 'status', 'regraAplicada', 'conciliadoEm',
-                   'contaRelacionada', 'previsaoId'];
+                   'contaRelacionada', 'previsaoId', 'observacao'];
 
 function bytesParaBase64(bytes) {
   let bin = '';
@@ -1072,6 +1102,170 @@ function tipoPermitido(codigo) {
   if (c === '5' || c.indexOf('5.') === 0) return 'D';
   if (c === '6' || c.indexOf('6.') === 0) return 'D';
   return 'AMBOS';
+}
+
+/* ======================================================================
+   BUSCA DE CÓDIGO COM AUTOCOMPLETAR
+   ======================================================================
+   Em vez de rolar uma lista suspensa gigante, digita-se qualquer pedaço do
+   código ou do nome (em qualquer ordem, com ou sem acento) e as opções vão
+   filtrando na hora. Setas ↑ ↓ navegam, Enter escolhe, Esc fecha. */
+
+// quebra o que foi digitado em pedaços e exige que TODOS apareçam — assim
+// "man maq" acha "5.4.1 Manutenção máquinas e equipamentos"
+function termosDeBusca(texto) {
+  return normalizar(texto).split(/\s+/).filter(Boolean);
+}
+function casaComTermos(alvo, termos) {
+  const base = normalizar(alvo);
+  return termos.every(t => base.indexOf(t) !== -1);
+}
+// destaca em negrito amarelo os pedaços digitados
+function destacar(texto, termos) {
+  let html = String(texto).replace(/[&<>]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]));
+  if (!termos.length) return html;
+  const semAcento = normalizar(html);
+  const marcas = [];
+  termos.forEach(t => {
+    let de = semAcento.indexOf(t);
+    while (de !== -1) { marcas.push([de, de + t.length]); de = semAcento.indexOf(t, de + 1); }
+  });
+  if (!marcas.length) return html;
+  marcas.sort((a, b) => a[0] - b[0]);
+  const juntas = [];
+  marcas.forEach(m => {
+    const ult = juntas[juntas.length - 1];
+    if (ult && m[0] <= ult[1]) ult[1] = Math.max(ult[1], m[1]);
+    else juntas.push(m.slice());
+  });
+  let saida = '', pos = 0;
+  juntas.forEach(([a, b]) => { saida += html.slice(pos, a) + '<mark>' + html.slice(a, b) + '</mark>'; pos = b; });
+  return saida + html.slice(pos);
+}
+
+function codigosFolha(tipo) {
+  return State.planoContas
+    .filter(p => {
+      if (!p.folha) return false;
+      if (!tipo) return true;
+      const tp = tipoPermitido(p.codigo);
+      return tp === 'AMBOS' || tp === tipo;
+    })
+    .sort((a, b) => a.codigo.localeCompare(b.codigo, undefined, { numeric: true }));
+}
+
+/**
+ * Monta um campo de busca com autocompletar de códigos.
+ * Devolve o elemento que deve ser inserido na tela. Dentro dele fica um input
+ * escondido com o `id`/`classe` pedidos, cujo `.value` é o código escolhido —
+ * então todo o resto do sistema continua lendo o valor do mesmo jeito de antes.
+ */
+function criarComboCodigo(opcoes) {
+  opcoes = opcoes || {};
+  const raiz = document.createElement('div');
+  raiz.className = 'combo' + (opcoes.classeRaiz ? ' ' + opcoes.classeRaiz : '');
+  if (opcoes.estiloRaiz) raiz.style.cssText = opcoes.estiloRaiz;
+
+  const busca = document.createElement('input');
+  busca.type = 'text';
+  busca.className = 'combo-busca';
+  busca.autocomplete = 'off';
+  busca.placeholder = opcoes.placeholder || 'digite o código ou o nome...';
+
+  const escondido = document.createElement('input');
+  escondido.type = 'hidden';
+  if (opcoes.id) escondido.id = opcoes.id;
+  if (opcoes.classe) escondido.className = opcoes.classe;
+
+  const lista = document.createElement('div');
+  lista.className = 'combo-lista hidden';
+
+  raiz.appendChild(busca); raiz.appendChild(escondido); raiz.appendChild(lista);
+
+  let itens = [];
+  let ativo = -1;
+
+  function rotulo(p) { return p.codigo + ' — ' + p.nome; }
+
+  function fechar() { lista.classList.add('hidden'); ativo = -1; }
+
+  function definir(codigo, silencioso) {
+    const p = (opcoes.itens || []).find(x => x.codigo === codigo);
+    escondido.value = p ? p.codigo : '';
+    busca.value = p ? rotulo(p) : '';
+    busca.classList.toggle('tem-valor', !!p);
+    fechar();
+    if (!silencioso && opcoes.aoMudar) opcoes.aoMudar(escondido.value);
+  }
+
+  function abrir() {
+    const termos = termosDeBusca(busca.value === rotuloAtual() ? '' : busca.value);
+    itens = (opcoes.itens || []).filter(p => !termos.length || casaComTermos(p.codigo + ' ' + p.nome, termos));
+    if (termos.length) {
+      // relevância: quem começa com o que foi digitado vem primeiro (digitar "5.4" deve trazer
+      // 5.4.1 antes de 4.5.4), depois quem começa pelo nome, depois o resto
+      const primeiro = termos[0];
+      const peso = p => {
+        if (p.codigo.indexOf(primeiro) === 0) return 0;
+        if (normalizar(p.nome).indexOf(primeiro) === 0) return 1;
+        if (p.codigo.indexOf(primeiro) !== -1) return 2;
+        return 3;
+      };
+      itens = itens.map((p, i) => [peso(p), i, p]).sort((a, b) => a[0] - b[0] || a[1] - b[1]).map(x => x[2]);
+    }
+    itens = itens.slice(0, 60);
+    if (!itens.length) {
+      lista.innerHTML = '<div class="combo-vazio">Nenhum código encontrado para “' + busca.value + '”.</div>';
+    } else {
+      lista.innerHTML = itens.map((p, i) => `
+        <div class="combo-item ${i === ativo ? 'ativo' : ''}" data-i="${i}">
+          <span class="c">${destacar(p.codigo, termos)}</span>${destacar(p.nome, termos)}
+        </div>`).join('');
+    }
+    lista.classList.remove('hidden');
+  }
+
+  function rotuloAtual() {
+    const p = (opcoes.itens || []).find(x => x.codigo === escondido.value);
+    return p ? rotulo(p) : '\u0000';
+  }
+
+  function mover(delta) {
+    if (lista.classList.contains('hidden')) { abrir(); return; }
+    if (!itens.length) return;
+    ativo = (ativo + delta + itens.length) % itens.length;
+    [...lista.querySelectorAll('.combo-item')].forEach((el, i) => el.classList.toggle('ativo', i === ativo));
+    const el = lista.querySelector('.combo-item.ativo');
+    if (el) el.scrollIntoView({ block: 'nearest' });
+  }
+
+  busca.addEventListener('input', () => { ativo = itens.length ? 0 : -1; abrir(); if (!busca.value.trim()) definir('', true); });
+  busca.addEventListener('focus', () => { busca.select(); ativo = -1; abrir(); });
+  busca.addEventListener('keydown', e => {
+    if (e.key === 'ArrowDown') { e.preventDefault(); mover(1); }
+    else if (e.key === 'ArrowUp') { e.preventDefault(); mover(-1); }
+    else if (e.key === 'Enter') {
+      if (!lista.classList.contains('hidden') && itens.length) {
+        e.preventDefault();
+        definir(itens[ativo >= 0 ? ativo : 0].codigo);
+      }
+    } else if (e.key === 'Escape') { fechar(); }
+  });
+  lista.addEventListener('mousedown', e => {
+    const el = e.target.closest('.combo-item');
+    if (!el) return;
+    e.preventDefault();
+    definir(itens[Number(el.dataset.i)].codigo);
+  });
+  busca.addEventListener('blur', () => {
+    // devolve o texto ao rótulo do código escolhido (ou limpa, se nada foi escolhido)
+    setTimeout(() => { definir(escondido.value, true); }, 120);
+  });
+
+  raiz.definirCodigo = codigo => definir(codigo, true);
+  raiz.trocarItens = novos => { opcoes.itens = novos; definir(escondido.value, true); };
+  if (opcoes.valor) definir(opcoes.valor, true);
+  return raiz;
 }
 
 function nomeGrupo(grupo) {
@@ -1544,6 +1738,8 @@ const Conciliacao = {
       }
     });
     document.getElementById('mcBusca').addEventListener('input', () => this.filtrarListaCodigos());
+    // a observação é salva sozinha ao sair do campo, e só se realmente mudou
+    document.getElementById('mcObservacao').addEventListener('blur', () => this.salvarObservacao());
     document.getElementById('mcCriarRegra').addEventListener('change', e => {
       document.getElementById('mcPalavraWrap').classList.toggle('hidden', !e.target.checked);
     });
@@ -1647,7 +1843,7 @@ const Conciliacao = {
       const previsao = t.previsaoId ? mapaPrev.get(t.previsaoId) : null;
       return `<tr class="tx-row" data-chave="${encodeURIComponent(t.chaveUnica)}">
         <td>${fmtData(t.data)}</td>
-        <td>${t.descricao}${t.memo && t.memo !== t.descricao ? '<br><span class="muted" style="font-size:11.5px;">' + t.memo + '</span>' : ''}${previsao ? '<br><span class="muted" style="font-size:11.5px;">🔮 previsto' + (previsao.descricao ? ': ' + previsao.descricao : '') + '</span>' : ''}</td>
+        <td>${t.descricao}${t.memo && t.memo !== t.descricao ? '<br><span class="muted" style="font-size:11.5px;">' + t.memo + '</span>' : ''}${previsao ? '<br><span class="muted" style="font-size:11.5px;">🔮 previsto' + (previsao.descricao ? ': ' + previsao.descricao : '') + '</span>' : ''}${t.observacao ? '<span class="tx-obs">📝 ' + t.observacao + '</span>' : ''}</td>
         <td class="muted">${nomeConta(t.conta)}</td>
         <td style="text-align:right;" class="${t.tipo === 'C' ? 'valC' : 'valD'}">${fmtMoeda(t.valor)}</td>
         <td>${codigoCel}</td>
@@ -1705,8 +1901,15 @@ const Conciliacao = {
       <span class="muted">${fmtData(t.data)} · ${contaNome(t.conta)} · </span>
       <span class="${t.tipo === 'C' ? 'valC' : 'valD'}">${fmtMoeda(t.valor)}</span>`;
     document.getElementById('mcBusca').value = '';
-    document.getElementById('mcCriarRegra').checked = true;
-    document.getElementById('mcPalavraWrap').classList.remove('hidden');
+    // a criação de regra automática começa DESMARCADA: só cria regra quem marcar de propósito
+    document.getElementById('mcCriarRegra').checked = false;
+    document.getElementById('mcPalavraWrap').classList.add('hidden');
+
+    // anotação livre da transação
+    const obs = document.getElementById('mcObservacao');
+    obs.value = t.observacao || '';
+    this._obsOriginal = obs.value;
+    document.getElementById('mcObsAviso').textContent = '';
 
     const regraExistente = t.regraAplicada ? State.regras.find(r => r.id === t.regraAplicada) : null;
     document.getElementById('mcPalavra').value = regraExistente ? regraExistente.palavraChave : t.descricao;
@@ -1740,6 +1943,42 @@ const Conciliacao = {
     document.getElementById('modalConciliar').classList.remove('hidden');
   },
 
+  // Grava a anotação livre da transação. Roda ao sair do campo e é independente da
+  // classificação — dá pra anotar numa transação já conciliada sem mexer no código dela.
+  salvarObservacao() {
+    const t = this.transacaoSelecionada;
+    const campo = document.getElementById('mcObservacao');
+    if (!t || !campo) return;
+    const texto = campo.value.trim();
+    if (texto === (this._obsOriginal || '').trim()) return;
+
+    const anterior = t.observacao || '';
+    t.observacao = texto;
+    this._obsOriginal = texto;
+    Cache.agendar();
+    const aviso = document.getElementById('mcObsAviso');
+    aviso.textContent = 'salvando observação...';
+
+    Fila.add({
+      action: 'salvarObservacao',
+      payload: { chaveUnica: t.chaveUnica, observacao: texto },
+      aoConcluir: () => {
+        aviso.textContent = texto ? '✓ observação salva' : '✓ observação removida';
+        setTimeout(() => { if (aviso.textContent.indexOf('✓') === 0) aviso.textContent = ''; }, 2500);
+        Conciliacao.render();
+        Cache.agendar();
+      },
+      aoFalhar: (e) => {
+        t.observacao = anterior;
+        this._obsOriginal = anterior;
+        campo.value = anterior;
+        aviso.textContent = '';
+        Cache.agendar();
+        toast('Não deu pra salvar a observação (' + e.message + ').', 'err');
+      }
+    });
+  },
+
   filtrarListaCodigos() {
     const t = this.transacaoSelecionada;
     if (!t) return;
@@ -1769,23 +2008,22 @@ const Conciliacao = {
   adicionarLinhaDivisao(preset) {
     const t = this.transacaoSelecionada;
     const container = document.getElementById('mcDivisaoLista');
-    const codigosCompat = State.planoContas.filter(p => {
-      if (!p.folha) return false;
-      const tp = tipoPermitido(p.codigo);
-      return tp === 'AMBOS' || tp === (t ? t.tipo : '');
-    }).sort((a, b) => a.codigo.localeCompare(b.codigo, undefined, { numeric: true }));
+    const codigosCompat = codigosFolha(t ? t.tipo : '');
 
     const div = document.createElement('div');
     div.className = 'divisao-linha';
     div.style.cssText = 'display:flex;gap:8px;align-items:flex-start;margin-bottom:8px;flex-wrap:wrap;';
 
-    const sel = document.createElement('select');
-    sel.className = 'mcDivCodigo';
-    sel.style.cssText = 'flex:2;min-width:220px;';
-    sel.innerHTML = '<option value="">Selecione o código...</option>' +
-      codigosCompat.map(p => `<option value="${p.codigo}">${p.codigo} — ${p.nome}</option>`).join('');
-    if (preset && preset.codigo) sel.value = preset.codigo;
-    sel.addEventListener('change', () => this.recalcularDivisao());
+    // campo de busca com autocompletar no lugar da lista suspensa: dá pra digitar
+    // um pedaço do código ("5.4") ou do nome ("manut maq") e as opções vão filtrando
+    const sel = criarComboCodigo({
+      classe: 'mcDivCodigo',
+      itens: codigosCompat,
+      valor: preset && preset.codigo ? preset.codigo : '',
+      placeholder: 'digite o código ou o nome...',
+      estiloRaiz: 'flex:2;min-width:240px;',
+      aoMudar: () => this.recalcularDivisao()
+    });
 
     const inpValor = document.createElement('input');
     inpValor.type = 'number'; inpValor.step = '0.01'; inpValor.min = '0';
