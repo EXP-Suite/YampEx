@@ -175,6 +175,19 @@ tr.tx-row:hover{background:#f9fafb;cursor:pointer;}
 .mc-obs{margin-top:16px;padding-top:14px;border-top:1px dashed var(--border);}
 .mc-obs textarea{width:100%;font-family:inherit;font-size:13px;resize:vertical;min-height:52px;}
 .mc-obs-aviso{font-size:11.5px;margin-top:4px;min-height:14px;}
+.pk-sugestoes{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-top:7px;font-size:11.5px;}
+.pk-chip{
+  border:1px solid var(--border-strong);background:#fff;border-radius:20px;
+  padding:4px 6px 4px 10px;font-size:11.5px;font-weight:600;font-family:inherit;
+  color:var(--text);display:inline-flex;align-items:center;gap:6px;max-width:100%;
+}
+.pk-chip:hover{border-color:var(--accent-600);background:var(--accent-dim);color:var(--accent-700);}
+.pk-n{background:var(--panel-alt);border-radius:12px;padding:1px 7px;font-size:10.5px;color:var(--text-dim);}
+.pk-chip:hover .pk-n{background:#fff;}
+.pk-alcance{margin-top:8px;font-size:11.5px;color:var(--text-dim);line-height:1.5;}
+.pk-alcance ul{margin:5px 0 0;padding-left:16px;}
+.pk-alcance li{margin-bottom:1px;}
+.pk-alcance.larga{color:#92400e;background:#fffbeb;border:1px solid #fde68a;border-radius:8px;padding:9px 11px;}
 .aviso-dup{
   background:#fffbeb;border:1px solid #fde68a;border-radius:var(--radius-sm);
   padding:12px 14px;margin-bottom:14px;font-size:12.5px;color:#78350f;line-height:1.55;
@@ -790,6 +803,8 @@ footer strong{color:var(--text-dim);font-weight:700;letter-spacing:.02em;}
       <div class="field" id="mcPalavraWrap" style="margin-top:8px;">
         <label>Palavra-chave da regra (editável)</label>
         <input type="text" id="mcPalavra" style="width:100%;">
+        <div id="mcPalavraSugestoes" class="pk-sugestoes"></div>
+        <div id="mcPalavraAlcance" class="pk-alcance"></div>
       </div>
       <div class="checkbox-row">
         <input type="checkbox" id="mcContaEspecifica">
@@ -1360,6 +1375,95 @@ const OfxParser = {
 };
 
 /* ======================================================================
+   PALAVRA-CHAVE DA REGRA — o que realmente identifica a transação
+   ======================================================================
+   Extratos brasileiros costumam trazer um rótulo genérico ("Pagamento de
+   Boleto", "PIX RECEBIDO", "TED") seguido do que interessa (o nome de quem
+   pagou/recebeu). Se a regra for criada com o rótulo genérico, ela classifica
+   TODOS os boletos igual. Aqui a gente descarta esse começo genérico e sugere
+   como palavra-chave o pedaço que de fato identifica a transação.
+
+   A palavra-chave precisa ser um trecho CONTÍNUO do texto (a comparação é por
+   "contém"), então as sugestões são sempre fatias contínuas — nunca palavras
+   soltas remontadas. */
+const PALAVRAS_GENERICAS = new Set([
+  'PAGAMENTO', 'PAGAMENTOS', 'PAGTO', 'PAGTOS', 'PGTO', 'BOLETO', 'BOLETOS', 'TITULO', 'TITULOS',
+  'PIX', 'TED', 'DOC', 'TEV', 'ENVIADO', 'ENVIADA', 'RECEBIDO', 'RECEBIDA', 'RECEBIMENTO',
+  'TRANSFERENCIA', 'TRANSF', 'COMPRA', 'CARTAO', 'DEBITO', 'CREDITO', 'DEB', 'CRED',
+  'AUTOMATICO', 'AUTOMATICA', 'CONCILIACAO', 'DEPOSITO', 'DEP', 'SAQUE', 'LIQUIDACAO',
+  'COBRANCA', 'AGENCIA', 'CHEQUE', 'CONTA', 'CP', 'REF', 'DE', 'DA', 'DO', 'DOS', 'DAS',
+  'EM', 'PARA', 'POR', 'DIA', 'DIAS', 'DTA', 'DT', 'DES', 'DESC'
+]);
+
+// token sem valor de identificação: número, data, hora, CNPJ, pontuação solta
+function tokenSemValor(bruto) {
+  const t = normalizar(bruto).replace(/[^A-Z0-9]/g, '');
+  if (!t) return true;
+  if (/^[0-9]+$/.test(t)) return true;
+  return PALAVRAS_GENERICAS.has(t);
+}
+
+/**
+ * Devolve o texto da transação já sem o começo genérico.
+ * "Pagamento de Boleto EDENRED S M I PAGTOS HU SA" -> "EDENRED S M I PAGTOS HU SA"
+ */
+function parteIdentificadora(t) {
+  const desc = String(t.descricao || '').trim();
+  const memo = String(t.memo || '').trim();
+  const completo = (memo && normalizar(memo) !== normalizar(desc)) ? (desc + ' ' + memo) : desc;
+  const palavras = completo.split(/\s+/).filter(Boolean);
+  let i = 0;
+  while (i < palavras.length && tokenSemValor(palavras[i])) i++;
+  let resto = palavras.slice(i).join(' ').trim();
+  // ainda pode sobrar lixo grudado no começo, tipo ":04406371-FERRAGISTA HOBBY" —
+  // corta pontuação e número de agência/conta do início (o que sobra continua contínuo)
+  for (let volta = 0; volta < 4; volta++) {
+    const antes = resto;
+    resto = resto.replace(/^[^0-9A-Za-zÀ-ÿ]+/, '').replace(/^[0-9]+(?=[^0-9A-Za-zÀ-ÿ])/, '');
+    if (resto === antes) break;
+  }
+  return resto.trim() || completo;
+}
+
+/**
+ * Sugestões de palavra-chave, da mais curta para a mais completa — todas
+ * trechos contínuos do texto, para que o "contém" da regra funcione.
+ */
+function sugestoesPalavraChave(t) {
+  const resto = parteIdentificadora(t);
+  const palavras = resto.split(/\s+/).filter(Boolean);
+  const cortes = [];
+  let usadas = 0;
+  for (let i = 0; i < palavras.length && usadas < 3; i++) {
+    // só corta DEPOIS de uma palavra com conteúdo (evita sugerir "EDENRED S", "EDENRED S M")
+    if (normalizar(palavras[i]).replace(/[^A-Z0-9]/g, '').length < 3) continue;
+    usadas++;
+    const fatia = palavras.slice(0, i + 1).join(' ').trim();
+    if (fatia && cortes.indexOf(fatia) === -1) cortes.push(fatia);
+  }
+  if (resto && cortes.indexOf(resto) === -1) cortes.push(resto);
+  const desc = String(t.descricao || '').trim();
+  if (desc && cortes.indexOf(desc) === -1) cortes.push(desc);
+  return cortes.filter(Boolean).slice(0, 5);
+}
+
+// quantas transações do histórico essa palavra-chave pegaria (mesmo critério da regra real)
+function contarAlcancePalavra(palavra, tipo, conta) {
+  const chave = normalizar(palavra);
+  if (!chave) return { total: 0, exemplos: [] };
+  let total = 0;
+  const exemplos = [];
+  for (const t of State.transacoes) {
+    if (tipo && t.tipo !== tipo) continue;
+    if (conta && t.conta !== conta) continue;
+    if (normalizar(t.descricao + ' ' + (t.memo || '')).indexOf(chave) === -1) continue;
+    total++;
+    if (exemplos.length < 4) exemplos.push(t);
+  }
+  return { total, exemplos };
+}
+
+/* ======================================================================
    DEDUPLICAÇÃO NA IMPORTAÇÃO
    ======================================================================
    Duas camadas:
@@ -1816,6 +1920,8 @@ const Conciliacao = {
     document.getElementById('mcBusca').addEventListener('input', () => this.filtrarListaCodigos());
     // a observação é salva sozinha ao sair do campo, e só se realmente mudou
     document.getElementById('mcObservacao').addEventListener('blur', () => this.salvarObservacao());
+    document.getElementById('mcPalavra').addEventListener('input', () => this.atualizarAlcancePalavra());
+    document.getElementById('mcContaEspecifica').addEventListener('change', () => this.atualizarAlcancePalavra());
     document.getElementById('mcCriarRegra').addEventListener('change', e => {
       document.getElementById('mcPalavraWrap').classList.toggle('hidden', !e.target.checked);
     });
@@ -1972,8 +2078,10 @@ const Conciliacao = {
     this.transacaoSelecionada = t;
     this.codigoSelecionado = t.codigo || null;
 
+    const memoExtra = (t.memo && normalizar(t.memo) !== normalizar(t.descricao))
+      ? `<br><span style="font-size:12.5px;">${t.memo}</span>` : '';
     document.getElementById('mcDescricao').innerHTML = `
-      <strong>${t.descricao}</strong><br>
+      <strong>${t.descricao}</strong>${memoExtra}<br>
       <span class="muted">${fmtData(t.data)} · ${contaNome(t.conta)} · </span>
       <span class="${t.tipo === 'C' ? 'valC' : 'valD'}">${fmtMoeda(t.valor)}</span>`;
     document.getElementById('mcBusca').value = '';
@@ -1988,7 +2096,12 @@ const Conciliacao = {
     document.getElementById('mcObsAviso').textContent = '';
 
     const regraExistente = t.regraAplicada ? State.regras.find(r => r.id === t.regraAplicada) : null;
-    document.getElementById('mcPalavra').value = regraExistente ? regraExistente.palavraChave : t.descricao;
+    // sugere o pedaço que IDENTIFICA a transação, não o rótulo genérico do banco:
+    // "Pagamento de Boleto / EDENRED S M I PAGTOS HU SA" sugere "EDENRED", não "Pagamento de Boleto"
+    const sugestoes = sugestoesPalavraChave(t);
+    document.getElementById('mcPalavra').value = regraExistente ? regraExistente.palavraChave : (sugestoes[0] || t.descricao);
+    this.renderSugestoesPalavra(sugestoes);
+    this.atualizarAlcancePalavra();
     document.getElementById('mcContaEspecifica').checked = regraExistente ? !!regraExistente.conta : false;
 
     // popula as contas possíveis para transferência (todas menos a própria conta da transação)
@@ -2017,6 +2130,42 @@ const Conciliacao = {
 
     this.filtrarListaCodigos();
     document.getElementById('modalConciliar').classList.remove('hidden');
+  },
+
+  renderSugestoesPalavra(sugestoes) {
+    const alvo = document.getElementById('mcPalavraSugestoes');
+    const t = this.transacaoSelecionada;
+    if (!t || !sugestoes || sugestoes.length < 2) { alvo.innerHTML = ''; return; }
+    alvo.innerHTML = '<span class="muted">sugestões:</span> ' + sugestoes.map(sug => {
+      const n = contarAlcancePalavra(sug, t.tipo, '').total;
+      return `<button type="button" class="pk-chip" onclick="Conciliacao.usarPalavra(this.dataset.p)"
+        data-p="${sug.replace(/"/g, '&quot;')}" title="pegaria ${n} transação(ões) do histórico">
+        ${sug} <span class="pk-n">${n}</span></button>`;
+    }).join('');
+  },
+
+  usarPalavra(palavra) {
+    document.getElementById('mcPalavra').value = palavra;
+    this.atualizarAlcancePalavra();
+  },
+
+  // mostra, ao vivo, quantas transações a palavra-chave digitada pegaria — é o que evita
+  // criar sem querer uma regra genérica demais (tipo "pagamento de boleto")
+  atualizarAlcancePalavra() {
+    const t = this.transacaoSelecionada;
+    const alvo = document.getElementById('mcPalavraAlcance');
+    if (!t || !alvo) return;
+    const palavra = document.getElementById('mcPalavra').value.trim();
+    if (!palavra) { alvo.innerHTML = ''; return; }
+    const contaEspecifica = document.getElementById('mcContaEspecifica').checked;
+    const r = contarAlcancePalavra(palavra, t.tipo, contaEspecifica ? t.conta : '');
+    const amostra = r.exemplos.map(e => `<li>${fmtData(e.data)} · ${e.descricao}${e.memo && normalizar(e.memo) !== normalizar(e.descricao) ? ' · ' + e.memo : ''}</li>`).join('');
+    const generica = r.total > 25;
+    alvo.className = 'pk-alcance' + (generica ? ' larga' : '');
+    alvo.innerHTML = `
+      <div><strong>${r.total}</strong> transação(ões) do histórico batem com essa palavra-chave${contaEspecifica ? ' nesta conta' : ''}.
+      ${generica ? ' <strong>Isso parece genérico demais</strong> — a regra vai classificar todas elas com o mesmo código.' : ''}</div>
+      ${amostra ? `<ul>${amostra}</ul>` : ''}`;
   },
 
   // Grava a anotação livre da transação. Roda ao sair do campo e é independente da
