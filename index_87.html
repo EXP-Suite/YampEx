@@ -1,0 +1,2914 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Yampex — Gestão Financeira | Explosão Alimentos</title>
+<link rel="icon" type="image/png" href="https://explosaoalimentos.com.br/wp-content/uploads/2024/11/logo-menor-e1731554322568.png">
+<link rel="apple-touch-icon" href="https://explosaoalimentos.com.br/wp-content/uploads/2024/11/logo-menor-e1731554322568.png">
+<meta name="theme-color" content="#0f1b2d">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f4f5f7; --panel:#ffffff; --border:#e2e4e9; --text:#1f2430; --text-dim:#6b7280;
+  --accent:#2563eb; --accent-dim:#dbeafe; --green:#16a34a; --green-dim:#dcfce7;
+  --red:#dc2626; --red-dim:#fee2e2; --amber:#d97706; --amber-dim:#fef3c7;
+  --radius:10px; --shadow:0 1px 2px rgba(0,0,0,.05), 0 1px 8px rgba(0,0,0,.03);
+}
+*{box-sizing:border-box;}
+body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--text);font-size:14px;}
+header{background:var(--panel);border-bottom:1px solid var(--border);padding:12px 20px;display:flex;align-items:center;gap:16px;position:sticky;top:0;z-index:50;}
+header h1{font-size:16px;margin:0;font-weight:600;flex:1;}
+.status-dot{width:9px;height:9px;border-radius:50%;background:var(--red);display:inline-block;margin-right:6px;}
+.status-dot.ok{background:var(--green);}
+#statusText{font-size:12px;color:var(--text-dim);display:flex;align-items:center;}
+button{font-family:inherit;cursor:pointer;}
+.btn{background:var(--accent);color:#fff;border:none;border-radius:8px;padding:8px 14px;font-size:13px;font-weight:500;}
+.btn:hover{background:#1d4ed8;}
+.btn.secondary{background:var(--panel);color:var(--text);border:1px solid var(--border);}
+.btn.secondary:hover{background:#f0f1f3;}
+.btn.small{padding:5px 10px;font-size:12px;border-radius:6px;}
+.btn.danger{background:var(--red);}
+.btn.danger:hover{background:#b91c1c;}
+.btn:disabled{opacity:.5;cursor:not-allowed;}
+nav{display:flex;gap:2px;background:var(--panel);border-bottom:1px solid var(--border);padding:0 16px;}
+nav button.tab{background:none;border:none;padding:12px 16px;font-size:13px;font-weight:500;color:var(--text-dim);border-bottom:2px solid transparent;}
+nav button.tab.active{color:var(--accent);border-bottom-color:var(--accent);}
+nav button.tab:hover{color:var(--text);}
+main{max-width:1200px;margin:0 auto;padding:20px;}
+.panel{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);padding:18px;margin-bottom:16px;box-shadow:var(--shadow);}
+.panel h2{margin:0 0 12px;font-size:14px;font-weight:600;}
+.hidden{display:none !important;}
+.drop{border:2px dashed var(--border);border-radius:var(--radius);padding:36px;text-align:center;color:var(--text-dim);transition:.15s;}
+.drop.drag{border-color:var(--accent);background:var(--accent-dim);}
+.drop input{display:none;}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;}
+.field{display:flex;flex-direction:column;gap:4px;}
+.field label{font-size:12px;color:var(--text-dim);font-weight:500;}
+input[type=text],input[type=password],input[type=date],input[type=search],select,textarea{
+  border:1px solid var(--border);border-radius:7px;padding:7px 10px;font-size:13px;font-family:inherit;background:#fff;color:var(--text);
+}
+textarea{font-family:ui-monospace,Menlo,monospace;font-size:12px;}
+table{width:100%;border-collapse:collapse;font-size:13px;}
+th{text-align:left;padding:8px 10px;border-bottom:1px solid var(--border);color:var(--text-dim);font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:.03em;}
+td{padding:8px 10px;border-bottom:1px solid #eef0f3;}
+tr.tx-row:hover{background:#f9fafb;cursor:pointer;}
+.badge{display:inline-block;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:600;}
+.badge.pendente{background:var(--amber-dim);color:var(--amber);}
+.badge.auto{background:var(--accent-dim);color:var(--accent);}
+.badge.conciliado{background:var(--green-dim);color:var(--green);}
+.badge.transferencia{background:#ede9fe;color:#7c3aed;}
+.badge.dividida{background:#fce7f3;color:#db2777;}
+.valC{color:var(--green);font-weight:600;}
+.valD{color:var(--red);font-weight:600;}
+.muted{color:var(--text-dim);}
+.mono{font-family:ui-monospace,Menlo,monospace;font-size:12px;}
+.toast-wrap{position:fixed;bottom:20px;right:20px;display:flex;flex-direction:column;gap:8px;z-index:200;}
+.toast{background:#1f2430;color:#fff;padding:10px 16px;border-radius:8px;font-size:13px;box-shadow:var(--shadow);max-width:340px;}
+.toast.err{background:var(--red);}
+.toast.ok{background:var(--green);}
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.35);display:flex;align-items:flex-start;justify-content:center;padding:5vh 16px;z-index:150;overflow:auto;}
+.modal{background:#fff;border-radius:var(--radius);padding:20px;width:100%;max-width:520px;box-shadow:0 10px 40px rgba(0,0,0,.2);}
+.modal h3{margin:0 0 4px;font-size:15px;}
+.modal .desc-preview{background:#f4f5f7;border-radius:8px;padding:10px 12px;margin:10px 0;font-size:13px;}
+.code-list{max-height:220px;overflow:auto;border:1px solid var(--border);border-radius:8px;margin-top:6px;}
+.code-item{padding:8px 10px;border-bottom:1px solid #f0f1f3;cursor:pointer;font-size:13px;}
+.code-item:hover{background:var(--accent-dim);}
+.code-item.selected{background:var(--accent);color:#fff;}
+.code-item .c{font-family:ui-monospace,Menlo,monospace;font-size:11px;color:var(--text-dim);margin-right:6px;}
+.code-item.selected .c{color:#dbeafe;}
+.checkbox-row{display:flex;align-items:center;gap:8px;margin-top:10px;font-size:13px;}
+.stat-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:16px;}
+.stat-card{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);padding:14px;}
+.stat-card .n{font-size:20px;font-weight:700;}
+.stat-card .l{font-size:12px;color:var(--text-dim);margin-top:2px;}
+.group-block{margin-bottom:10px;border:1px solid var(--border);border-radius:8px;overflow:hidden;}
+.group-head{display:flex;align-items:center;gap:10px;padding:10px 14px;background:#fafbfc;cursor:pointer;font-weight:600;}
+.group-head:hover{background:#f2f4f7;}
+.group-head .bar-wrap{flex:1;background:#eef0f3;border-radius:5px;height:8px;overflow:hidden;}
+.group-head .bar{height:100%;background:var(--accent);}
+.group-body{padding:0 14px 8px;}
+.sub-row{display:flex;align-items:center;gap:10px;padding:6px 0;font-size:12.5px;border-top:1px solid #f4f5f7;}
+.sub-row .name{flex:0 0 260px;color:var(--text-dim);}
+.sub-row .bar-wrap{flex:1;background:#eef0f3;border-radius:4px;height:6px;overflow:hidden;}
+.sub-row .bar{height:100%;background:#93c5fd;}
+.sub-row .val{flex:0 0 110px;text-align:right;font-weight:600;}
+.dre-linha{display:flex;justify-content:space-between;align-items:center;gap:14px;padding:9px 4px;border-bottom:1px solid #f4f5f7;font-size:13.5px;}
+.dre-linha:last-child{border-bottom:none;}
+.dre-linha .dre-label{color:var(--text);}
+.dre-linha.sub .dre-label{color:var(--text-dim);padding-left:16px;}
+.dre-linha .dre-valor{font-weight:600;white-space:nowrap;text-align:right;}
+.dre-linha.total{font-weight:700;background:#fafbfc;border-radius:6px;margin:2px -4px;padding:10px 8px;border-bottom:none;}
+.dre-linha.final{font-weight:700;background:var(--accent-dim);color:var(--accent);border-radius:6px;margin:8px -4px 0;padding:13px 8px;font-size:15px;border-bottom:none;}
+.dre-linha.final .dre-valor{font-size:15px;}
+.dre-linha.extra{margin-top:10px;padding-top:12px;border-top:1px dashed var(--border);font-size:12.5px;}
+.ind-top{background:linear-gradient(135deg,#f5f3ff,#ede9fe);border:1px solid #ddd6fe;border-radius:10px;padding:16px 18px;margin-bottom:14px;}
+.ind-top .tag{display:inline-block;background:#7c3aed;color:#fff;font-size:10.5px;font-weight:700;letter-spacing:.04em;padding:3px 9px;border-radius:20px;text-transform:uppercase;}
+.ind-top h4{margin:8px 0 2px;font-size:15px;}
+.ind-top h4 b{color:#7c3aed;}
+.ind-foco{background:linear-gradient(135deg,#fef2f2,#fee2e2);border:1px solid #fecaca;border-radius:10px;padding:16px 18px;margin-bottom:14px;}
+.ind-foco .tag{background:var(--red);}
+.ind-foco h4 b{color:var(--red);}
+.ind-levers{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-top:12px;}
+.ind-lever{background:#fff;border:1px solid var(--border);border-radius:8px;padding:10px 12px;}
+.ind-lever.destaque{background:#1f2430;color:#fff;border-color:#1f2430;}
+.ind-lever .k{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.03em;color:var(--text-dim);}
+.ind-lever.destaque .k{color:#c4b5fd;}
+.ind-lever .arrow{font-size:11.5px;margin:4px 0 2px;}
+.ind-lever .pct{font-size:16px;font-weight:700;}
+.ind-top3{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:8px;margin-top:10px;}
+.ind-top3-item{background:#fff;border:1px solid var(--border);border-radius:8px;padding:8px 10px;font-size:12.5px;}
+.ind-top3-item .v{font-weight:700;margin-top:2px;}
+.ind-chips{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0;}
+.ind-chip{border:1.5px solid var(--border);background:#fff;border-radius:9px;padding:7px 12px;font-size:12.5px;font-weight:600;display:flex;align-items:center;gap:6px;}
+.ind-chip .p{font-weight:700;}
+.ind-chip.sel{box-shadow:0 0 0 2px rgba(0,0,0,.08) inset;transform:translateY(-1px);}
+.ind-chip.otimo{border-color:#93c5fd;color:#1565c0;background:#eff6ff;}
+.ind-chip.ideal{border-color:#86efac;color:#166534;background:#f0fdf4;}
+.ind-chip.ohnao{border-color:#fca5a5;color:#b91c1c;background:#fef2f2;}
+.ind-detalhe{border:1px solid var(--border);border-radius:10px;padding:16px;}
+.ind-detalhe.otimo{border-color:#93c5fd;background:#f5f9ff;}
+.ind-detalhe.ideal{border-color:#86efac;background:#f6fdf8;}
+.ind-detalhe.ohnao{border-color:#fca5a5;background:#fef7f7;}
+.ind-detalhe-head{display:flex;gap:16px;align-items:flex-start;flex-wrap:wrap;}
+.ind-detalhe-box{flex:0 0 130px;border-radius:9px;padding:14px 10px;text-align:center;color:#fff;}
+.ind-detalhe-box.otimo{background:#1d4ed8;}
+.ind-detalhe-box.ideal{background:var(--green);}
+.ind-detalhe-box.ohnao{background:var(--red);}
+.ind-detalhe-box .pct{font-size:24px;font-weight:800;}
+.ind-detalhe-box .val{font-size:11.5px;margin-top:4px;opacity:.9;}
+.ind-detalhe-txt{flex:1;min-width:220px;}
+.ind-detalhe-txt h4{margin:0 0 4px;font-size:14px;}
+.ind-detalhe-txt p{margin:0;font-size:13px;color:var(--text-dim);line-height:1.5;}
+.ind-gauge{margin-top:18px;}
+.ind-gauge .barwrap{position:relative;}
+.ind-gauge .bar{position:relative;height:30px;border-radius:7px;overflow:hidden;display:flex;font-size:11px;font-weight:700;}
+.ind-gauge .bar span{flex:1;display:flex;align-items:center;justify-content:center;}
+.ind-gauge .bar .z-otimo{background:#dbeafe;color:#1d4ed8;}
+.ind-gauge .bar .z-ideal{background:#dcfce7;color:#15803d;}
+.ind-gauge .bar .z-ohnao{background:#fee2e2;color:#b91c1c;}
+.ind-gauge .ponteiro{position:absolute;top:-27px;transform:translateX(-50%);background:#1f2430;color:#fff;font-size:10.5px;font-weight:700;padding:2px 7px;border-radius:9px;white-space:nowrap;z-index:2;}
+.ind-gauge .ponteiro:after{content:'';position:absolute;left:50%;bottom:-4px;transform:translateX(-50%);width:0;height:0;border:4px solid transparent;border-top-color:#1f2430;}
+.ind-gauge .eixo{position:relative;height:16px;margin-top:4px;}
+.ind-gauge .eixo .marca{position:absolute;top:0;transform:translateX(-50%);font-size:10.5px;color:var(--text-dim);font-weight:600;}
+.ind-metas-form{margin-top:10px;border-top:1px dashed var(--border);padding-top:10px;margin-bottom:14px;}
+.ind-metas-row{display:grid;grid-template-columns:180px 100px 100px;gap:8px;align-items:center;margin-bottom:6px;font-size:12.5px;}
+.ind-metas-row input{width:100%;}
+.tx-mais{display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;
+  padding:14px 10px 4px;font-size:12.5px;border-top:1px solid var(--border);margin-top:6px;}
+.pill-filter{display:flex;gap:6px;flex-wrap:wrap;}
+.pill-filter button{border:1px solid var(--border);background:#fff;border-radius:20px;padding:5px 12px;font-size:12px;}
+.pill-filter button.active{background:var(--accent);color:#fff;border-color:var(--accent);}
+.empty-state{text-align:center;padding:40px 20px;color:var(--text-dim);}
+footer{text-align:center;color:var(--text-dim);font-size:11px;padding:24px;}
+.rule-form{display:grid;grid-template-columns:1.5fr 1fr .8fr 1fr auto;gap:8px;align-items:end;margin-bottom:14px;}
+.rule-form .field{min-width:0;}
+
+/* ==================================================================
+   YAMPEX — CAMADA VISUAL (identidade + refinamento de interface)
+   Este bloco vem depois do CSS base de propósito: ele redefine os
+   tokens e refina os componentes sem exigir mudança no HTML/JS.
+   ================================================================== */
+:root{
+  /* superfícies e texto */
+  --bg:#f5f6f8;
+  --panel:#ffffff;
+  --panel-alt:#fafbfc;
+  --border:#e3e6eb;
+  --border-strong:#d3d8e0;
+  --text:#0f172a;
+  --text-dim:#64748b;
+  --text-soft:#94a3b8;
+
+  /* marca */
+  --brand-900:#0b1524;
+  --brand-800:#111f33;
+  --brand-700:#1a2c45;
+  --brand-line:rgba(255,255,255,.10);
+
+  /* acentos */
+  --accent:#1d4ed8;
+  --accent-600:#2563eb;
+  --accent-700:#1e40af;
+  --accent-dim:#e6edff;
+  --green:#15803d; --green-dim:#dcfce7;
+  --red:#dc2626;   --red-dim:#fee2e2;
+  --amber:#b45309; --amber-dim:#fef3c7;
+  --violet:#6d28d9;
+
+  --radius:12px;
+  --radius-sm:9px;
+  --shadow:0 1px 2px rgba(15,23,42,.05), 0 4px 16px -6px rgba(15,23,42,.10);
+  --shadow-lg:0 20px 48px -16px rgba(15,23,42,.28);
+  --header-h:62px;
+}
+
+html{-webkit-text-size-adjust:100%;}
+body{
+  font-family:"Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  font-size:14px;
+  line-height:1.5;
+  background:var(--bg);
+  color:var(--text);
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
+  font-feature-settings:"cv02","cv03","cv04","tnum";
+}
+::selection{background:rgba(29,78,216,.16);}
+
+/* ---------- barra de marca ---------- */
+header{
+  background:linear-gradient(102deg,var(--brand-900) 0%,var(--brand-800) 46%,var(--brand-700) 100%);
+  border-bottom:1px solid rgba(0,0,0,.35);
+  box-shadow:0 1px 0 rgba(255,255,255,.04) inset, 0 6px 20px -14px rgba(15,23,42,.7);
+  height:var(--header-h);
+  padding:0 24px;
+  display:flex;align-items:center;gap:18px;
+  position:sticky;top:0;z-index:60;
+}
+header .brand{display:flex;align-items:center;gap:13px;flex:1;min-width:0;}
+header .brand-mark{
+  width:40px;height:40px;flex:0 0 40px;border-radius:11px;
+  background:#fff;
+  display:flex;align-items:center;justify-content:center;
+  padding:5px;
+  box-shadow:0 2px 10px rgba(0,0,0,.30), 0 0 0 1px rgba(255,255,255,.14);
+}
+header .brand-mark img{max-width:100%;max-height:100%;display:block;object-fit:contain;}
+/* se a logo não carregar (offline, por exemplo), a marca vira um monograma em vez de imagem quebrada */
+header .brand-mark.sem-logo{background:linear-gradient(145deg,var(--accent-600),var(--accent-700));}
+header .brand-mark.sem-logo:after{content:'Y';color:#fff;font-size:21px;font-weight:800;line-height:1;}
+header .brand-txt{display:flex;flex-direction:column;justify-content:center;min-width:0;line-height:1.15;}
+header h1{
+  font-size:18px;margin:0;font-weight:800;color:#fff;
+  letter-spacing:-.015em;flex:none;
+}
+header .brand-sub{
+  font-size:11.5px;color:#94a8c4;font-weight:500;letter-spacing:.015em;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:1px;
+}
+.btn-ghost{
+  background:rgba(255,255,255,.07);color:#dbe6f5;border:1px solid var(--brand-line);
+  border-radius:8px;padding:6px 12px;font-size:12px;font-weight:600;font-family:inherit;
+  transition:background .15s,color .15s;white-space:nowrap;
+}
+.btn-ghost:hover{background:rgba(255,255,255,.14);color:#fff;}
+.sync-pill{
+  font-size:11px;font-weight:700;letter-spacing:.03em;color:#fde68a;
+  background:rgba(180,83,9,.30);border:1px solid rgba(253,230,138,.35);
+  border-radius:20px;padding:5px 11px;white-space:nowrap;
+  animation:pulsar 1.4s ease-in-out infinite;
+}
+@keyframes pulsar{0%,100%{opacity:1}50%{opacity:.55}}
+#statusText{
+  font-size:11.5px;font-weight:600;color:#c3d1e4;
+  display:flex;align-items:center;gap:7px;
+  background:rgba(255,255,255,.07);
+  border:1px solid var(--brand-line);
+  border-radius:20px;padding:5px 12px 5px 10px;
+  white-space:nowrap;
+}
+.status-dot{width:7px;height:7px;border-radius:50%;background:#f87171;margin:0;
+  box-shadow:0 0 0 3px rgba(248,113,113,.20);}
+.status-dot.ok{background:#4ade80;box-shadow:0 0 0 3px rgba(74,222,128,.20);}
+
+/* ---------- navegação ---------- */
+nav{
+  display:flex;gap:4px;background:var(--panel);
+  border-bottom:1px solid var(--border);
+  padding:0 24px;
+  position:sticky;top:var(--header-h);z-index:55;
+  box-shadow:0 1px 3px rgba(15,23,42,.04);
+  overflow-x:auto;scrollbar-width:none;
+}
+nav::-webkit-scrollbar{display:none;}
+nav button.tab{
+  background:none;border:none;padding:13px 15px 12px;
+  font-size:13px;font-weight:600;color:var(--text-dim);
+  border-bottom:2.5px solid transparent;white-space:nowrap;
+  transition:color .15s,border-color .15s;
+}
+nav button.tab:hover{color:var(--text);}
+nav button.tab.active{color:var(--accent);border-bottom-color:var(--accent);}
+
+main{max-width:1320px;margin:0 auto;padding:24px;}
+
+/* ---------- painéis ---------- */
+.panel{
+  background:var(--panel);border:1px solid var(--border);
+  border-radius:var(--radius);padding:20px;margin-bottom:18px;
+  box-shadow:var(--shadow);
+}
+.panel h2{
+  margin:0 0 14px;font-size:12px;font-weight:700;
+  text-transform:uppercase;letter-spacing:.06em;color:var(--text-dim);
+  display:flex;align-items:center;gap:9px;
+}
+.panel h2:before{
+  content:'';width:3px;height:13px;border-radius:2px;
+  background:linear-gradient(180deg,var(--accent-600),var(--accent-700));
+  flex:0 0 3px;
+}
+
+/* ---------- botões ---------- */
+.btn{
+  background:linear-gradient(180deg,var(--accent-600),var(--accent));
+  color:#fff;border:none;border-radius:9px;padding:9px 16px;
+  font-size:13px;font-weight:600;letter-spacing:.005em;
+  box-shadow:0 1px 2px rgba(15,23,42,.16), 0 1px 0 rgba(255,255,255,.16) inset;
+  transition:filter .15s,transform .05s,box-shadow .15s;
+}
+.btn:hover{background:linear-gradient(180deg,var(--accent),var(--accent-700));filter:none;}
+.btn:active{transform:translateY(1px);}
+.btn:focus-visible{outline:2px solid var(--accent-600);outline-offset:2px;}
+.btn.secondary{
+  background:var(--panel);color:var(--text);border:1px solid var(--border-strong);
+  box-shadow:0 1px 2px rgba(15,23,42,.05);
+}
+.btn.secondary:hover{background:#f1f3f7;border-color:#c2c9d4;}
+.btn.small{padding:6px 11px;font-size:12px;border-radius:7px;}
+.btn.danger{background:linear-gradient(180deg,#ef4444,var(--red));}
+.btn.danger:hover{background:linear-gradient(180deg,var(--red),#b91c1c);}
+.btn:disabled{opacity:.45;cursor:not-allowed;box-shadow:none;}
+
+/* ---------- formulários ---------- */
+input[type=text],input[type=password],input[type=date],input[type=search],input[type=number],select,textarea{
+  border:1px solid var(--border-strong);border-radius:8px;padding:8px 11px;
+  font-size:13px;font-family:inherit;background:#fff;color:var(--text);
+  transition:border-color .15s,box-shadow .15s;
+}
+input:focus,select:focus,textarea:focus{
+  outline:none;border-color:var(--accent-600);
+  box-shadow:0 0 0 3px rgba(37,99,235,.14);
+}
+.field label{font-size:11px;color:var(--text-dim);font-weight:600;text-transform:uppercase;letter-spacing:.04em;}
+
+/* ---------- tabelas ---------- */
+table{width:100%;border-collapse:separate;border-spacing:0;font-size:13px;}
+th{
+  text-align:left;padding:10px 12px;background:var(--panel-alt);
+  border-bottom:1px solid var(--border);border-top:1px solid var(--border);
+  color:var(--text-dim);font-weight:700;font-size:10.5px;
+  text-transform:uppercase;letter-spacing:.06em;position:sticky;top:0;z-index:1;
+}
+th:first-child{border-left:1px solid var(--border);border-top-left-radius:9px;}
+th:last-child{border-right:1px solid var(--border);border-top-right-radius:9px;}
+td{padding:10px 12px;border-bottom:1px solid #eef1f5;}
+tbody tr:last-child td{border-bottom:none;}
+tr.tx-row:hover{background:#f4f7fd;cursor:pointer;}
+
+/* ---------- badges ---------- */
+.badge{
+  display:inline-block;padding:3px 9px;border-radius:6px;
+  font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;
+  border:1px solid transparent;
+}
+.badge.pendente{background:var(--amber-dim);color:var(--amber);border-color:#fde68a;}
+.badge.auto{background:var(--accent-dim);color:var(--accent);border-color:#c7d7fe;}
+.badge.conciliado{background:var(--green-dim);color:var(--green);border-color:#bbf7d0;}
+.badge.transferencia{background:#ede9fe;color:var(--violet);border-color:#ddd6fe;}
+.badge.dividida{background:#fce7f3;color:#be185d;border-color:#fbcfe8;}
+
+.valC{color:var(--green);font-weight:700;font-variant-numeric:tabular-nums;}
+.valD{color:var(--red);font-weight:700;font-variant-numeric:tabular-nums;}
+
+/* ---------- cartões de indicador ---------- */
+.stat-cards{grid-template-columns:repeat(auto-fit,minmax(168px,1fr));gap:14px;margin-bottom:18px;}
+.stat-card{
+  position:relative;background:var(--panel);border:1px solid var(--border);
+  border-radius:var(--radius);padding:16px 16px 15px;box-shadow:var(--shadow);
+  overflow:hidden;transition:box-shadow .18s,transform .18s;
+}
+.stat-card:before{
+  content:'';position:absolute;left:0;top:0;height:100%;width:3px;
+  background:linear-gradient(180deg,var(--accent-600),var(--accent-700));opacity:.85;
+}
+.stat-card:hover{transform:translateY(-1px);box-shadow:0 2px 4px rgba(15,23,42,.06),0 12px 28px -12px rgba(15,23,42,.20);}
+.stat-card .n{font-size:23px;font-weight:800;letter-spacing:-.02em;font-variant-numeric:tabular-nums;}
+.stat-card .l{font-size:11px;color:var(--text-dim);margin-top:3px;font-weight:600;text-transform:uppercase;letter-spacing:.045em;}
+
+/* ---------- zona de upload ---------- */
+.drop{
+  border:2px dashed var(--border-strong);border-radius:var(--radius);
+  padding:44px 20px;text-align:center;color:var(--text-dim);
+  background:linear-gradient(180deg,#fcfdfe,#f7f9fc);transition:.18s;
+}
+.drop:hover{border-color:#b9c2d0;}
+.drop.drag{border-color:var(--accent-600);background:var(--accent-dim);color:var(--accent);}
+
+/* ---------- agrupamentos ---------- */
+.group-block{border-radius:var(--radius-sm);margin-bottom:12px;}
+.group-head{background:var(--panel-alt);padding:11px 15px;}
+.group-head:hover{background:#eef1f6;}
+.group-head .bar{background:linear-gradient(90deg,var(--accent-600),var(--accent-700));}
+
+/* ---------- DRE ---------- */
+.dre-linha.final{
+  background:linear-gradient(102deg,var(--brand-900),var(--brand-700));
+  color:#fff;border:none;
+  /* redefine os tokens dentro da linha escura para que os valores (que usam var(--green)/var(--red)
+     via style inline) continuem legíveis e mantenham a leitura de positivo/negativo */
+  --green:#4ade80; --red:#fca5a5;
+}
+.dre-linha.final .dre-label{color:#fff;}
+.dre-linha.total{background:var(--panel-alt);}
+
+/* ---------- filtros ---------- */
+.pill-filter button{
+  border:1px solid var(--border-strong);background:#fff;border-radius:20px;
+  padding:6px 14px;font-size:12px;font-weight:600;color:var(--text-dim);transition:.15s;
+}
+.pill-filter button:hover{border-color:#b9c2d0;color:var(--text);}
+.pill-filter button.active{
+  background:linear-gradient(180deg,var(--accent-600),var(--accent));
+  color:#fff;border-color:var(--accent);box-shadow:0 1px 2px rgba(29,78,216,.3);
+}
+
+/* ---------- modais ---------- */
+.modal-bg{background:rgba(11,21,36,.55);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);}
+.modal{border-radius:14px;padding:24px;box-shadow:var(--shadow-lg);border:1px solid rgba(255,255,255,.6);}
+.modal h3{font-size:16px;font-weight:700;letter-spacing:-.01em;}
+
+/* ---------- avisos e vazios ---------- */
+.empty-state{
+  padding:52px 20px;color:var(--text-soft);
+  border:1px dashed var(--border-strong);border-radius:var(--radius);background:var(--panel-alt);
+}
+
+/* ---------- rodapé ---------- */
+footer{
+  text-align:center;color:var(--text-soft);font-size:11.5px;
+  padding:28px 20px 40px;line-height:1.7;
+  border-top:1px solid var(--border);margin-top:12px;
+}
+footer strong{color:var(--text-dim);font-weight:700;letter-spacing:.02em;}
+
+/* ---------- toasts ---------- */
+.toast{
+  background:var(--brand-900);border-radius:10px;padding:12px 17px;
+  box-shadow:var(--shadow-lg);font-weight:500;border:1px solid rgba(255,255,255,.10);
+}
+.toast.err{background:#991b1b;border-color:rgba(255,255,255,.14);}
+.toast.ok{background:#166534;border-color:rgba(255,255,255,.14);}
+
+/* ---------- barra de rolagem ---------- */
+*::-webkit-scrollbar{width:11px;height:11px;}
+*::-webkit-scrollbar-track{background:transparent;}
+*::-webkit-scrollbar-thumb{background:#cbd3de;border-radius:8px;border:3px solid var(--bg);}
+*::-webkit-scrollbar-thumb:hover{background:#aab4c3;}
+
+/* ---------- telas estreitas ---------- */
+@media (max-width:760px){
+  header{padding:0 14px;gap:10px;}
+  header .brand-sub{display:none;}
+  nav{padding:0 10px;}
+  main{padding:16px 12px;}
+  .panel{padding:16px;}
+  #statusText span:last-child{display:none;}
+  #statusText{padding:7px;}
+  #btnAtualizar{padding:6px 9px;font-size:0;}
+  #btnAtualizar:before{content:'⟳';font-size:14px;}
+}
+
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">
+    <span class="brand-mark"><img src="https://explosaoalimentos.com.br/wp-content/uploads/2024/11/logo-menor-e1731554322568.png" alt="Explosão Alimentos" onerror="this.style.display='none';this.parentNode.classList.add('sem-logo');"></span>
+    <span class="brand-txt">
+      <h1>Yampex</h1>
+      <span class="brand-sub">Gestão Financeira · Explosão Alimentos</span>
+    </span>
+  </div>
+  <span id="syncPill" class="sync-pill hidden">salvando…</span>
+  <button id="btnAtualizar" class="btn-ghost" onclick="UI.atualizarAgora()" title="Buscar alterações feitas na planilha">⟳ Atualizar</button>
+  <span id="statusText"><span class="status-dot" id="statusDot"></span><span id="statusLabel">não configurado</span></span>
+</header>
+
+<nav id="mainNav">
+  <button class="tab active" data-tab="importar">Importar</button>
+  <button class="tab" data-tab="conciliar">Conciliar</button>
+  <button class="tab" data-tab="previstos">Previstos</button>
+  <button class="tab" data-tab="saldo">Saldo</button>
+  <button class="tab" data-tab="analises">Análises</button>
+  <button class="tab" data-tab="regras">Regras</button>
+  <button class="tab" data-tab="contas">Contas</button>
+</nav>
+
+<main>
+
+  <!-- IMPORTAR -->
+  <section id="tab-importar" class="tab-content">
+    <div class="panel">
+      <h2>Importar extrato (.ofx)</h2>
+      <div class="drop" id="dropZone">
+        <div>📄 Arraste o arquivo .ofx aqui, ou</div>
+        <button class="btn secondary" style="margin-top:10px" onclick="document.getElementById('fileInput').click()">Selecionar arquivo</button>
+        <input type="file" id="fileInput" accept=".ofx,.qfx">
+      </div>
+      <div id="importPreview" class="hidden" style="margin-top:16px;"></div>
+    </div>
+  </section>
+
+  <!-- CONCILIAR -->
+  <section id="tab-conciliar" class="tab-content hidden">
+    <div class="panel">
+      <div class="row" style="justify-content:space-between;margin-bottom:10px;">
+        <div class="pill-filter" id="filtroStatus">
+          <button data-v="todos" class="active">Todos</button>
+          <button data-v="Pendente">Pendentes</button>
+          <button data-v="Auto">Automáticas</button>
+          <button data-v="Conciliado">Conciliadas</button>
+          <button data-v="Transferencia">Transferências</button>
+          <button data-v="Dividida">Divididas</button>
+        </div>
+        <div class="row" style="gap:8px;">
+          <button class="btn secondary small" id="btnAplicarRegras">🔄 Aplicar regras nas pendentes</button>
+          <button class="btn secondary small" id="btnConfirmarAuto">✓ Confirmar todas as automáticas</button>
+        </div>
+      </div>
+      <div class="row" style="margin-bottom:12px;">
+        <div class="field"><label>Conta</label><select id="filtroConta"><option value="">Todas</option></select></div>
+        <div class="field"><label>Grupo</label><select id="filtroGrupo"><option value="">Todos</option></select></div>
+        <div class="field"><label>De</label><input type="date" id="filtroDe"></div>
+        <div class="field"><label>Até</label><input type="date" id="filtroAte"></div>
+        <div class="field" style="flex:1;min-width:180px;"><label>Buscar descrição</label><input type="search" id="filtroBusca" placeholder="ex: GYN EMBALAGENS"></div>
+      </div>
+      <div id="statsBar" class="stat-cards"></div>
+      <div style="overflow-x:auto;">
+        <table id="tabelaTransacoes">
+          <thead><tr><th>Data</th><th>Descrição</th><th>Conta</th><th style="text-align:right;">Valor</th><th>Código</th><th>Status</th></tr></thead>
+          <tbody id="corpoTransacoes"></tbody>
+        </table>
+      </div>
+      <div id="emptyTx" class="empty-state hidden">Nenhuma transação encontrada com esses filtros.</div>
+      <div id="txMais" class="tx-mais hidden"></div>
+    </div>
+  </section>
+
+  <!-- PREVISTOS -->
+  <section id="tab-previstos" class="tab-content hidden">
+    <div class="panel">
+      <h2>Cadastrar lançamento previsto</h2>
+      <p class="muted" style="margin-top:-6px;font-size:12.5px;">
+        Já sabe que vai sair (ou entrar) um valor certo numa data certa — INSS, Simples Nacional, um boleto recorrente?
+        Cadastre agora, com a conta, o valor e o código. Quando o extrato <span class="mono">.ofx</span> desse período
+        chegar, o sistema procura sozinho uma transação da mesma conta, com o mesmo valor e numa data próxima da
+        prevista, e já concilia com o código que você escolheu aqui — sem precisar lembrar depois o que foi aquele pagamento.
+      </p>
+      <div class="rule-form">
+        <div class="field"><label>Conta</label><select id="prevConta"></select></div>
+        <div class="field"><label>Data prevista</label><input type="date" id="prevData"></div>
+        <div class="field"><label>Tipo</label><select id="prevTipo"><option value="D">Saída</option><option value="C">Entrada</option></select></div>
+        <div class="field"><label>Valor (R$)</label><input type="number" step="0.01" min="0" id="prevValor" placeholder="0,00"></div>
+        <div class="field"><label>Código destino</label><select id="prevCodigo"></select></div>
+        <div class="field" style="flex:1;min-width:200px;"><label>Descrição / lembrete (opcional)</label><input type="text" id="prevDescricao" placeholder="ex: INSS agosto/2026"></div>
+        <button class="btn small" onclick="Previstos.criar()">+ Cadastrar</button>
+      </div>
+    </div>
+    <div class="panel">
+      <h2>Lançamentos previstos</h2>
+      <div class="pill-filter" id="filtroPrevistos" style="margin-bottom:12px;">
+        <button data-v="" class="active">Todos</button>
+        <button data-v="Pendente">Aguardando</button>
+        <button data-v="Conciliado">Já bateu</button>
+      </div>
+      <div style="overflow-x:auto;">
+        <table>
+          <thead><tr>
+            <th>Conta</th><th>Data prevista</th><th>Descrição</th><th>Código</th>
+            <th style="text-align:right;">Valor</th><th>Status</th><th></th>
+          </tr></thead>
+          <tbody id="corpoPrevistos"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- SALDO -->
+  <section id="tab-saldo" class="tab-content hidden">
+    <div class="panel">
+      <h2>Saldo consolidado numa data</h2>
+      <p class="muted" style="margin-top:-6px;font-size:12.5px;">
+        Escolha uma data e veja o saldo de cada conta (e o total de todas somadas) naquele dia — soma o saldo
+        inicial cadastrado com todas as transações até essa data, inclusive.
+      </p>
+      <div class="row" style="margin-bottom:14px;">
+        <div class="field"><label>Data</label><input type="date" id="saldoDataConsulta" onchange="Saldo.consultarData()"></div>
+        <button class="btn secondary small" onclick="Saldo.consultarData()" style="align-self:end;">Ver saldo nessa data</button>
+      </div>
+      <div id="saldoConsolidado"></div>
+    </div>
+    <div class="panel">
+      <h2>Saldo das contas</h2>
+      <p class="muted" style="margin-top:-6px;font-size:12.5px;">
+        Informe o saldo que a conta tinha numa data de referência (ex: o dia anterior à primeira transação importada).
+        A partir daí, o saldo calculado soma automaticamente todas as transações importadas dessa conta a partir dessa data —
+        inclusive as que ainda não foram conciliadas, porque já são movimentação real no banco. Use o campo "Saldo real"
+        pra colar o saldo que aparece no extrato do banco e conferir se bate.
+      </p>
+      <div style="overflow-x:auto;">
+        <table>
+          <thead><tr>
+            <th>Conta</th><th>Saldo inicial</th><th>Data do saldo inicial</th><th>Transações</th>
+            <th style="text-align:right;">Saldo calculado</th><th>Saldo real (conferência)</th><th>Diferença</th><th></th>
+          </tr></thead>
+          <tbody id="corpoSaldo"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ANALISES -->
+  <section id="tab-analises" class="tab-content hidden">
+    <div class="panel">
+      <div class="row" style="margin-bottom:14px;">
+        <div class="field"><label>Conta</label><select id="anConta"><option value="">Todas</option></select></div>
+        <div class="field"><label>De</label><input type="date" id="anDe"></div>
+        <div class="field"><label>Até</label><input type="date" id="anAte"></div>
+        <button class="btn secondary small" onclick="Analises.render()" style="align-self:end;">Atualizar</button>
+      </div>
+      <div id="anResumo" class="stat-cards"></div>
+      <div id="anPendenteAviso" class="muted" style="margin-top:10px;font-size:12.5px;"></div>
+    </div>
+
+    <div class="panel">
+      <h2>Demonstração de resultado (DRE)</h2>
+      <p class="muted" style="margin-top:-6px;font-size:12.5px;">
+        Da receita saem primeiro os custos que variam conforme você vende (impostos, taxa de cartão, fornecedores,
+        frete) — sobra a <strong>margem de contribuição</strong>. Depois saem as despesas fixas (aluguel, folha,
+        contas) — sobra o <strong>lucro operacional antes dos investimentos</strong>. Depois saem os investimentos —
+        sobra o <strong>lucro operacional</strong>. Por fim entram/saem as movimentações não operacionais
+        (empréstimos, juros, multas, venda de imobilizado) — sobra o <strong>resultado líquido</strong>: o que
+        realmente ficou no período.
+      </p>
+      <div id="anDRE"></div>
+    </div>
+
+    <div class="panel">
+      <div class="row" style="justify-content:space-between;align-items:flex-start;">
+        <h2 style="margin:0;">Diagnóstico de performance</h2>
+        <button class="btn secondary small" onclick="Analises.toggleMetas()">⚙ Ajustar metas do seu ramo</button>
+      </div>
+      <p class="muted" style="margin-top:6px;margin-bottom:0;font-size:12.5px;">
+        Compara cada indicador da DRE com uma faixa "ideal" (padrão de mercado — ajuste para o seu ramo se quiser).
+        Mostra onde vale mais a pena agir para o lucro crescer mais rápido, e qual ponto está pedindo mais atenção agora.
+      </p>
+      <div id="anIndMetas" class="hidden"></div>
+      <div id="anIndLucro"></div>
+      <div id="anIndFoco"></div>
+      <div id="anIndChips"></div>
+      <div id="anIndDetalhe"></div>
+    </div>
+
+    <div class="panel">
+      <h2>Detalhamento por grupo e subgrupo</h2>
+      <div id="anGrupos"></div>
+    </div>
+  </section>
+
+  <!-- REGRAS -->
+  <section id="tab-regras" class="tab-content hidden">
+    <div class="panel">
+      <h2>Nova regra</h2>
+      <div class="rule-form">
+        <div class="field"><label>Palavra-chave (trecho da descrição)</label><input type="text" id="novaRegraPalavra" placeholder="ex: POLI-GYN"></div>
+        <div class="field"><label>Código destino</label><select id="novaRegraCodigo"></select></div>
+        <div class="field"><label>Tipo</label><select id="novaRegraTipo"><option value="">Ambos</option><option value="C">Entrada</option><option value="D">Saída</option></select></div>
+        <div class="field"><label>Restringir à conta</label><select id="novaRegraConta"><option value="">Qualquer conta</option></select></div>
+        <button class="btn small" onclick="Regras.criar()">+ Adicionar</button>
+      </div>
+    </div>
+    <div class="panel">
+      <h2>Importar regras em lote (palavras-chave já cadastradas)</h2>
+      <p class="muted" style="margin-top:-6px;font-size:12.5px;">Cole uma linha por regra, no formato <span class="mono">palavra-chave;codigo</span>. Ex: <span class="mono">BMA FUNDO DE INVESTIMENTO;4.2.4</span></p>
+      <textarea id="loteRegras" rows="5" style="width:100%;" placeholder="PALAVRA-CHAVE;CODIGO&#10;GYN EMBALAGENS;4.2.4&#10;POLI-GYN;4.2.4"></textarea>
+      <div style="margin-top:8px;"><button class="btn secondary small" id="btnImportarLote" onclick="Regras.importarLote()">Importar lote</button></div>
+    </div>
+    <div class="panel">
+      <h2>Regras aprendidas (<span id="qtdRegras">0</span>)</h2>
+      <input type="search" id="buscaRegras" placeholder="Buscar por palavra-chave ou código..." style="width:100%;margin-bottom:10px;">
+      <div style="overflow-x:auto;">
+        <table>
+          <thead><tr><th>Palavra-chave</th><th>Código</th><th>Tipo</th><th>Conta</th><th>Usos</th><th>Ativa</th><th></th></tr></thead>
+          <tbody id="corpoRegras"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONTAS -->
+  <section id="tab-contas" class="tab-content hidden">
+    <div class="panel">
+      <h2>Contas bancárias identificadas</h2>
+      <p class="muted" style="margin-top:-6px;font-size:12.5px;">Toda vez que você importa um .ofx de uma conta nova, ela aparece aqui. Dê um nome amigável para facilitar os filtros.</p>
+      <div style="overflow-x:auto;">
+        <table>
+          <thead><tr><th>ID técnico</th><th>Nome</th><th>Banco</th><th>Tipo</th><th></th></tr></thead>
+          <tbody id="corpoContas"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <strong>Yampex</strong> · Gestão Financeira — Explosão Alimentos<br>
+  <span>Conciliação bancária, previsões e análise de resultado. Dados armazenados na sua Planilha Google via Apps Script.</span>
+</footer>
+
+<div class="toast-wrap" id="toastWrap"></div>
+
+<!-- MODAL: Configuração -->
+<div class="modal-bg hidden" id="modalConfig">
+  <div class="modal">
+    <h3>Configuração de conexão</h3>
+    <p class="muted" style="font-size:12.5px;">Cole a URL do App da Web (Apps Script) e o TOKEN gerado na aba "Config" da sua planilha.</p>
+    <div class="field" style="margin-top:10px;"><label>URL do Web App (termina em /exec)</label><input type="text" id="cfgUrl" style="width:100%;"></div>
+    <div class="field" style="margin-top:10px;"><label>TOKEN</label><input type="text" id="cfgToken" style="width:100%;"></div>
+    <div class="row" style="justify-content:flex-end;margin-top:16px;">
+      <button class="btn secondary" onclick="UI.closeConfig()">Cancelar</button>
+      <button class="btn" onclick="UI.salvarConfig()">Salvar e testar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: Conciliação -->
+<div class="modal-bg hidden" id="modalConciliar">
+  <div class="modal">
+    <h3>Conciliar transação</h3>
+    <div class="desc-preview" id="mcDescricao"></div>
+
+    <div class="pill-filter" id="mcModoTabs" style="margin:12px 0;">
+      <button data-modo="classificar" class="active">Classificar</button>
+      <button data-modo="transferencia">Transferência entre contas</button>
+      <button data-modo="dividir">Dividir em vários códigos</button>
+    </div>
+
+    <div id="mcClassificarBox">
+      <div class="field"><label>Buscar código no plano de contas</label><input type="search" id="mcBusca" placeholder="digite nome ou código..."></div>
+      <div class="code-list" id="mcLista"></div>
+      <div class="checkbox-row">
+        <input type="checkbox" id="mcCriarRegra" checked>
+        <label for="mcCriarRegra">Lembrar disso — criar/atualizar regra automática</label>
+      </div>
+      <div class="field" id="mcPalavraWrap" style="margin-top:8px;">
+        <label>Palavra-chave da regra (editável)</label>
+        <input type="text" id="mcPalavra" style="width:100%;">
+      </div>
+      <div class="checkbox-row">
+        <input type="checkbox" id="mcContaEspecifica">
+        <label for="mcContaEspecifica">Aplicar regra só nesta conta bancária</label>
+      </div>
+    </div>
+
+    <div id="mcTransferenciaBox" class="hidden">
+      <div class="field">
+        <label>Transferência para/de qual conta?</label>
+        <select id="mcContaDestino" style="width:100%;"></select>
+      </div>
+      <p class="muted" style="font-size:12.5px;margin-top:10px;">
+        Marca essa transação como movimentação interna entre contas da empresa — ela não entra nas análises de
+        receita/despesa, mas continua contando no saldo da conta (aba Saldo).
+      </p>
+    </div>
+
+    <div id="mcDivisaoBox" class="hidden">
+      <p class="muted" style="font-size:12.5px;margin-top:-4px;">
+        Uma transação só (ex: pagamento de fatura do cartão) pode ser, na prática, vários gastos diferentes.
+        Destrinche aqui em quantos itens quiser — cada um com seu próprio código — e as Análises passam a contar
+        cada pedaço no lugar certo, em vez de tudo junto num código só. A soma dos itens precisa bater com o
+        valor total da transação.
+      </p>
+      <div id="mcDivisaoLista"></div>
+      <button class="btn secondary small" style="margin-top:8px;" onclick="Conciliacao.adicionarLinhaDivisao()">+ Adicionar item</button>
+      <div id="mcDivisaoResumo" class="muted" style="margin-top:10px;font-size:13px;"></div>
+      <div id="mcDesfazerDivisaoWrap" class="hidden" style="margin-top:10px;">
+        <button class="btn danger small" onclick="Conciliacao.desfazerDivisao()">Desfazer divisão (voltar a ser uma transação só)</button>
+      </div>
+    </div>
+
+    <div class="row" style="justify-content:space-between;margin-top:16px;">
+      <button class="btn secondary" onclick="UI.closeConciliar()">Cancelar</button>
+      <button class="btn" id="mcSalvar" onclick="Conciliacao.salvarModal()">Salvar conciliação</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: Extrato -->
+<div class="modal-bg hidden" id="modalExtrato">
+  <div class="modal" style="max-width:680px;">
+    <h3 id="extratoTitulo">Extrato</h3>
+    <p class="muted" id="extratoSaldoInicial" style="font-size:12.5px;margin-top:2px;"></p>
+    <div style="overflow-x:auto;max-height:60vh;overflow-y:auto;margin-top:10px;">
+      <table>
+        <thead><tr><th>Data</th><th>Descrição</th><th>Status</th><th style="text-align:right;">Valor</th><th style="text-align:right;">Saldo</th></tr></thead>
+        <tbody id="corpoExtrato"></tbody>
+      </table>
+    </div>
+    <div class="row" style="justify-content:flex-end;margin-top:16px;">
+      <button class="btn secondary" onclick="document.getElementById('modalExtrato').classList.add('hidden')">Fechar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ======================================================================
+   CONFIG / ESTADO GLOBAL
+   ====================================================================== */
+// URL e TOKEN fixos do App da Web já implantado — assim ninguém precisa configurar nada
+// na primeira vez que abrir esse arquivo. Se um dia você reimplantar com uma URL nova, ou
+// quiser usar outra planilha, dá pra sobrescrever pelo botão "⚙ Configurações" — o que for
+// salvo ali manualmente tem prioridade sobre esses valores padrão.
+const DEFAULT_URL = 'https://script.google.com/macros/s/AKfycbyDV6OSRRE8GucDxpjncKnGM_4pkau3ZyhF8wi6XGtMAJUHcISeHD5aWxlKWmZJpR_RwA/exec';
+const DEFAULT_TOKEN = '7a842a95-e39a-4593-9210-e5fca0659497';
+
+const Config = {
+  get url() { return localStorage.getItem('cb_url') || DEFAULT_URL; },
+  set url(v) { localStorage.setItem('cb_url', v); },
+  get token() { return localStorage.getItem('cb_token') || DEFAULT_TOKEN; },
+  set token(v) { localStorage.setItem('cb_token', v); },
+  get pronto() { return !!(this.url && this.token); }
+};
+
+const State = {
+  planoContas: [],
+  regras: [],
+  contas: [],
+  transacoes: [],
+  previsoes: [],
+  divisoes: [],
+  carregado: false,
+  assinatura: null   // impressão digital dos dados no servidor, para saber se o cache local está em dia
+};
+
+/* ======================================================================
+   TOASTS
+   ====================================================================== */
+function toast(msg, tipo) {
+  const wrap = document.getElementById('toastWrap');
+  const el = document.createElement('div');
+  el.className = 'toast' + (tipo ? ' ' + tipo : '');
+  el.textContent = msg;
+  wrap.appendChild(el);
+  setTimeout(() => el.remove(), 4500);
+}
+
+/* ======================================================================
+   CAMADA DE API
+   ====================================================================== */
+const Api = {
+  async get(action, params) {
+    if (!Config.pronto) throw new Error('Configure a URL e o TOKEN primeiro.');
+    const usp = new URLSearchParams(Object.assign({ action, token: Config.token }, params || {}));
+    const resp = await fetch(Config.url + '?' + usp.toString(), { method: 'GET' });
+    const json = await resp.json();
+    if (!json.ok) throw new Error(json.erro || 'Erro desconhecido no servidor.');
+    if (json.assinatura) State.assinatura = json.assinatura;
+    return json.dados;
+  },
+  async post(action, payload) {
+    if (!Config.pronto) throw new Error('Configure a URL e o TOKEN primeiro.');
+    const resp = await fetch(Config.url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' }, // evita preflight OPTIONS (Apps Script não suporta)
+      body: JSON.stringify({ action, token: Config.token, payload: payload || {} })
+    });
+    const json = await resp.json();
+    if (!json.ok) throw new Error(json.erro || 'Erro desconhecido no servidor.');
+    // toda gravação devolve a assinatura nova dos dados: guardando ela aqui, a próxima
+    // sincronização já sabe que o cache local está em dia e nem baixa a base de novo.
+    if (json.assinatura) State.assinatura = json.assinatura;
+    // toda gravação bem-sucedida agenda a atualização da cópia local (com atraso curto, para
+    // pegar também as alterações que quem chamou aplica no State logo depois deste retorno)
+    Cache.agendar();
+    return json.dados;
+  }
+};
+
+/* ======================================================================
+   CACHE LOCAL — o que faz o sistema abrir instantaneamente
+   ======================================================================
+   Guarda no navegador (localStorage) a última cópia dos dados da planilha.
+   Ao abrir, a tela é montada com esse cache na hora, e só depois o sistema
+   confere com o servidor se algo mudou. As transações são gravadas como
+   listas (sem repetir o nome dos campos em cada linha) e, quando o
+   navegador suporta, o conteúdo ainda é comprimido — no seu volume atual
+   isso é a diferença entre uns 3 MB e uns 300 KB. */
+const CAMPOS_TX = ['chaveUnica', 'conta', 'data', 'descricao', 'memo', 'valor', 'tipo',
+                   'fitid', 'codigo', 'status', 'regraAplicada', 'conciliadoEm',
+                   'contaRelacionada', 'previsaoId'];
+
+function bytesParaBase64(bytes) {
+  let bin = '';
+  const passo = 0x8000;
+  for (let i = 0; i < bytes.length; i += passo) {
+    bin += String.fromCharCode.apply(null, bytes.subarray(i, i + passo));
+  }
+  return btoa(bin);
+}
+function base64ParaBytes(b64) {
+  const bin = atob(b64);
+  const out = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
+  return out;
+}
+
+const Cache = {
+  CHAVE: 'yampex_cache_v1',
+  suportaCompressao: typeof CompressionStream !== 'undefined' && typeof DecompressionStream !== 'undefined',
+  _timer: null,
+  desativado: false,
+
+  empacotar() {
+    return JSON.stringify({
+      assinatura: State.assinatura || '',
+      salvoEm: Date.now(),
+      planoContas: State.planoContas,
+      regras: State.regras,
+      contas: State.contas,
+      previsoes: State.previsoes,
+      divisoes: State.divisoes,
+      campos: CAMPOS_TX,
+      transacoes: State.transacoes.map(t => CAMPOS_TX.map(c => t[c] === undefined ? '' : t[c]))
+    });
+  },
+
+  desempacotar(txt) {
+    const d = JSON.parse(txt);
+    const campos = d.campos || CAMPOS_TX;
+    d.transacoes = (d.transacoes || []).map(linha => {
+      const o = {};
+      campos.forEach((c, i) => { o[c] = linha[i]; });
+      return o;
+    });
+    return d;
+  },
+
+  async salvar() {
+    if (this.desativado || !State.carregado) return;
+    try {
+      const bruto = this.empacotar();
+      let conteudo = 'raw:' + bruto;
+      if (this.suportaCompressao) {
+        try {
+          const fluxo = new Blob([bruto]).stream().pipeThrough(new CompressionStream('gzip'));
+          const buf = await new Response(fluxo).arrayBuffer();
+          conteudo = 'gz:' + bytesParaBase64(new Uint8Array(buf));
+        } catch (e) { /* sem compressão, segue com o texto puro */ }
+      }
+      localStorage.setItem(this.CHAVE, conteudo);
+    } catch (e) {
+      // espaço do navegador estourado: desliga o cache em vez de ficar tentando a cada gravação.
+      // O sistema continua funcionando normalmente, só volta a carregar do servidor ao abrir.
+      this.desativado = true;
+      try { localStorage.removeItem(this.CHAVE); } catch (e2) {}
+      console.warn('Cache local desativado (sem espaço no navegador):', e && e.message);
+    }
+  },
+
+  agendar() {
+    clearTimeout(this._timer);
+    this._timer = setTimeout(() => this.salvar(), 600);
+  },
+
+  async ler() {
+    let conteudo;
+    try { conteudo = localStorage.getItem(this.CHAVE); } catch (e) { return null; }
+    if (!conteudo) return null;
+    try {
+      let texto;
+      if (conteudo.slice(0, 3) === 'gz:') {
+        if (!this.suportaCompressao) return null;
+        const bytes = base64ParaBytes(conteudo.slice(3));
+        const fluxo = new Blob([bytes]).stream().pipeThrough(new DecompressionStream('gzip'));
+        texto = await new Response(fluxo).text();
+      } else {
+        texto = conteudo.slice(4);
+      }
+      return this.desempacotar(texto);
+    } catch (e) {
+      try { localStorage.removeItem(this.CHAVE); } catch (e2) {}
+      return null;
+    }
+  },
+
+  limpar() { try { localStorage.removeItem(this.CHAVE); } catch (e) {} }
+};
+
+/* ======================================================================
+   FILA DE GRAVAÇÃO — é o que faz "salvar" parecer instantâneo
+   ======================================================================
+   A tela é atualizada na hora e a ida ao servidor acontece por trás.
+   Se a gravação falhar, a alteração é desfeita e o aviso aparece. */
+const Fila = {
+  itens: [],
+  ativo: false,
+
+  add(tarefa) { this.itens.push(tarefa); this.processar(); },
+
+  get pendentes() { return this.itens.length + (this.ativo ? 1 : 0); },
+
+  async processar() {
+    if (this.ativo) return;
+    this.ativo = true;
+    while (this.itens.length) {
+      const t = this.itens.shift();
+      UI.mostrarPendencias(this.pendentes);
+      try {
+        const res = await Api.post(t.action, t.payload);
+        if (t.aoConcluir) t.aoConcluir(res);
+      } catch (e) {
+        if (t.aoFalhar) t.aoFalhar(e);
+        else toast('Não deu pra salvar: ' + e.message, 'err');
+      }
+    }
+    this.ativo = false;
+    UI.mostrarPendencias(0);
+    Cache.agendar();
+  }
+};
+
+window.addEventListener('beforeunload', e => {
+  if (Fila.pendentes > 0) { e.preventDefault(); e.returnValue = ''; }
+});
+
+/* ======================================================================
+   UTILITÁRIOS
+   ====================================================================== */
+function normalizar(s) {
+  return String(s || '')
+    .toUpperCase()
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function fmtMoeda(v) {
+  const n = Number(v) || 0;
+  return n.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+}
+
+function fmtData(d) {
+  if (!d) return '';
+  const partes = String(d).split('-');
+  if (partes.length === 3) return partes[2] + '/' + partes[1] + '/' + partes[0];
+  return d;
+}
+
+// Classifica que tipo de código (Crédito/Débito/Ambos) é permitido para um código do plano de contas,
+// respeitando as exceções do grupo 7 (movimentações não operacionais tem entradas e saídas).
+function tipoPermitido(codigo) {
+  const c = String(codigo);
+  if (c === '3' || c.indexOf('3.') === 0) return 'C';
+  if (c.indexOf('7.1') === 0) return 'C';
+  if (c.indexOf('7.2') === 0) return 'D';
+  if (c === '4' || c.indexOf('4.') === 0) return 'D';
+  if (c === '5' || c.indexOf('5.') === 0) return 'D';
+  if (c === '6' || c.indexOf('6.') === 0) return 'D';
+  return 'AMBOS';
+}
+
+function nomeGrupo(grupo) {
+  const item = State.planoContas.find(p => p.codigo === String(grupo));
+  return item ? item.nome : ('Grupo ' + grupo);
+}
+
+function contaNome(contaId) {
+  const c = State.contas.find(x => x.contaId === contaId);
+  return c ? c.nome : contaId;
+}
+
+/* ======================================================================
+   PARSER DE OFX
+   ====================================================================== */
+const OfxParser = {
+  getTag(bloco, tag) {
+    const re = new RegExp('<' + tag + '>\\s*([^<\\r\\n]*)', 'i');
+    const m = bloco.match(re);
+    return m ? m[1].trim() : '';
+  },
+  // Alguns bancos (ex: Itaú) incluem no OFX uma "pseudo-transação" que é só o resumo do saldo
+  // do dia/período (NAME/MEMO tipo "SALDO DO DIA", "SALDO ANTERIOR" etc.) — não é uma movimentação
+  // real, é só informativo, e não deve entrar na lista para conciliar.
+  ehResumoSaldo(name, memo) {
+    const texto = normalizar((name || '') + ' ' + (memo || ''));
+    const padroes = [
+      'SALDO DO DIA', 'SALDO DIARIO', 'SALDO ANTERIOR', 'SALDO ATUAL',
+      'SALDO DISPONIVEL', 'SALDO BLOQUEADO', 'SALDO FINAL', 'SALDO CONTA CORRENTE',
+      'SALDO CONTA', 'S A L D O'
+    ];
+    return padroes.some(p => texto.indexOf(p) !== -1);
+  },
+  parse(texto) {
+    // Conta de origem: pode ser BANKACCTFROM (conta corrente) ou CCACCTFROM (cartão de crédito)
+    let accBlockMatch = texto.match(/<BANKACCTFROM>([\s\S]*?)<\/BANKACCTFROM>/i) ||
+                         texto.match(/<CCACCTFROM>([\s\S]*?)<\/CCACCTFROM>/i);
+    let bankId = '', acctId = '', acctType = 'CONTA';
+    if (accBlockMatch) {
+      const bloco = accBlockMatch[1];
+      bankId = this.getTag(bloco, 'BANKID');
+      acctId = this.getTag(bloco, 'ACCTID');
+      acctType = this.getTag(bloco, 'ACCTTYPE') || (texto.match(/<CCACCTFROM>/i) ? 'CARTAO' : 'CONTA');
+    }
+    if (!acctId) {
+      // fallback: tenta achar qualquer ACCTID solto no arquivo
+      acctId = this.getTag(texto, 'ACCTID') || 'DESCONHECIDA';
+    }
+    const contaId = (bankId ? bankId + '-' : '') + acctId;
+
+    const orgMatch = texto.match(/<ORG>\s*([^<\r\n]*)/i);
+    const banco = orgMatch ? orgMatch[1].trim() : '';
+
+    const transacoes = [];
+    let ignoradasSaldo = 0;
+    const blocos = texto.match(/<STMTTRN>([\s\S]*?)<\/STMTTRN>/gi) || [];
+    blocos.forEach(blocoRaw => {
+      const bloco = blocoRaw;
+      const trntype = this.getTag(bloco, 'TRNTYPE');
+      const dtposted = this.getTag(bloco, 'DTPOSTED');
+      const trnamt = this.getTag(bloco, 'TRNAMT');
+      const fitid = this.getTag(bloco, 'FITID');
+      const name = this.getTag(bloco, 'NAME') || this.getTag(bloco, 'PAYEE');
+      const memo = this.getTag(bloco, 'MEMO');
+      const checknum = this.getTag(bloco, 'CHECKNUM');
+
+      if (!dtposted || !trnamt) return;
+      if (this.ehResumoSaldo(name, memo)) { ignoradasSaldo++; return; }
+      const data = dtposted.slice(0, 4) + '-' + dtposted.slice(4, 6) + '-' + dtposted.slice(6, 8);
+      const valor = parseFloat(trnamt.replace(',', '.'));
+      if (isNaN(valor)) return;
+      const tipo = valor >= 0 ? 'C' : 'D';
+      const descricao = (name || memo || trntype || 'Transação').trim();
+
+      const chaveBase = fitid ? fitid : (data + '|' + valor.toFixed(2) + '|' + normalizar(descricao).slice(0, 50));
+      const chaveUnica = contaId + '|' + chaveBase;
+
+      transacoes.push({
+        chaveUnica, conta: contaId, data, descricao, memo: memo || '',
+        valor, tipo, fitid: fitid || '', codigo: '', status: 'Pendente', regraAplicada: '', conciliadoEm: ''
+      });
+    });
+
+    return { contaId, banco, acctType, transacoes, ignoradasSaldo };
+  }
+};
+
+/* ======================================================================
+   MATCHING AUTOMÁTICO (APRENDIZADO)
+   ====================================================================== */
+function encontrarRegraParaTransacao(t) {
+  const texto = normalizar(t.descricao + ' ' + (t.memo || ''));
+  let melhor = null;
+  State.regras.forEach(r => {
+    if (r.ativo === false) return;
+    if (r.tipo && r.tipo !== t.tipo) return;
+    if (r.conta && r.conta !== t.conta) return;
+    const chave = normalizar(r.palavraChave);
+    if (!chave) return;
+    if (texto.indexOf(chave) !== -1) {
+      if (!melhor || chave.length > normalizar(melhor.palavraChave).length) melhor = r;
+    }
+  });
+  return melhor;
+}
+
+// Roda o casamento automático (regras aprendidas) contra as transações que já estão
+// salvas como Pendente — necessário porque o casamento normal só acontece no momento
+// da importação do OFX. Chamado manualmente (botão "Aplicar regras nas pendentes") e
+// automaticamente depois de criar/importar regras, para não deixar transações antigas
+// esperando uma regra que já existe.
+async function aplicarRegrasNasPendentes(silencioso) {
+  const pendentes = State.transacoes.filter(t => t.status === 'Pendente');
+  const itens = [];
+  pendentes.forEach(t => {
+    const regra = encontrarRegraParaTransacao(t);
+    if (regra) itens.push({ chaveUnica: t.chaveUnica, codigo: regra.codigo, regraAplicada: regra.id });
+  });
+  if (!itens.length) {
+    if (!silencioso) toast('Nenhuma transação pendente bateu com as regras atuais.');
+    return 0;
+  }
+  const res = await Api.post('aplicarRegrasLote', { itens });
+  itens.forEach(it => {
+    const t = State.transacoes.find(x => x.chaveUnica === it.chaveUnica);
+    if (t) { t.codigo = it.codigo; t.status = 'Auto'; t.regraAplicada = it.regraAplicada; }
+  });
+  Cache.agendar();
+  if (document.getElementById('tab-conciliar') && !document.getElementById('tab-conciliar').classList.contains('hidden')) {
+    Conciliacao.render();
+  }
+  return res.aplicadas;
+}
+
+/* ======================================================================
+   UI GERAL — abas, config, modal
+   ====================================================================== */
+const UI = {
+  init() {
+    document.querySelectorAll('nav .tab').forEach(btn => {
+      btn.addEventListener('click', () => this.mudarAba(btn.dataset.tab));
+    });
+    document.getElementById('cfgUrl').value = Config.url;
+    document.getElementById('cfgToken').value = Config.token;
+    if (!Config.pronto) this.openConfig();
+  },
+  mudarAba(nome) {
+    document.querySelectorAll('nav .tab').forEach(b => b.classList.toggle('active', b.dataset.tab === nome));
+    document.querySelectorAll('.tab-content').forEach(s => s.classList.toggle('hidden', s.id !== 'tab-' + nome));
+    if (nome === 'conciliar') Conciliacao.render();
+    if (nome === 'previstos') Previstos.render();
+    if (nome === 'saldo') Saldo.render();
+    if (nome === 'analises') Analises.render();
+    if (nome === 'regras') Regras.render();
+    if (nome === 'contas') Contas.render();
+  },
+  openConfig() { document.getElementById('modalConfig').classList.remove('hidden'); },
+  closeConfig() { document.getElementById('modalConfig').classList.add('hidden'); },
+  async salvarConfig() {
+    const url = document.getElementById('cfgUrl').value.trim();
+    const token = document.getElementById('cfgToken').value.trim();
+    if (!url || !token) { toast('Preencha a URL e o TOKEN.', 'err'); return; }
+    Config.url = url; Config.token = token;
+    this.closeConfig();
+    await App.testarConexaoECarregar();
+  },
+  setStatus(ok, label) {
+    document.getElementById('statusDot').classList.toggle('ok', ok);
+    document.getElementById('statusLabel').textContent = label;
+  },
+  mostrarPendencias(n) {
+    const el = document.getElementById('syncPill');
+    if (!el) return;
+    el.classList.toggle('hidden', !n);
+    el.textContent = n === 1 ? 'salvando…' : 'salvando ' + n + '…';
+  },
+  async atualizarAgora() {
+    await App.sincronizar({ avisar: true });
+  },
+  closeConciliar() { document.getElementById('modalConciliar').classList.add('hidden'); }
+};
+
+/* ======================================================================
+   APP — carregamento inicial
+   ====================================================================== */
+const App = {
+  sincronizando: false,
+
+  aplicarDados(dados) {
+    State.planoContas = dados.planoContas || [];
+    State.regras = dados.regras || [];
+    State.contas = dados.contas || [];
+    State.transacoes = dados.transacoes || [];
+    State.previsoes = dados.previsoes || [];
+    State.divisoes = dados.divisoes || [];
+    if (dados.assinatura) State.assinatura = dados.assinatura;
+    State.carregado = true;
+  },
+
+  redesenharTudo() {
+    Importar.popularSelectContas();
+    Conciliacao.popularFiltros();
+    Analises.popularFiltros();
+    Regras.popularSelects();
+    Previstos.popularSelects();
+    const abaAtiva = document.querySelector('nav .tab.active')?.dataset.tab;
+    if (abaAtiva) UI.mudarAba(abaAtiva);
+  },
+
+  // Abertura do sistema: primeiro pinta a tela com o que já está salvo no navegador
+  // (instantâneo, sem rede), e só então confere com a planilha se mudou alguma coisa.
+  async iniciar() {
+    let veioDoCache = false;
+    const cache = await Cache.ler();
+    if (cache && cache.transacoes && cache.transacoes.length) {
+      this.aplicarDados(cache);
+      veioDoCache = true;
+      UI.setStatus(true, State.transacoes.length + ' transações (cópia local)');
+      this.redesenharTudo();
+    }
+    if (Config.pronto) await this.sincronizar({ silencioso: veioDoCache });
+  },
+
+  async sincronizar(opcoes) {
+    opcoes = opcoes || {};
+    if (this.sincronizando) return;
+    this.sincronizando = true;
+    const tinhaDados = State.carregado;
+    UI.setStatus(tinhaDados, tinhaDados ? 'verificando atualizações...' : 'conectando...');
+    try {
+      // 1) pergunta primeiro se mudou alguma coisa — resposta de poucos bytes.
+      if (State.assinatura && !opcoes.forcarDownload) {
+        const info = await Api.get('getAssinatura');
+        if (info && info.assinatura && info.assinatura === State.assinatura) {
+          UI.setStatus(true, State.transacoes.length + ' transações · em dia');
+          if (opcoes.avisar) toast('Tudo já estava atualizado.', 'ok');
+          return;
+        }
+      }
+      // 2) só se mudou (ou se não havia cache) é que a base inteira é baixada.
+      UI.setStatus(tinhaDados, 'baixando dados...');
+      const dados = await Api.get('getTudo');
+      this.aplicarDados(dados);
+      UI.setStatus(true, State.transacoes.length + ' transações carregadas');
+      this.redesenharTudo();
+      Cache.agendar();
+      if (!opcoes.silencioso || opcoes.avisar) toast('Dados atualizados.', 'ok');
+    } catch (e) {
+      if (State.carregado) {
+        UI.setStatus(true, State.transacoes.length + ' transações (cópia local · sem conexão)');
+        toast('Sem conexão com a planilha agora — você está vendo a cópia local. ' + e.message, 'err');
+      } else {
+        UI.setStatus(false, 'erro de conexão');
+        toast('Falha ao conectar: ' + e.message, 'err');
+      }
+    } finally {
+      this.sincronizando = false;
+    }
+  },
+
+  // mantido pelo nome antigo: é o que a tela de configuração chama depois de salvar URL/TOKEN
+  async testarConexaoECarregar() {
+    State.assinatura = null;
+    await this.sincronizar({ forcarDownload: true });
+  },
+
+  async recarregarTransacoes() {
+    const dados = await Api.get('getTudo');
+    this.aplicarDados(dados);
+    Cache.agendar();
+  }
+};
+
+/* ======================================================================
+   IMPORTAR
+   ====================================================================== */
+const Importar = {
+  ultimoParse: null,
+
+  init() {
+    const drop = document.getElementById('dropZone');
+    const input = document.getElementById('fileInput');
+    drop.addEventListener('click', () => input.click());
+    drop.addEventListener('dragover', e => { e.preventDefault(); drop.classList.add('drag'); });
+    drop.addEventListener('dragleave', () => drop.classList.remove('drag'));
+    drop.addEventListener('drop', e => {
+      e.preventDefault(); drop.classList.remove('drag');
+      if (e.dataTransfer.files.length) this.processarArquivo(e.dataTransfer.files[0]);
+    });
+    input.addEventListener('change', () => {
+      if (input.files.length) this.processarArquivo(input.files[0]);
+    });
+  },
+
+  popularSelectContas() {
+    // usado por outras telas também
+  },
+
+  async processarArquivo(file) {
+    if (!Config.pronto) { toast('Configure a conexão antes de importar.', 'err'); UI.openConfig(); return; }
+    const texto = await file.text();
+    let resultado;
+    try {
+      resultado = OfxParser.parse(texto);
+    } catch (e) {
+      toast('Não foi possível ler o arquivo OFX: ' + e.message, 'err'); return;
+    }
+    if (!resultado.transacoes.length) {
+      const extra = resultado.ignoradasSaldo ? ` (${resultado.ignoradasSaldo} linha(s) de resumo de saldo foram ignoradas, mas não havia nenhuma transação real.)` : '';
+      toast('Nenhuma transação encontrada nesse arquivo.' + extra, 'err'); return;
+    }
+    this.ultimoParse = resultado;
+    this.mostrarPreview(resultado);
+  },
+
+  // lembra, por navegador, qual conta cadastrada foi escolhida da última vez para cada "ID técnico"
+  // detectado num .ofx — assim, da próxima vez que vier um arquivo do mesmo jeito, a conta certa já
+  // vem selecionada sozinha, mesmo se o banco não usar sempre o mesmíssimo ACCTID.
+  getMapaContas() {
+    try { return JSON.parse(localStorage.getItem('cb_mapa_contas') || '{}'); } catch (e) { return {}; }
+  },
+  salvarMapaConta(ofxContaId, contaIdEscolhido) {
+    const mapa = this.getMapaContas();
+    mapa[ofxContaId] = contaIdEscolhido;
+    localStorage.setItem('cb_mapa_contas', JSON.stringify(mapa));
+  },
+
+  mostrarPreview(resultado) {
+    const mapa = this.getMapaContas();
+    const contaLembrada = mapa[resultado.contaId] && State.contas.find(c => c.contaId === mapa[resultado.contaId]);
+    const contaConhecida = contaLembrada || State.contas.find(c => c.contaId === resultado.contaId);
+
+    const contasOrdenadas = State.contas.slice().sort((a, b) => a.nome.localeCompare(b.nome, 'pt-BR'));
+    const opcoesContas = contasOrdenadas.map(c => `<option value="${c.contaId}">${c.nome}</option>`).join('');
+
+    const div = document.getElementById('importPreview');
+    div.classList.remove('hidden');
+    div.innerHTML = `
+      <div class="field" style="max-width:420px;margin-bottom:12px;">
+        <label>Conta bancária desse extrato</label>
+        <select id="selContaImport" style="width:100%;">
+          ${opcoesContas}
+          <option value="__nova__">+ Nova conta (${resultado.banco || 'Conta'} ${resultado.contaId})</option>
+        </select>
+      </div>
+      <div class="field" id="wrapNomeNovaConta" style="max-width:420px;margin-bottom:12px;">
+        <label>Nome amigável para esta conta nova</label>
+        <input type="text" id="nomeContaImport" value="${(resultado.banco || 'Conta') + ' ' + resultado.contaId}">
+      </div>
+      <div id="importStats" class="stat-cards"></div>
+      <button class="btn" id="btnConfirmarImport">Importar</button>
+    `;
+    const sel = document.getElementById('selContaImport');
+    sel.value = contaConhecida ? contaConhecida.contaId : '__nova__';
+    sel.addEventListener('change', () => this.atualizarPreview());
+    this.atualizarPreview();
+  },
+
+  // recalcula (sem chamar o servidor) quais transações são novas/duplicadas/auto-reconhecidas
+  // para a conta atualmente selecionada no dropdown — roda de novo toda vez que o usuário troca
+  // a conta, porque a "chave única" de dedup depende de qual conta local está sendo usada.
+  atualizarPreview() {
+    const resultado = this.ultimoParse;
+    const sel = document.getElementById('selContaImport');
+    const ehNova = sel.value === '__nova__';
+    document.getElementById('wrapNomeNovaConta').style.display = ehNova ? '' : 'none';
+    const contaIdAlvo = ehNova ? resultado.contaId : sel.value;
+
+    const transacoesAlvo = resultado.transacoes.map(t => {
+      const chaveBase = t.fitid ? t.fitid : (t.data + '|' + t.valor.toFixed(2) + '|' + normalizar(t.descricao).slice(0, 50));
+      return Object.assign({}, t, { conta: contaIdAlvo, chaveUnica: contaIdAlvo + '|' + chaveBase });
+    });
+
+    const jaExistentes = new Set(State.transacoes.map(t => t.chaveUnica));
+    const novasNoArquivo = transacoesAlvo.filter(t => !jaExistentes.has(t.chaveUnica));
+    const duplicadasNoArquivo = transacoesAlvo.length - novasNoArquivo.length;
+
+    let autoContagem = 0;
+    novasNoArquivo.forEach(t => {
+      const regra = encontrarRegraParaTransacao(t);
+      if (regra) { t.codigo = regra.codigo; t.status = 'Auto'; t.regraAplicada = regra.id; autoContagem++; }
+    });
+
+    document.getElementById('importStats').innerHTML = `
+      <div class="stat-card"><div class="n">${transacoesAlvo.length}</div><div class="l">transações no arquivo</div></div>
+      <div class="stat-card"><div class="n">${novasNoArquivo.length}</div><div class="l">novas para importar</div></div>
+      <div class="stat-card"><div class="n">${duplicadasNoArquivo}</div><div class="l">já importadas (serão ignoradas)</div></div>
+      <div class="stat-card"><div class="n">${autoContagem}</div><div class="l">já reconhecidas automaticamente</div></div>
+      ${resultado.ignoradasSaldo ? `<div class="stat-card"><div class="n">${resultado.ignoradasSaldo}</div><div class="l">linha(s) de "saldo do dia" ignoradas</div></div>` : ''}
+    `;
+
+    const btn = document.getElementById('btnConfirmarImport');
+    btn.disabled = !novasNoArquivo.length;
+    btn.textContent = novasNoArquivo.length ? `Importar ${novasNoArquivo.length} transação(ões)` : 'Nada novo para importar';
+    btn.onclick = () => this.confirmarImport(contaIdAlvo, ehNova, novasNoArquivo);
+  },
+
+  async confirmarImport(contaIdAlvo, ehNova, novasNoArquivo) {
+    const resultado = this.ultimoParse;
+    const nome = ehNova
+      ? (document.getElementById('nomeContaImport').value.trim() || contaIdAlvo)
+      : ((State.contas.find(c => c.contaId === contaIdAlvo) || {}).nome || contaIdAlvo);
+    const btn = document.getElementById('btnConfirmarImport');
+    btn.disabled = true; btn.textContent = 'Importando...';
+    try {
+      const payloadConta = { contaId: contaIdAlvo, nome };
+      if (ehNova) { payloadConta.banco = resultado.banco; payloadConta.tipoConta = resultado.acctType; }
+      await Api.post('criarConta', payloadConta);
+      const res = await Api.post('importarTransacoes', { transacoes: novasNoArquivo });
+      this.salvarMapaConta(resultado.contaId, contaIdAlvo);
+      const extraPrevistas = res.previstasVinculadas ? ` ${res.previstasVinculadas} já veio conciliada com um lançamento previsto.` : '';
+      toast(`${res.importadas} transação(ões) importada(s). ${res.duplicadas} ignorada(s) por já existirem.${extraPrevistas}`, 'ok');
+      await App.recarregarTransacoes();
+      Importar.popularSelectContas();
+      Conciliacao.popularFiltros();
+      Analises.popularFiltros();
+      Previstos.popularSelects();
+      document.getElementById('importPreview').classList.add('hidden');
+      document.getElementById('fileInput').value = '';
+      UI.mudarAba('conciliar');
+    } catch (e) {
+      toast('Erro ao importar: ' + e.message, 'err');
+      btn.disabled = false; btn.textContent = 'Tentar novamente';
+    }
+  }
+};
+
+/* ======================================================================
+   CONCILIAR
+   ====================================================================== */
+const Conciliacao = {
+  filtroStatusAtual: 'todos',
+  transacaoSelecionada: null,
+  codigoSelecionado: null,
+  PAGINA: 300,
+  limiteVisivel: 300,
+
+  init() {
+    // um único ouvinte de clique na tabela inteira, em vez de um por linha
+    document.getElementById('corpoTransacoes').addEventListener('click', e => {
+      const tr = e.target.closest('tr.tx-row');
+      if (tr) this.abrirModal(decodeURIComponent(tr.dataset.chave));
+    });
+    document.querySelectorAll('#filtroStatus button').forEach(b => {
+      b.addEventListener('click', () => {
+        document.querySelectorAll('#filtroStatus button').forEach(x => x.classList.remove('active'));
+        b.classList.add('active');
+        this.filtroStatusAtual = b.dataset.v;
+        this.limiteVisivel = this.PAGINA;
+        this.render();
+      });
+    });
+    ['filtroConta', 'filtroGrupo', 'filtroDe', 'filtroAte', 'filtroBusca'].forEach(id => {
+      document.getElementById(id).addEventListener('input', () => {
+        this.limiteVisivel = this.PAGINA;
+        this.render();
+      });
+    });
+    document.getElementById('btnConfirmarAuto').addEventListener('click', () => this.confirmarAutomaticas());
+    document.getElementById('btnAplicarRegras').addEventListener('click', async () => {
+      const btn = document.getElementById('btnAplicarRegras');
+      btn.disabled = true; btn.textContent = 'Aplicando...';
+      try {
+        const n = await aplicarRegrasNasPendentes(false);
+        if (n) toast(`${n} transação(ões) classificada(s) automaticamente. Revise e confirme.`, 'ok');
+      } catch (e) {
+        toast('Erro: ' + e.message, 'err');
+      } finally {
+        btn.disabled = false; btn.textContent = '🔄 Aplicar regras nas pendentes';
+      }
+    });
+    document.getElementById('mcBusca').addEventListener('input', () => this.filtrarListaCodigos());
+    document.getElementById('mcCriarRegra').addEventListener('change', e => {
+      document.getElementById('mcPalavraWrap').classList.toggle('hidden', !e.target.checked);
+    });
+    document.querySelectorAll('#mcModoTabs button').forEach(b => {
+      b.addEventListener('click', () => {
+        document.querySelectorAll('#mcModoTabs button').forEach(x => x.classList.remove('active'));
+        b.classList.add('active');
+        const modo = b.dataset.modo;
+        document.getElementById('mcClassificarBox').classList.toggle('hidden', modo !== 'classificar');
+        document.getElementById('mcTransferenciaBox').classList.toggle('hidden', modo !== 'transferencia');
+        document.getElementById('mcDivisaoBox').classList.toggle('hidden', modo !== 'dividir');
+        if (modo === 'dividir' && document.getElementById('mcDivisaoLista').children.length === 0) {
+          Conciliacao.adicionarLinhaDivisao();
+          Conciliacao.adicionarLinhaDivisao();
+        }
+      });
+    });
+  },
+
+  popularFiltros() {
+    const selConta = document.getElementById('filtroConta');
+    selConta.innerHTML = '<option value="">Todas</option>' + State.contas.map(c => `<option value="${c.contaId}">${c.nome}</option>`).join('');
+    const grupos = [...new Set(State.planoContas.filter(p => p.nivel === 1).map(p => p.codigo))];
+    const selGrupo = document.getElementById('filtroGrupo');
+    selGrupo.innerHTML = '<option value="">Todos</option>' + grupos.map(g => `<option value="${g}">${g} - ${nomeGrupo(g)}</option>`).join('');
+  },
+
+  listaFiltrada() {
+    const conta = document.getElementById('filtroConta').value;
+    const grupo = document.getElementById('filtroGrupo').value;
+    const de = document.getElementById('filtroDe').value;
+    const ate = document.getElementById('filtroAte').value;
+    const busca = normalizar(document.getElementById('filtroBusca').value);
+
+    return State.transacoes.filter(t => {
+      if (this.filtroStatusAtual !== 'todos' && t.status !== this.filtroStatusAtual) return false;
+      if (conta && t.conta !== conta) return false;
+      if (grupo && (!t.codigo || t.codigo.split('.')[0] !== grupo)) return false;
+      if (de && t.data < de) return false;
+      if (ate && t.data > ate) return false;
+      if (busca && normalizar(t.descricao + ' ' + t.memo).indexOf(busca) === -1) return false;
+      return true;
+    }).sort((a, b) => b.data.localeCompare(a.data));
+  },
+
+  render() {
+    const lista = this.listaFiltrada();
+    const corpo = document.getElementById('corpoTransacoes');
+    const vazio = document.getElementById('emptyTx');
+
+    // stats — uma única passada pela base, em vez de cinco varreduras
+    let pend = 0, auto = 0, conc = 0, transf = 0, divid = 0;
+    for (const t of State.transacoes) {
+      if (t.status === 'Pendente') pend++;
+      else if (t.status === 'Auto') auto++;
+      else if (t.status === 'Transferencia') transf++;
+      else if (t.status === 'Dividida') divid++;
+      else conc++;
+    }
+    document.getElementById('statsBar').innerHTML = `
+      <div class="stat-card"><div class="n">${State.transacoes.length}</div><div class="l">total de transações</div></div>
+      <div class="stat-card"><div class="n" style="color:var(--amber)">${pend}</div><div class="l">pendentes</div></div>
+      <div class="stat-card"><div class="n" style="color:var(--accent)">${auto}</div><div class="l">automáticas (revisar)</div></div>
+      <div class="stat-card"><div class="n" style="color:var(--green)">${conc}</div><div class="l">conciliadas</div></div>
+      <div class="stat-card"><div class="n" style="color:#7c3aed">${transf}</div><div class="l">transferências</div></div>
+      <div class="stat-card"><div class="n" style="color:#db2777">${divid}</div><div class="l">divididas</div></div>
+    `;
+
+    if (!lista.length) {
+      corpo.innerHTML = '';
+      vazio.classList.remove('hidden');
+      return;
+    }
+    vazio.classList.add('hidden');
+
+    // Índices montados uma vez por render: sem eles, cada linha faria uma busca linear no
+    // plano de contas / divisões / previsões — o que com milhares de transações trava a tela.
+    const mapaPlano = new Map(State.planoContas.map(p => [p.codigo, p]));
+    const mapaContas = new Map(State.contas.map(c => [c.contaId, c.nome]));
+    const mapaPrev = new Map(State.previsoes.map(p => [p.id, p]));
+    const divPorOrigem = new Map();
+    for (const d of State.divisoes) {
+      const atual = divPorOrigem.get(d.chaveUnicaOrigem);
+      if (atual) atual.push(d); else divPorOrigem.set(d.chaveUnicaOrigem, [d]);
+    }
+    const nomeConta = id => mapaContas.get(id) || id;
+
+    // Mostra um pedaço por vez: montar milhares de linhas de HTML de uma vez é o que
+    // fazia a tela demorar a responder depois de cada conciliação.
+    const visiveis = lista.slice(0, this.limiteVisivel);
+    corpo.innerHTML = visiveis.map(t => {
+      const codigoInfo = mapaPlano.get(t.codigo);
+      const statusClasse = t.status === 'Pendente' ? 'pendente' : t.status === 'Auto' ? 'auto' : t.status === 'Transferencia' ? 'transferencia' : t.status === 'Dividida' ? 'dividida' : 'conciliado';
+      const statusLabel = t.status === 'Pendente' ? 'Pendente' : t.status === 'Auto' ? 'Auto' : t.status === 'Transferencia' ? 'Transferência' : t.status === 'Dividida' ? 'Dividida' : 'Conciliada';
+      const itensDivisao = t.status === 'Dividida' ? (divPorOrigem.get(t.chaveUnica) || []) : [];
+      const codigoCel = t.status === 'Transferencia'
+        ? `↔ ${nomeConta(t.contaRelacionada)}`
+        : t.status === 'Dividida'
+        ? `✂ dividida em ${itensDivisao.length} ${itensDivisao.length === 1 ? 'item' : 'itens'}`
+        : (codigoInfo ? `<span class="mono">${codigoInfo.codigo}</span> ${codigoInfo.nome}` : '<span class="muted">—</span>');
+      const previsao = t.previsaoId ? mapaPrev.get(t.previsaoId) : null;
+      return `<tr class="tx-row" data-chave="${encodeURIComponent(t.chaveUnica)}">
+        <td>${fmtData(t.data)}</td>
+        <td>${t.descricao}${t.memo && t.memo !== t.descricao ? '<br><span class="muted" style="font-size:11.5px;">' + t.memo + '</span>' : ''}${previsao ? '<br><span class="muted" style="font-size:11.5px;">🔮 previsto' + (previsao.descricao ? ': ' + previsao.descricao : '') + '</span>' : ''}</td>
+        <td class="muted">${nomeConta(t.conta)}</td>
+        <td style="text-align:right;" class="${t.tipo === 'C' ? 'valC' : 'valD'}">${fmtMoeda(t.valor)}</td>
+        <td>${codigoCel}</td>
+        <td><span class="badge ${statusClasse}">${statusLabel}</span></td>
+      </tr>`;
+    }).join('');
+
+    // rodapé de "mostrar mais"
+    const maisWrap = document.getElementById('txMais');
+    if (lista.length > visiveis.length) {
+      maisWrap.classList.remove('hidden');
+      maisWrap.innerHTML = `<span class="muted">Mostrando ${visiveis.length} de ${lista.length} transações.</span>
+        <button class="btn secondary small" onclick="Conciliacao.mostrarMais()">Mostrar mais ${Math.min(this.PAGINA, lista.length - visiveis.length)}</button>
+        <button class="btn secondary small" onclick="Conciliacao.mostrarTudo()">Mostrar todas</button>`;
+    } else {
+      maisWrap.classList.add('hidden');
+      maisWrap.innerHTML = '';
+    }
+  },
+
+  mostrarMais() { this.limiteVisivel += this.PAGINA; this.render(); },
+  mostrarTudo() { this.limiteVisivel = Infinity; this.render(); },
+
+  confirmarAutomaticas() {
+    const chaves = State.transacoes.filter(t => t.status === 'Auto').map(t => t.chaveUnica);
+    if (!chaves.length) { toast('Não há conciliações automáticas pendentes de confirmação.'); return; }
+    const conjunto = new Set(chaves);
+    const afetadas = State.transacoes.filter(t => conjunto.has(t.chaveUnica));
+    afetadas.forEach(t => { t.status = 'Conciliado'; });
+    this.render();
+    Cache.agendar();
+    toast(`${chaves.length} conciliação(ões) automática(s) confirmada(s).`, 'ok');
+
+    Fila.add({
+      action: 'confirmarLote',
+      payload: { chaves },
+      aoConcluir() { Cache.agendar(); },
+      aoFalhar: (e) => {
+        afetadas.forEach(t => { t.status = 'Auto'; });
+        this.render();
+        Cache.agendar();
+        toast('Não deu pra confirmar na planilha (' + e.message + '). As transações voltaram para "Auto".', 'err');
+      }
+    });
+  },
+
+  abrirModal(chave) {
+    const t = State.transacoes.find(x => x.chaveUnica === chave);
+    if (!t) return;
+    this.transacaoSelecionada = t;
+    this.codigoSelecionado = t.codigo || null;
+
+    document.getElementById('mcDescricao').innerHTML = `
+      <strong>${t.descricao}</strong><br>
+      <span class="muted">${fmtData(t.data)} · ${contaNome(t.conta)} · </span>
+      <span class="${t.tipo === 'C' ? 'valC' : 'valD'}">${fmtMoeda(t.valor)}</span>`;
+    document.getElementById('mcBusca').value = '';
+    document.getElementById('mcCriarRegra').checked = true;
+    document.getElementById('mcPalavraWrap').classList.remove('hidden');
+
+    const regraExistente = t.regraAplicada ? State.regras.find(r => r.id === t.regraAplicada) : null;
+    document.getElementById('mcPalavra').value = regraExistente ? regraExistente.palavraChave : t.descricao;
+    document.getElementById('mcContaEspecifica').checked = regraExistente ? !!regraExistente.conta : false;
+
+    // popula as contas possíveis para transferência (todas menos a própria conta da transação)
+    const outrasContas = State.contas.filter(c => c.contaId !== t.conta);
+    document.getElementById('mcContaDestino').innerHTML = '<option value="">Selecione...</option>' +
+      outrasContas.map(c => `<option value="${c.contaId}">${c.nome}</option>`).join('');
+    if (t.status === 'Transferencia') document.getElementById('mcContaDestino').value = t.contaRelacionada || '';
+
+    // zera a lista de divisão e, se a transação já estiver dividida, repopula com os itens salvos
+    document.getElementById('mcDivisaoLista').innerHTML = '';
+    if (t.status === 'Dividida') {
+      const itensExistentes = State.divisoes.filter(d => d.chaveUnicaOrigem === t.chaveUnica);
+      itensExistentes.forEach(d => this.adicionarLinhaDivisao(d));
+      document.getElementById('mcDesfazerDivisaoWrap').classList.remove('hidden');
+    } else {
+      document.getElementById('mcDesfazerDivisaoWrap').classList.add('hidden');
+    }
+    this.recalcularDivisao();
+
+    // abre no modo certo: transferência/divisão se já for uma, classificar caso contrário
+    const modoInicial = t.status === 'Transferencia' ? 'transferencia' : t.status === 'Dividida' ? 'dividir' : 'classificar';
+    document.querySelectorAll('#mcModoTabs button').forEach(b => b.classList.toggle('active', b.dataset.modo === modoInicial));
+    document.getElementById('mcClassificarBox').classList.toggle('hidden', modoInicial !== 'classificar');
+    document.getElementById('mcTransferenciaBox').classList.toggle('hidden', modoInicial !== 'transferencia');
+    document.getElementById('mcDivisaoBox').classList.toggle('hidden', modoInicial !== 'dividir');
+
+    this.filtrarListaCodigos();
+    document.getElementById('modalConciliar').classList.remove('hidden');
+  },
+
+  filtrarListaCodigos() {
+    const t = this.transacaoSelecionada;
+    if (!t) return;
+    const busca = normalizar(document.getElementById('mcBusca').value);
+    const candidatos = State.planoContas.filter(p => {
+      if (!p.folha) return false;
+      const tp = tipoPermitido(p.codigo);
+      if (tp !== 'AMBOS' && tp !== t.tipo) return false;
+      if (!busca) return true;
+      return normalizar(p.codigo + ' ' + p.nome).indexOf(busca) !== -1;
+    });
+    const lista = document.getElementById('mcLista');
+    lista.innerHTML = candidatos.map(p => `
+      <div class="code-item ${this.codigoSelecionado === p.codigo ? 'selected' : ''}" data-codigo="${p.codigo}">
+        <span class="c">${p.codigo}</span>${p.nome}
+      </div>`).join('') || '<div class="code-item muted">Nenhum código compatível encontrado.</div>';
+    lista.querySelectorAll('.code-item[data-codigo]').forEach(el => {
+      el.addEventListener('click', () => {
+        this.codigoSelecionado = el.dataset.codigo;
+        this.filtrarListaCodigos();
+      });
+    });
+  },
+
+  // adiciona uma linha de item na divisão da transação — `preset` (opcional) vem de uma
+  // divisão já salva (reabrindo uma transação que já estava dividida) com {codigo, valor, descricao}
+  adicionarLinhaDivisao(preset) {
+    const t = this.transacaoSelecionada;
+    const container = document.getElementById('mcDivisaoLista');
+    const codigosCompat = State.planoContas.filter(p => {
+      if (!p.folha) return false;
+      const tp = tipoPermitido(p.codigo);
+      return tp === 'AMBOS' || tp === (t ? t.tipo : '');
+    }).sort((a, b) => a.codigo.localeCompare(b.codigo, undefined, { numeric: true }));
+
+    const div = document.createElement('div');
+    div.className = 'divisao-linha';
+    div.style.cssText = 'display:flex;gap:8px;align-items:flex-start;margin-bottom:8px;flex-wrap:wrap;';
+
+    const sel = document.createElement('select');
+    sel.className = 'mcDivCodigo';
+    sel.style.cssText = 'flex:2;min-width:220px;';
+    sel.innerHTML = '<option value="">Selecione o código...</option>' +
+      codigosCompat.map(p => `<option value="${p.codigo}">${p.codigo} — ${p.nome}</option>`).join('');
+    if (preset && preset.codigo) sel.value = preset.codigo;
+    sel.addEventListener('change', () => this.recalcularDivisao());
+
+    const inpValor = document.createElement('input');
+    inpValor.type = 'number'; inpValor.step = '0.01'; inpValor.min = '0';
+    inpValor.className = 'mcDivValor';
+    inpValor.placeholder = '0,00';
+    inpValor.style.cssText = 'width:110px;';
+    if (preset && preset.valor !== undefined) inpValor.value = Math.abs(Number(preset.valor)).toFixed(2);
+    inpValor.addEventListener('input', () => this.recalcularDivisao());
+
+    const inpDesc = document.createElement('input');
+    inpDesc.type = 'text';
+    inpDesc.className = 'mcDivDescricao';
+    inpDesc.placeholder = 'descrição (opcional)';
+    inpDesc.style.cssText = 'flex:1;min-width:140px;';
+    if (preset && preset.descricao) inpDesc.value = preset.descricao;
+
+    const btnRemover = document.createElement('button');
+    btnRemover.type = 'button';
+    btnRemover.className = 'btn danger small';
+    btnRemover.textContent = '✕';
+    btnRemover.addEventListener('click', () => { div.remove(); this.recalcularDivisao(); });
+
+    div.appendChild(sel);
+    div.appendChild(inpValor);
+    div.appendChild(inpDesc);
+    div.appendChild(btnRemover);
+    container.appendChild(div);
+    this.recalcularDivisao();
+  },
+
+  // recalcula, em tela, quanto já foi lançado nos itens da divisão vs. o valor total da transação
+  recalcularDivisao() {
+    const t = this.transacaoSelecionada;
+    const linhas = [...document.querySelectorAll('#mcDivisaoLista .divisao-linha')];
+    const soma = linhas.reduce((s, linha) => s + (parseFloat(linha.querySelector('.mcDivValor').value) || 0), 0);
+    const totalAlvo = t ? Math.abs(t.valor) : 0;
+    const restante = totalAlvo - soma;
+    const resumo = document.getElementById('mcDivisaoResumo');
+    if (!resumo) return;
+    const bate = Math.abs(restante) < 0.01;
+    resumo.innerHTML = `Total da transação: <strong>${fmtMoeda(totalAlvo)}</strong> &nbsp;·&nbsp; Lançado: <strong>${fmtMoeda(soma)}</strong> &nbsp;·&nbsp; ` +
+      (bate
+        ? `<span style="color:var(--green);font-weight:600;">✓ bate certinho</span>`
+        : `<span style="color:var(--red);font-weight:600;">${restante > 0 ? 'Faltam' : 'Passou'} ${fmtMoeda(Math.abs(restante))}</span>`);
+  }
+};
+
+Conciliacao.salvarModal = function () {
+  const modo = document.querySelector('#mcModoTabs button.active')?.dataset.modo || 'classificar';
+  if (modo === 'transferencia') return this.salvarTransferencia();
+  if (modo === 'dividir') return this.salvarDivisao();
+  return this.salvar();
+};
+
+Conciliacao.salvarTransferencia = function () {
+  const t = this.transacaoSelecionada;
+  if (!t) return;
+  const contaRelacionada = document.getElementById('mcContaDestino').value;
+  if (!contaRelacionada) { toast('Selecione a conta relacionada à transferência.', 'err'); return; }
+
+  const anterior = { codigo: t.codigo, status: t.status, regraAplicada: t.regraAplicada, contaRelacionada: t.contaRelacionada };
+  t.codigo = '';
+  t.status = 'Transferencia';
+  t.regraAplicada = '';
+  t.contaRelacionada = contaRelacionada;
+  UI.closeConciliar();
+  Conciliacao.render();
+  Cache.agendar();
+  toast('Marcada como transferência entre contas.', 'ok');
+
+  Fila.add({
+    action: 'marcarTransferencia',
+    payload: { chaveUnica: t.chaveUnica, contaRelacionada },
+    aoConcluir() { Cache.agendar(); },
+    aoFalhar(e) {
+      Object.assign(t, anterior);
+      Conciliacao.render();
+      Cache.agendar();
+      toast('Não deu pra salvar na planilha (' + e.message + '). A transação voltou como estava.', 'err');
+    }
+  });
+};
+
+Conciliacao.salvarDivisao = async function () {
+  const t = this.transacaoSelecionada;
+  if (!t) return;
+  const linhas = [...document.querySelectorAll('#mcDivisaoLista .divisao-linha')];
+  if (linhas.length < 2) { toast('Adicione pelo menos 2 itens para dividir a transação (se é só um código, use "Classificar").', 'err'); return; }
+
+  const itens = [];
+  for (const linha of linhas) {
+    const codigo = linha.querySelector('.mcDivCodigo').value;
+    const valorAbs = parseFloat(linha.querySelector('.mcDivValor').value);
+    const descricao = linha.querySelector('.mcDivDescricao').value.trim();
+    if (!codigo || !valorAbs || isNaN(valorAbs) || valorAbs <= 0) {
+      toast('Preencha o código e um valor maior que zero em todos os itens (ou remova o item vazio).', 'err');
+      return;
+    }
+    itens.push({ codigo, valor: t.tipo === 'D' ? -valorAbs : valorAbs, descricao });
+  }
+  const soma = itens.reduce((s, it) => s + it.valor, 0);
+  if (Math.abs(soma - t.valor) > 0.01) {
+    toast('A soma dos itens precisa bater com o valor total da transação — confira o resumo acima.', 'err');
+    return;
+  }
+
+  const btn = document.getElementById('mcSalvar');
+  btn.disabled = true; btn.textContent = 'Salvando...';
+  try {
+    const res = await Api.post('dividirTransacao', { chaveUnica: t.chaveUnica, itens });
+    // atualiza só o que mudou, em vez de baixar a base inteira de novo
+    State.divisoes = State.divisoes.filter(d => d.chaveUnicaOrigem !== t.chaveUnica);
+    if (res && res.divisoes) State.divisoes.push(...res.divisoes);
+    t.codigo = ''; t.status = 'Dividida'; t.regraAplicada = 'Manual';
+    t.contaRelacionada = ''; t.previsaoId = '';
+    Cache.agendar();
+    UI.closeConciliar();
+    Conciliacao.render();
+    toast(`Transação dividida em ${itens.length} itens.`, 'ok');
+  } catch (e) {
+    toast('Erro ao salvar: ' + e.message, 'err');
+  } finally {
+    btn.disabled = false; btn.textContent = 'Salvar conciliação';
+  }
+};
+
+Conciliacao.desfazerDivisao = async function () {
+  const t = this.transacaoSelecionada;
+  if (!t) return;
+  try {
+    await Api.post('desfazerDivisao', { chaveUnica: t.chaveUnica });
+    State.divisoes = State.divisoes.filter(d => d.chaveUnicaOrigem !== t.chaveUnica);
+    t.status = 'Pendente'; t.codigo = ''; t.regraAplicada = '';
+    Cache.agendar();
+    UI.closeConciliar();
+    Conciliacao.render();
+    toast('Divisão desfeita — a transação voltou a ficar pendente de classificação.', 'ok');
+  } catch (e) {
+    toast('Erro: ' + e.message, 'err');
+  }
+};
+
+Conciliacao.salvar = function () {
+  const t = this.transacaoSelecionada;
+  if (!t) return;
+  if (!this.codigoSelecionado) { toast('Selecione um código do plano de contas.', 'err'); return; }
+  const criarRegra = document.getElementById('mcCriarRegra').checked;
+  const palavraChave = document.getElementById('mcPalavra').value.trim();
+  const contaEspecifica = document.getElementById('mcContaEspecifica').checked;
+  if (criarRegra && !palavraChave) { toast('Informe a palavra-chave da regra, ou desmarque a opção.', 'err'); return; }
+
+  const codigo = this.codigoSelecionado;
+  const anterior = { codigo: t.codigo, status: t.status, regraAplicada: t.regraAplicada };
+
+  // A tela é atualizada imediatamente e o modal fecha; a gravação na planilha acontece
+  // em segundo plano. Se der errado, a transação volta exatamente como estava.
+  t.codigo = codigo;
+  t.status = 'Conciliado';
+  t.regraAplicada = t.regraAplicada || 'Manual';
+  UI.closeConciliar();
+  Conciliacao.render();
+  Cache.agendar();
+  toast('Transação conciliada!', 'ok');
+
+  Fila.add({
+    action: 'conciliar',
+    payload: {
+      chaveUnica: t.chaveUnica, codigo, status: 'Conciliado',
+      tipo: t.tipo, criarRegra, palavraChave, regraContaEspecifica: contaEspecifica
+    },
+    aoConcluir(res) {
+      if (res && res.regra) {
+        let r = State.regras.find(x => x.id === res.regra.id);
+        if (!r) {
+          r = { id: res.regra.id, palavraChave, codigo, tipo: t.tipo, conta: contaEspecifica ? t.conta : '', ativo: true, criadoEm: new Date().toISOString(), vezesUsada: 1 };
+          State.regras.push(r);
+        } else {
+          r.codigo = codigo; r.ativo = true;
+        }
+        t.regraAplicada = res.regra.id;
+      }
+      Cache.agendar();
+    },
+    aoFalhar(e) {
+      Object.assign(t, anterior);
+      Conciliacao.render();
+      Cache.agendar();
+      toast('Não deu pra salvar na planilha (' + e.message + '). A transação voltou como estava.', 'err');
+    }
+  });
+};
+
+/* ======================================================================
+   ANÁLISES
+   ====================================================================== */
+// ---- Diagnóstico de performance (indicadores CV/MC/DF/LOAI/INV/LO/SNO/RL) ----
+// "tipo":'custo' = quanto menor (em % da receita), melhor (CV, DF, INV, SNO).
+// "tipo":'margem' = quanto maior (em % da receita), melhor (MC, LOAI, LO, RL).
+// Faixas padrão abaixo são um ponto de partida de mercado; o usuário pode ajustar por "Ajustar metas do seu ramo".
+const INDICADORES_PADRAO = {
+  CV:   { curto: 'CV',   label: 'Custos Variáveis',            tipo: 'custo',  grupo: '4',   idealMin: 65, idealMax: 70 },
+  MC:   { curto: 'MC',   label: 'Margem de Contribuição',      tipo: 'margem', grupo: null,  idealMin: 33, idealMax: 38 },
+  DF:   { curto: 'DF',   label: 'Despesas Fixas',               tipo: 'custo',  grupo: '5',   idealMin: 20, idealMax: 22 },
+  LOAI: { curto: 'LOAI', label: 'LOAI',                         tipo: 'margem', grupo: null,  idealMin: 13, idealMax: 17 },
+  INV:  { curto: 'INV',  label: 'Investimentos',                tipo: 'custo',  grupo: '6',   idealMin: 4,  idealMax: 6  },
+  LO:   { curto: 'LO',   label: 'Lucro Operacional',            tipo: 'margem', grupo: null,  idealMin: 8,  idealMax: 12 },
+  SNO:  { curto: 'SNO',  label: 'Saídas Não Operacionais',      tipo: 'custo',  grupo: '7.2', idealMin: 0,  idealMax: 2  },
+  RL:   { curto: 'RL',   label: 'Resultado Líquido',            tipo: 'margem', grupo: null,  idealMin: 6,  idealMax: 10 },
+};
+function metasIndicadoresPadrao() { return JSON.parse(JSON.stringify(INDICADORES_PADRAO)); }
+function metasIndicadoresAtuais() {
+  const base = metasIndicadoresPadrao();
+  try {
+    const raw = localStorage.getItem('cb_metas_indicadores');
+    if (raw) {
+      const salvas = JSON.parse(raw);
+      Object.keys(base).forEach(k => {
+        if (salvas[k] && Number.isFinite(Number(salvas[k].idealMin)) && Number.isFinite(Number(salvas[k].idealMax))) {
+          base[k].idealMin = Number(salvas[k].idealMin);
+          base[k].idealMax = Number(salvas[k].idealMax);
+        }
+      });
+    }
+  } catch (e) { /* localStorage indisponível ou corrompido — usa padrão */ }
+  return base;
+}
+
+const Analises = {
+  _indicadorAtivo: null,
+
+  popularFiltros() {
+    const sel = document.getElementById('anConta');
+    sel.innerHTML = '<option value="">Todas</option>' + State.contas.map(c => `<option value="${c.contaId}">${c.nome}</option>`).join('');
+  },
+
+  render() {
+    const conta = document.getElementById('anConta').value;
+    const de = document.getElementById('anDe').value;
+    const ate = document.getElementById('anAte').value;
+
+    const consideradas = State.transacoes.filter(t => {
+      if (t.status === 'Pendente' || t.status === 'Transferencia' || t.status === 'Dividida') return false;
+      if (conta && t.conta !== conta) return false;
+      if (de && t.data < de) return false;
+      if (ate && t.data > ate) return false;
+      return true;
+    });
+    const pendentesForaFiltro = State.transacoes.filter(t => {
+      if (t.status !== 'Pendente') return false;
+      if (conta && t.conta !== conta) return false;
+      if (de && t.data < de) return false;
+      if (ate && t.data > ate) return false;
+      return true;
+    });
+    const transferenciasForaFiltro = State.transacoes.filter(t => {
+      if (t.status !== 'Transferencia') return false;
+      if (conta && t.conta !== conta) return false;
+      if (de && t.data < de) return false;
+      if (ate && t.data > ate) return false;
+      return true;
+    });
+    const divididasNoFiltro = State.transacoes.filter(t => {
+      if (t.status !== 'Dividida') return false;
+      if (conta && t.conta !== conta) return false;
+      if (de && t.data < de) return false;
+      if (ate && t.data > ate) return false;
+      return true;
+    });
+
+    // cada transação dividida vira, para efeito de análise, vários itens — um por código escolhido
+    // na divisão — em vez de um só. Uma inconsistência (item excluído depois de dividir, por ex.)
+    // vira aviso em vez de estourar o total.
+    let divididasDessincronizadas = 0;
+    const itensDivididos = [];
+    divididasNoFiltro.forEach(t => {
+      const itens = State.divisoes.filter(d => d.chaveUnicaOrigem === t.chaveUnica);
+      const soma = itens.reduce((s, d) => s + (Number(d.valor) || 0), 0);
+      if (Math.abs(soma - t.valor) > 0.01) divididasDessincronizadas++;
+      itens.forEach(d => itensDivididos.push({ codigo: d.codigo, valor: Number(d.valor) || 0, tipo: (Number(d.valor) || 0) >= 0 ? 'C' : 'D' }));
+    });
+
+    // itens que entram nos totais e nos agrupadores: transações normais (não divididas) + os
+    // pedaços de cada transação dividida
+    const itens = [...consideradas.map(t => ({ codigo: t.codigo, valor: t.valor, tipo: t.tipo })), ...itensDivididos];
+
+    // ---- DRE (demonstração de resultado): mesma lógica de apuração de lucro que se usa em
+    // qualquer negócio — receita, tira custo variável (sobra margem de contribuição), tira despesa
+    // fixa (sobra lucro operacional antes dos investimentos), tira investimento (sobra lucro
+    // operacional), soma/subtrai movimentação não operacional (sobra resultado líquido). Os grupos
+    // do plano de contas (3, 4, 5, 6, 7, 13) já foram desenhados pra bater exatamente com essas
+    // etapas, então é só somar cada grupo com o sinal certo.
+    const somaGrupo = (g, apenasTipo) => itens
+      .filter(i => i.codigo && i.codigo.split('.')[0] === g && (!apenasTipo || i.tipo === apenasTipo))
+      .reduce((s, i) => s + i.valor, 0);
+
+    const receita = somaGrupo('3');
+    const custosVariaveis = Math.abs(somaGrupo('4'));
+    const despesasFixas = Math.abs(somaGrupo('5'));
+    const investimentos = Math.abs(somaGrupo('6'));
+    const naoOpEntradas = somaGrupo('7', 'C');
+    const naoOpSaidas = Math.abs(somaGrupo('7', 'D'));
+    const naoOpLiquido = naoOpEntradas - naoOpSaidas;
+    const acertoCaixa = somaGrupo('13');
+
+    const margemContribuicao = receita - custosVariaveis;
+    const loai = margemContribuicao - despesasFixas;
+    const lucroOperacional = loai - investimentos;
+    const resultadoLiquido = lucroOperacional + naoOpLiquido;
+
+    const pct = v => receita ? (v / receita * 100) : null;
+    const fmtPct = v => v === null || v === undefined
+      ? ''
+      : ` <span class="muted" style="font-weight:400;font-size:11.5px;">(${v.toFixed(1)}% da receita)</span>`;
+    const corResultado = v => v >= 0 ? 'var(--green)' : 'var(--red)';
+
+    document.getElementById('anResumo').innerHTML = `
+      <div class="stat-card"><div class="n" style="color:var(--green)">${fmtMoeda(receita)}</div><div class="l">receita</div></div>
+      <div class="stat-card"><div class="n">${fmtMoeda(margemContribuicao)}</div><div class="l">margem de contribuição${pct(margemContribuicao) !== null ? ' · ' + pct(margemContribuicao).toFixed(1) + '%' : ''}</div></div>
+      <div class="stat-card"><div class="n">${fmtMoeda(lucroOperacional)}</div><div class="l">lucro operacional${pct(lucroOperacional) !== null ? ' · ' + pct(lucroOperacional).toFixed(1) + '%' : ''}</div></div>
+      <div class="stat-card"><div class="n" style="color:${corResultado(resultadoLiquido)}">${fmtMoeda(resultadoLiquido)}</div><div class="l">resultado líquido${pct(resultadoLiquido) !== null ? ' · ' + pct(resultadoLiquido).toFixed(1) + '%' : ''}</div></div>
+    `;
+
+    const naoOpDetalhe = (naoOpEntradas || naoOpSaidas)
+      ? ` <span class="muted" style="font-size:11px;">(entradas ${fmtMoeda(naoOpEntradas)} · saídas ${fmtMoeda(naoOpSaidas)})</span>`
+      : '';
+
+    document.getElementById('anDRE').innerHTML = `
+      <div class="dre-linha inicio">
+        <span class="dre-label">Receita</span>
+        <span class="dre-valor" style="color:var(--green);">${fmtMoeda(receita)}</span>
+      </div>
+      <div class="dre-linha sub">
+        <span class="dre-label">(–) Custos Variáveis</span>
+        <span class="dre-valor" style="color:var(--red);">${fmtMoeda(custosVariaveis)}</span>
+      </div>
+      <div class="dre-linha total">
+        <span class="dre-label">= Margem de Contribuição</span>
+        <span class="dre-valor">${fmtMoeda(margemContribuicao)}${fmtPct(pct(margemContribuicao))}</span>
+      </div>
+      <div class="dre-linha sub">
+        <span class="dre-label">(–) Despesas Fixas</span>
+        <span class="dre-valor" style="color:var(--red);">${fmtMoeda(despesasFixas)}</span>
+      </div>
+      <div class="dre-linha total">
+        <span class="dre-label">= Lucro Operacional Antes dos Investimentos (LOAI)</span>
+        <span class="dre-valor">${fmtMoeda(loai)}${fmtPct(pct(loai))}</span>
+      </div>
+      <div class="dre-linha sub">
+        <span class="dre-label">(–) Investimentos</span>
+        <span class="dre-valor" style="color:var(--red);">${fmtMoeda(investimentos)}</span>
+      </div>
+      <div class="dre-linha total">
+        <span class="dre-label">= Lucro Operacional</span>
+        <span class="dre-valor">${fmtMoeda(lucroOperacional)}${fmtPct(pct(lucroOperacional))}</span>
+      </div>
+      <div class="dre-linha sub">
+        <span class="dre-label">(${naoOpLiquido >= 0 ? '+' : '–'}) Movimentações Não Operacionais${naoOpDetalhe}</span>
+        <span class="dre-valor" style="color:${corResultado(naoOpLiquido)};">${fmtMoeda(naoOpLiquido)}</span>
+      </div>
+      <div class="dre-linha final">
+        <span class="dre-label">= Resultado Líquido</span>
+        <span class="dre-valor" style="color:${corResultado(resultadoLiquido)};">${fmtMoeda(resultadoLiquido)}${fmtPct(pct(resultadoLiquido))}</span>
+      </div>
+      ${acertoCaixa ? `<div class="dre-linha extra">
+        <span class="dre-label">13 — Acerto do Caixa <span class="muted" style="font-weight:400;">(fora do DRE, só informativo)</span></span>
+        <span class="dre-valor">${fmtMoeda(acertoCaixa)}</span>
+      </div>` : ''}
+    `;
+
+    // agrupa por grupo (nível 1) e depois por subgrupo (nível 2)
+    const porGrupo = {};
+    itens.forEach(i => {
+      if (!i.codigo) return;
+      const grupo = i.codigo.split('.')[0];
+      const subgrupo = i.codigo.split('.').slice(0, 2).join('.');
+      porGrupo[grupo] = porGrupo[grupo] || { total: 0, subs: {} };
+      porGrupo[grupo].total += Math.abs(i.valor);
+      porGrupo[grupo].subs[subgrupo] = (porGrupo[grupo].subs[subgrupo] || 0) + Math.abs(i.valor);
+    });
+
+    const maxGrupo = Math.max(1, ...Object.values(porGrupo).map(g => g.total));
+    const gruposOrdenados = Object.keys(porGrupo).sort((a, b) => porGrupo[b].total - porGrupo[a].total);
+
+    document.getElementById('anGrupos').innerHTML = gruposOrdenados.map(g => {
+      const info = porGrupo[g];
+      const subsOrdenados = Object.keys(info.subs).sort((a, b) => info.subs[b] - info.subs[a]);
+      const maxSub = Math.max(1, ...Object.values(info.subs));
+      return `<div class="group-block">
+        <div class="group-head" onclick="this.nextElementSibling.classList.toggle('hidden')">
+          <span style="min-width:280px;">${g} — ${nomeGrupo(g)}</span>
+          <div class="bar-wrap"><div class="bar" style="width:${(info.total / maxGrupo * 100).toFixed(1)}%"></div></div>
+          <span style="min-width:120px;text-align:right;">${fmtMoeda(info.total)}</span>
+        </div>
+        <div class="group-body hidden">
+          ${subsOrdenados.map(s => {
+            const nomeS = State.planoContas.find(p => p.codigo === s)?.nome || s;
+            return `<div class="sub-row">
+              <div class="name">${s} ${nomeS}</div>
+              <div class="bar-wrap"><div class="bar" style="width:${(info.subs[s] / maxSub * 100).toFixed(1)}%"></div></div>
+              <div class="val">${fmtMoeda(info.subs[s])}</div>
+            </div>`;
+          }).join('')}
+        </div>
+      </div>`;
+    }).join('') || '<div class="empty-state">Nenhuma transação conciliada nesse período/conta.</div>';
+
+    const avisoEl = document.getElementById('anPendenteAviso');
+    const avisos = [];
+    if (pendentesForaFiltro.length) {
+      const somaPend = pendentesForaFiltro.reduce((s, t) => s + Math.abs(t.valor), 0);
+      avisos.push(`⚠ ${pendentesForaFiltro.length} transação(ões) pendente(s) de conciliação (${fmtMoeda(somaPend)}) não estão somadas nesta análise.`);
+    }
+    if (transferenciasForaFiltro.length) {
+      avisos.push(`↔ ${transferenciasForaFiltro.length} transferência(s) entre contas não entram nesse cálculo (são movimentação interna, não receita/despesa).`);
+    }
+    if (divididasDessincronizadas) {
+      avisos.push(`✂ ${divididasDessincronizadas} transação(ões) dividida(s) com a soma dos itens diferente do valor total — reabra em Conciliar e confira a divisão.`);
+    }
+    avisoEl.innerHTML = avisos.join('<br>');
+
+    this.renderIndicadores({
+      receita, custosVariaveis, despesasFixas, investimentos, margemContribuicao, loai,
+      lucroOperacional, naoOpEntradas, naoOpSaidas, resultadoLiquido, itens,
+    });
+  },
+
+  // -------- Diagnóstico de performance --------
+
+  renderIndicadores(ctx) {
+    const metas = metasIndicadoresAtuais();
+    const { receita, custosVariaveis, despesasFixas, investimentos, margemContribuicao, loai,
+            lucroOperacional, naoOpEntradas, naoOpSaidas, resultadoLiquido, itens } = ctx;
+
+    const idsAlvo = ['anIndLucro', 'anIndFoco', 'anIndChips', 'anIndDetalhe'];
+    if (!receita) {
+      idsAlvo.forEach(id => document.getElementById(id).innerHTML = '');
+      document.getElementById('anIndChips').innerHTML = '<div class="empty-state">Sem receita conciliada no período — nada para diagnosticar ainda.</div>';
+      return;
+    }
+
+    const valores = {
+      CV: custosVariaveis, MC: margemContribuicao, DF: despesasFixas, LOAI: loai,
+      INV: investimentos, LO: lucroOperacional, SNO: naoOpSaidas, RL: resultadoLiquido,
+    };
+    const percentuais = {};
+    Object.keys(valores).forEach(k => { percentuais[k] = (valores[k] / receita) * 100; });
+
+    const statusDe = (key) => {
+      const cfg = metas[key], v = percentuais[key];
+      if (cfg.tipo === 'custo') {
+        if (v <= cfg.idealMin) return 'otimo';
+        if (v <= cfg.idealMax) return 'ideal';
+        return 'ohnao';
+      }
+      if (v >= cfg.idealMax) return 'otimo';
+      if (v >= cfg.idealMin) return 'ideal';
+      return 'ohnao';
+    };
+
+    // top-3 subgrupos (categorias) dentro de um grupo do plano de contas — reaproveita os "itens"
+    // já filtrados/expandidos (inclui os pedaços de transações divididas) usados no resto da aba.
+    const top3DoGrupo = (grupo) => {
+      if (!grupo) return [];
+      const subs = {};
+      itens.forEach(i => {
+        if (!i.codigo || i.codigo.split('.')[0] !== grupo) return;
+        const sub = i.codigo.split('.').slice(0, 2).join('.');
+        subs[sub] = (subs[sub] || 0) + Math.abs(i.valor);
+      });
+      return Object.keys(subs)
+        .map(s => ({ codigo: s, nome: State.planoContas.find(p => p.codigo === s)?.nome || s, valor: subs[s] }))
+        .sort((a, b) => b.valor - a.valor)
+        .slice(0, 3);
+    };
+
+    // impacto no Lucro Operacional de melhorar cada alavanca em 1% do valor próprio dela (não 1 ponto
+    // percentual da receita): reduzir CV/DF/INV em 1% do valor atual libera esse tanto direto pro LO;
+    // aumentar a Receita em 1% carrega junto o custo variável proporcional, então só a margem de
+    // contribuição (1% dela) chega ao LO; SNO fica abaixo da linha do LO, então nunca o afeta.
+    const baseLO = Math.abs(lucroOperacional) || null;
+    const impacto = {
+      CV: baseLO ? (custosVariaveis / baseLO) : null,
+      Receita: baseLO ? (margemContribuicao / baseLO) : null,
+      DF: baseLO ? (despesasFixas / baseLO) : null,
+      INV: baseLO ? (investimentos / baseLO) : null,
+      SNO: 0,
+    };
+    const alavancas = [
+      { key: 'CV', label: 'Custos Variáveis', direcao: 'Reduzindo', grupo: '4' },
+      { key: 'Receita', label: 'Receita', direcao: 'Aumentando', grupo: '3' },
+      { key: 'DF', label: 'Despesas Fixas', direcao: 'Reduzindo', grupo: '5' },
+      { key: 'INV', label: 'Investimentos', direcao: 'Reduzindo', grupo: '6' },
+      { key: 'SNO', label: 'Saídas Não Operacionais', direcao: 'Reduzindo', grupo: '7.2' },
+    ];
+    const vencedora = alavancas.filter(a => impacto[a.key] !== null).sort((a, b) => impacto[b.key] - impacto[a.key])[0];
+
+    const elLucro = document.getElementById('anIndLucro');
+    if (vencedora && impacto[vencedora.key] > 0) {
+      const top3 = top3DoGrupo(vencedora.grupo);
+      elLucro.innerHTML = `
+        <div class="ind-top">
+          <span class="tag">💰 Indicador Lucro</span>
+          <h4>O indicador que aumentará seu lucro mais rápido é <b>${vencedora.label.toUpperCase()}</b></h4>
+          <p class="muted" style="font-size:12.5px;margin:2px 0 0;">${vencedora.direcao} ${vencedora.label} em 1% (do valor atual), o Lucro Operacional aumenta ${impacto[vencedora.key].toFixed(1)}%.</p>
+          <div class="ind-levers">
+            ${alavancas.map(a => `
+              <div class="ind-lever${a.key === vencedora.key ? ' destaque' : ''}">
+                <div class="k">${a.label}</div>
+                <div class="arrow">${a.direcao} em ${a.direcao === 'Reduzindo' ? '↓' : '↑'} 1%</div>
+                <div class="pct">seu lucro aumenta ${impacto[a.key] === null ? '—' : impacto[a.key].toFixed(1) + '%'}</div>
+              </div>`).join('')}
+          </div>
+          ${top3.length ? `<div class="ind-top3">
+            <div class="muted" style="grid-column:1/-1;font-size:11.5px;font-weight:600;">TOP ${top3.length} categoria(s) para atuar dentro de ${vencedora.label}</div>
+            ${top3.map(t => `<div class="ind-top3-item"><div>${t.nome}</div><div class="v">${fmtMoeda(t.valor)} <span class="muted">(${(t.valor / receita * 100).toFixed(1)}%)</span></div></div>`).join('')}
+          </div>` : ''}
+        </div>`;
+    } else {
+      elLucro.innerHTML = '';
+    }
+
+    // ponto de maior atenção: entre os indicadores fora da faixa ideal, o que está mais longe dela
+    // (em pontos percentuais de receita)
+    const chaves = Object.keys(valores);
+    let foco = null, maiorGap = 0;
+    chaves.forEach(k => {
+      if (statusDe(k) !== 'ohnao') return;
+      const cfg = metas[k];
+      const gap = cfg.tipo === 'custo' ? (percentuais[k] - cfg.idealMax) : (cfg.idealMin - percentuais[k]);
+      if (gap > maiorGap) { maiorGap = gap; foco = k; }
+    });
+
+    const elFoco = document.getElementById('anIndFoco');
+    if (foco) {
+      const cfgF = metas[foco];
+      const top3 = top3DoGrupo(cfgF.grupo);
+      elFoco.innerHTML = `
+        <div class="ind-foco">
+          <span class="tag">🎯 Indicador Foco</span>
+          <h4>Seu maior ponto de melhoria é: <b>${cfgF.label.toUpperCase()}</b></h4>
+          <p class="muted" style="font-size:12.5px;margin:2px 0 0;">Está ${maiorGap.toFixed(1)} pontos percentuais fora da faixa ideal para o seu ramo.</p>
+          ${top3.length ? `<div class="ind-top3">
+            <div class="muted" style="grid-column:1/-1;font-size:11.5px;font-weight:600;">TOP ${top3.length} categoria(s) para ficar atento dentro de ${cfgF.label}</div>
+            ${top3.map(t => `<div class="ind-top3-item"><div>${t.nome}</div><div class="v">${fmtMoeda(t.valor)} <span class="muted">(${(t.valor / receita * 100).toFixed(1)}%)</span></div></div>`).join('')}
+          </div>` : ''}
+        </div>`;
+    } else {
+      elFoco.innerHTML = '';
+    }
+
+    if (!this._indicadorAtivo || !valores.hasOwnProperty(this._indicadorAtivo)) {
+      this._indicadorAtivo = foco || 'RL';
+    }
+
+    document.getElementById('anIndChips').innerHTML = `<div class="ind-chips">
+      ${chaves.map(k => {
+        const st = statusDe(k), v = percentuais[k];
+        return `<button class="ind-chip ${st}${k === this._indicadorAtivo ? ' sel' : ''}" onclick="Analises.selecionarIndicador('${k}')">
+          <span>${metas[k].curto}</span><span class="p">${v.toFixed(0)}%</span>
+        </button>`;
+      }).join('')}
+    </div>`;
+
+    this.renderDetalheIndicador(this._indicadorAtivo, { metas, valores, percentuais, receita, naoOpEntradas, statusDe });
+  },
+
+  selecionarIndicador(key) {
+    this._indicadorAtivo = key;
+    this.render();
+  },
+
+  renderDetalheIndicador(key, ctx) {
+    const { metas, valores, percentuais, receita, naoOpEntradas, statusDe } = ctx;
+    const cfg = metas[key];
+    const v = percentuais[key];
+    const status = statusDe(key);
+    const el = document.getElementById('anIndDetalhe');
+
+    const texto = this.textoIndicador(key, cfg, v, valores[key], receita, naoOpEntradas, status);
+
+    // posição do "ponteiro" dentro das 3 faixas (0-100%) — o lado "bom" fica sempre à esquerda,
+    // então em indicadores tipo margem (onde valor alto é bom) o eixo é lido invertido.
+    let pos;
+    if (status === 'otimo') {
+      const ref = Math.max(cfg.idealMin, cfg.idealMax, 1);
+      const prof = cfg.tipo === 'custo' ? (cfg.idealMin - v) / ref : (v - cfg.idealMax) / ref;
+      pos = 33 - Math.min(1, Math.max(0, prof)) * 33;
+    } else if (status === 'ideal') {
+      const faixa = Math.max(cfg.idealMax - cfg.idealMin, 0.01);
+      const frac = cfg.tipo === 'custo' ? (v - cfg.idealMin) / faixa : (cfg.idealMax - v) / faixa;
+      pos = 33 + Math.min(1, Math.max(0, frac)) * 34;
+    } else {
+      const ref = Math.max(cfg.idealMax, cfg.idealMin, 1);
+      const excesso = cfg.tipo === 'custo' ? (v - cfg.idealMax) : (cfg.idealMin - v);
+      pos = 67 + Math.min(1, Math.max(0, excesso / ref)) * 33;
+    }
+    pos = Math.min(97, Math.max(3, pos));
+
+    const marcaEsq = cfg.tipo === 'custo' ? cfg.idealMin : cfg.idealMax;
+    const marcaDir = cfg.tipo === 'custo' ? cfg.idealMax : cfg.idealMin;
+
+    el.innerHTML = `
+      <div class="ind-detalhe ${status}">
+        <div class="ind-detalhe-head">
+          <div class="ind-detalhe-box ${status}">
+            <div class="pct">${v.toFixed(0)}%</div>
+            <div class="val">${fmtMoeda(valores[key])}</div>
+          </div>
+          <div class="ind-detalhe-txt">
+            <h4>${texto.titulo}</h4>
+            <p>${texto.corpo}</p>
+          </div>
+        </div>
+        <div class="ind-gauge">
+          <div class="barwrap">
+            <div class="ponteiro" style="left:${pos}%;">${v.toFixed(0)}%</div>
+            <div class="bar">
+              <span class="z-otimo">Ótimo</span><span class="z-ideal">Ideal</span><span class="z-ohnao">Oh não!</span>
+            </div>
+          </div>
+          <div class="eixo">
+            <span class="marca" style="left:33%;transform:translate(-50%,0);">${marcaEsq}%</span>
+            <span class="marca" style="left:67%;transform:translate(-50%,0);">${marcaDir}%</span>
+          </div>
+        </div>
+      </div>`;
+  },
+
+  textoIndicador(key, cfg, v, valorReais, receita, naoOpEntradas, status) {
+    const fmtP = n => (Math.round(n * 10) / 10).toString().replace('.', ',');
+    const valorEmPct = pct => fmtMoeda(receita * pct / 100);
+    const label = cfg.label;
+
+    if (status === 'otimo') {
+      if (cfg.tipo === 'custo') {
+        const diff = fmtP(cfg.idealMin - v);
+        if (key === 'CV') {
+          return { titulo: 'Uau! Precificação excelente', corpo: `Você tem uma ótima precificação de produtos/serviços — gastou ${diff}% a menos que o ideal para o seu ramo em Custos Variáveis. Parabéns, continue assim!` };
+        }
+        return { titulo: `Ótimo! ${label} sob controle`, corpo: `Você gastou ${diff}% a menos que o ideal para o seu ramo em ${label}. Continue de olho para manter essa folga.` };
+      }
+      return { titulo: `Ótimo! ${label} acima da média`, corpo: `Sua ${label} está acima da média para o seu ramo — isso significa uma ótima gestão. Tente mantê-la sempre acima de ${fmtP(cfg.idealMax)}%.` };
+    }
+
+    if (status === 'ideal') {
+      if (cfg.tipo === 'custo') {
+        return { titulo: `${label} dentro do ideal`, corpo: `Seu ${label} está dentro da faixa ideal para o seu ramo, entre ${fmtP(cfg.idealMin)}% e ${fmtP(cfg.idealMax)}%. Fique de olho para não ultrapassar ${fmtP(cfg.idealMax)}%.` };
+      }
+      let corpo = `Parabéns! Seu ${cfg.curto} está dentro do ideal. Para melhorar ainda mais, alcance um ${cfg.curto} acima de ${fmtP(cfg.idealMax)}%.`;
+      if (key === 'LOAI') corpo += ' Isso torna a sua estrutura operacional altamente lucrativa — o LOAI reflete a viabilidade do seu negócio.';
+      if (key === 'RL') {
+        corpo += ' Isso aumenta sua segurança financeira e permite possíveis distribuições de lucro.';
+        if (naoOpEntradas) corpo += ` Perceba que seu Resultado Líquido pode ter sido impactado pelas Entradas Não Operacionais de ${fmtMoeda(naoOpEntradas)} que seu negócio teve no período.`;
+      }
+      return { titulo: `Parabéns! ${label} dentro do ideal`, corpo };
+    }
+
+    // ohnao
+    if (cfg.tipo === 'custo') {
+      const diff = fmtP(v - cfg.idealMax);
+      const diffReais = fmtMoeda(valorReais - receita * cfg.idealMax / 100);
+      let corpo = `Dada a sua receita no período, você gastou ${diff}% (${diffReais}) a mais que o ideal para o seu ramo em ${label}.`;
+      if (key === 'DF') {
+        corpo += ` Para ficar dentro do ideal, gaste entre ${fmtP(cfg.idealMin)}% (${valorEmPct(cfg.idealMin)}) e ${fmtP(cfg.idealMax)}% (${valorEmPct(cfg.idealMax)}).`;
+      } else if (key === 'INV') {
+        corpo += ` O ideal seria entre ${fmtP(cfg.idealMin)}% (${valorEmPct(cfg.idealMin)}) e ${fmtP(cfg.idealMax)}% (${valorEmPct(cfg.idealMax)}). Verifique se os investimentos estão trazendo o retorno desejado — você pode estar investindo mais do que a empresa é capaz de suportar.`;
+      } else if (key === 'SNO') {
+        corpo = `Dada a sua receita no período, você gastou ${diff}% (${diffReais}) a mais que o ideal para o seu ramo. O ideal por aqui é não ter Saídas Não Operacionais, a não ser distribuição de lucros periódicas. Caso tenha empréstimos, evite gastar mais que ${fmtP(cfg.idealMax)}% (${valorEmPct(cfg.idealMax)}).`;
+      } else {
+        corpo += ` Para ficar dentro do ideal, mantenha entre ${fmtP(cfg.idealMin)}% (${valorEmPct(cfg.idealMin)}) e ${fmtP(cfg.idealMax)}% (${valorEmPct(cfg.idealMax)}).`;
+      }
+      return { titulo: `Atenção: ${label} acima do ideal`, corpo };
+    }
+
+    const diff = fmtP(cfg.idealMin - v);
+    let corpo = `Seu ${cfg.curto} está ${diff}% abaixo do ideal para o seu ramo. O ideal seria entre ${fmtP(cfg.idealMin)}% e ${fmtP(cfg.idealMax)}%.`;
+    if (key === 'LO') corpo += ' Lembre-se de que o lucro é o indicador-chave de qualquer negócio.';
+    if (key === 'RL' && naoOpEntradas) corpo += ` Perceba que seu Resultado Líquido pode ter sido impactado pelas Entradas Não Operacionais de ${fmtMoeda(naoOpEntradas)} que seu negócio teve no período.`;
+    return { titulo: `Atenção: ${label} abaixo do ideal`, corpo };
+  },
+
+  toggleMetas() {
+    const el = document.getElementById('anIndMetas');
+    if (!el.classList.contains('hidden')) { el.classList.add('hidden'); return; }
+    const metas = metasIndicadoresAtuais();
+    el.innerHTML = `<div class="ind-metas-form">
+      <div class="muted" style="font-size:12px;margin-bottom:8px;">Ajuste a faixa ideal (% da receita) de cada indicador para o seu ramo. Fica salvo só neste navegador.</div>
+      <div class="ind-metas-row" style="font-weight:600;color:var(--text-dim);"><span>Indicador</span><span>Mín. ideal (%)</span><span>Máx. ideal (%)</span></div>
+      ${Object.keys(metas).map(k => `<div class="ind-metas-row">
+        <span>${metas[k].label}</span>
+        <input type="number" step="0.1" id="meta_${k}_min" value="${metas[k].idealMin}">
+        <input type="number" step="0.1" id="meta_${k}_max" value="${metas[k].idealMax}">
+      </div>`).join('')}
+      <div class="row" style="margin-top:8px;">
+        <button class="btn small" onclick="Analises.salvarMetas()">Salvar metas</button>
+        <button class="btn secondary small" onclick="Analises.restaurarMetas()">Restaurar padrão</button>
+      </div>
+    </div>`;
+    el.classList.remove('hidden');
+  },
+
+  salvarMetas() {
+    const metas = metasIndicadoresAtuais();
+    const salvar = {};
+    let valido = true;
+    Object.keys(metas).forEach(k => {
+      const min = Number(document.getElementById(`meta_${k}_min`).value);
+      const max = Number(document.getElementById(`meta_${k}_max`).value);
+      if (!Number.isFinite(min) || !Number.isFinite(max)) valido = false;
+      salvar[k] = { idealMin: min, idealMax: max };
+    });
+    if (!valido) { toast('Preencha todas as metas com números válidos.', 'err'); return; }
+    try {
+      localStorage.setItem('cb_metas_indicadores', JSON.stringify(salvar));
+    } catch (e) {
+      toast('Não foi possível salvar as metas neste navegador.', 'err'); return;
+    }
+    document.getElementById('anIndMetas').classList.add('hidden');
+    toast('Metas atualizadas.', 'ok');
+    this.render();
+  },
+
+  restaurarMetas() {
+    try { localStorage.removeItem('cb_metas_indicadores'); } catch (e) { /* ignora */ }
+    document.getElementById('anIndMetas').classList.add('hidden');
+    toast('Metas restauradas para o padrão.', 'ok');
+    this.render();
+  },
+};
+
+/* ======================================================================
+   SALDO DAS CONTAS
+   ====================================================================== */
+const Saldo = {
+  // soma o saldo inicial cadastrado com todas as transações da conta a partir da data de referência
+  // (ou todas, se não houver data cadastrada). Usa t.valor já assinado (positivo=crédito, negativo=débito),
+  // e conta TODAS as transações (inclusive pendentes/não conciliadas), pois já são movimentação real no banco.
+  calcular(c) {
+    const txs = State.transacoes.filter(t => t.conta === c.contaId && (!c.dataSaldoInicial || t.data >= c.dataSaldoInicial));
+    const soma = txs.reduce((s, t) => s + (Number(t.valor) || 0), 0);
+    return { saldo: (Number(c.saldoInicial) || 0) + soma, qtd: txs.length };
+  },
+
+  // saldo da conta EM UMA DATA específica (inclusive) — mesma lógica do calcular(), mas somando só
+  // as transações até aquela data. Retorna null se a data pedida for anterior à data de referência
+  // cadastrada (não dá pra saber o saldo com segurança antes disso).
+  calcularEm(c, dataAlvo) {
+    if (c.dataSaldoInicial && dataAlvo < c.dataSaldoInicial) return null;
+    const txs = State.transacoes.filter(t => t.conta === c.contaId && t.data <= dataAlvo && (!c.dataSaldoInicial || t.data >= c.dataSaldoInicial));
+    const soma = txs.reduce((s, t) => s + (Number(t.valor) || 0), 0);
+    return (Number(c.saldoInicial) || 0) + soma;
+  },
+
+  // preenche a data de hoje (só na primeira vez) e mostra o saldo consolidado assim que a aba abre
+  iniciarConsultaData() {
+    const input = document.getElementById('saldoDataConsulta');
+    if (!input) return;
+    if (!input.value) {
+      const hoje = new Date();
+      input.value = hoje.getFullYear() + '-' + String(hoje.getMonth() + 1).padStart(2, '0') + '-' + String(hoje.getDate()).padStart(2, '0');
+    }
+    this.consultarData();
+  },
+
+  consultarData() {
+    const dataAlvo = document.getElementById('saldoDataConsulta').value;
+    const cont = document.getElementById('saldoConsolidado');
+    if (!dataAlvo) { cont.innerHTML = '<div class="empty-state">Escolha uma data.</div>'; return; }
+    if (!State.contas.length) { cont.innerHTML = '<div class="empty-state">Nenhuma conta importada ainda.</div>'; return; }
+
+    let total = 0;
+    let semDado = 0;
+    const linhas = State.contas.map(c => {
+      const saldo = this.calcularEm(c, dataAlvo);
+      if (saldo === null) {
+        semDado++;
+        return `<tr><td>${c.nome}</td><td class="muted" style="text-align:right;">sem dado (antes de ${fmtData(c.dataSaldoInicial)})</td></tr>`;
+      }
+      total += saldo;
+      return `<tr><td>${c.nome}</td><td style="text-align:right;font-weight:600;">${fmtMoeda(saldo)}</td></tr>`;
+    }).join('');
+
+    cont.innerHTML = `
+      <div style="overflow-x:auto;">
+        <table>
+          <thead><tr><th>Conta</th><th style="text-align:right;">Saldo em ${fmtData(dataAlvo)}</th></tr></thead>
+          <tbody>${linhas}</tbody>
+        </table>
+      </div>
+      <div class="stat-cards" style="margin-top:12px;">
+        <div class="stat-card">
+          <div class="n">${fmtMoeda(total)}</div>
+          <div class="l">total de todas as contas em ${fmtData(dataAlvo)}${semDado ? ` <span class="muted">(${semDado} conta(s) sem dado nessa data, não somada(s) — cadastre o saldo inicial dela na tabela abaixo)</span>` : ''}</div>
+        </div>
+      </div>
+    `;
+  },
+
+  render() {
+    this.iniciarConsultaData();
+    document.getElementById('corpoSaldo').innerHTML = State.contas.map(c => {
+      const { saldo, qtd } = Saldo.calcular(c);
+      return `<tr>
+        <td>${c.nome}</td>
+        <td><input type="number" step="0.01" id="si-${c.contaId}" value="${Number(c.saldoInicial) || 0}" style="width:110px;" onchange="Saldo.atualizarDiferenca('${c.contaId}')"></td>
+        <td><input type="date" id="sd-${c.contaId}" value="${c.dataSaldoInicial || ''}" style="width:145px;" onchange="Saldo.atualizarDiferenca('${c.contaId}')"></td>
+        <td>${qtd}</td>
+        <td style="text-align:right;font-weight:600;" id="sc-${c.contaId}">${fmtMoeda(saldo)}</td>
+        <td><input type="number" step="0.01" id="sr-${c.contaId}" placeholder="opcional" style="width:110px;" oninput="Saldo.atualizarDiferenca('${c.contaId}')"></td>
+        <td id="diff-${c.contaId}" style="text-align:right;"><span class="muted">—</span></td>
+        <td style="white-space:nowrap;">
+          <button class="btn secondary small" onclick="Saldo.salvarSaldoInicial('${c.contaId}')">Salvar</button>
+          <button class="btn secondary small" onclick="Saldo.verExtrato('${c.contaId}')">Ver extrato</button>
+        </td>
+      </tr>`;
+    }).join('') || '<tr><td colspan="8" class="muted" style="text-align:center;padding:20px;">Nenhuma conta importada ainda.</td></tr>';
+  },
+
+  async salvarSaldoInicial(contaId) {
+    const siEl = document.getElementById('si-' + contaId);
+    const sdEl = document.getElementById('sd-' + contaId);
+    const saldoInicial = parseFloat(siEl.value) || 0;
+    const dataSaldoInicial = sdEl.value || '';
+    try {
+      await Api.post('criarConta', { contaId, saldoInicial, dataSaldoInicial });
+      const c = State.contas.find(x => x.contaId === contaId);
+      if (c) { c.saldoInicial = saldoInicial; c.dataSaldoInicial = dataSaldoInicial; }
+      toast('Saldo inicial salvo.', 'ok');
+      Saldo.render();
+    } catch (e) { toast('Erro: ' + e.message, 'err'); }
+  },
+
+  // recalcula saldo/diferença em tela a partir dos valores digitados (mesmo antes de clicar em "Salvar")
+  atualizarDiferenca(contaId) {
+    const siEl = document.getElementById('si-' + contaId);
+    const sdEl = document.getElementById('sd-' + contaId);
+    const srEl = document.getElementById('sr-' + contaId);
+    if (!siEl || !sdEl || !srEl) return;
+    const saldoInicialTela = parseFloat(siEl.value) || 0;
+    const dataTela = sdEl.value || '';
+    const txs = State.transacoes.filter(t => t.conta === contaId && (!dataTela || t.data >= dataTela));
+    const soma = txs.reduce((s, t) => s + (Number(t.valor) || 0), 0);
+    const saldoCalc = saldoInicialTela + soma;
+    document.getElementById('sc-' + contaId).textContent = fmtMoeda(saldoCalc);
+    const diffEl = document.getElementById('diff-' + contaId);
+    const saldoReal = srEl.value === '' ? null : parseFloat(srEl.value);
+    if (saldoReal === null || isNaN(saldoReal)) {
+      diffEl.innerHTML = '<span class="muted">—</span>';
+      return;
+    }
+    const diff = saldoReal - saldoCalc;
+    if (Math.abs(diff) < 0.005) {
+      diffEl.innerHTML = '<span style="color:var(--green);font-weight:600;">✓ bate</span>';
+    } else {
+      diffEl.innerHTML = `<span style="color:var(--red);font-weight:600;">${fmtMoeda(diff)}</span>`;
+    }
+  },
+
+  verExtrato(contaId) {
+    const c = State.contas.find(x => x.contaId === contaId);
+    if (!c) return;
+    const txs = State.transacoes
+      .filter(t => t.conta === contaId && (!c.dataSaldoInicial || t.data >= c.dataSaldoInicial))
+      .sort((a, b) => a.data.localeCompare(b.data) || String(a.chaveUnica).localeCompare(String(b.chaveUnica)));
+    let saldo = Number(c.saldoInicial) || 0;
+    const linhas = txs.map(t => {
+      saldo += Number(t.valor) || 0;
+      const statusLabel = t.status === 'Transferencia' ? 'Transferência' : (t.status === 'Pendente' ? 'Pendente' : 'Conciliado');
+      return `<tr>
+        <td>${fmtData(t.data)}</td>
+        <td>${t.descricao}</td>
+        <td>${statusLabel}</td>
+        <td style="text-align:right;" class="${t.tipo === 'C' ? 'valC' : 'valD'}">${fmtMoeda(t.valor)}</td>
+        <td style="text-align:right;">${fmtMoeda(saldo)}</td>
+      </tr>`;
+    });
+    document.getElementById('extratoTitulo').textContent = 'Extrato — ' + c.nome;
+    document.getElementById('extratoSaldoInicial').textContent =
+      'Saldo inicial: ' + fmtMoeda(c.saldoInicial || 0) + (c.dataSaldoInicial ? (' em ' + fmtData(c.dataSaldoInicial)) : ' (sem data de referência — considerando todas as transações importadas)') + '.';
+    document.getElementById('corpoExtrato').innerHTML = linhas.join('') || '<tr><td colspan="5" class="muted" style="text-align:center;padding:20px;">Nenhuma transação encontrada para essa conta a partir da data de referência.</td></tr>';
+    document.getElementById('modalExtrato').classList.remove('hidden');
+  }
+};
+
+/* ======================================================================
+   REGRAS
+   ====================================================================== */
+const Regras = {
+  popularSelects() {
+    const codigosFolha = State.planoContas.filter(p => p.folha).sort((a, b) => a.codigo.localeCompare(b.codigo, undefined, { numeric: true }));
+    const selCodigo = document.getElementById('novaRegraCodigo');
+    selCodigo.innerHTML = codigosFolha.map(p => `<option value="${p.codigo}">${p.codigo} — ${p.nome}</option>`).join('');
+    const selConta = document.getElementById('novaRegraConta');
+    selConta.innerHTML = '<option value="">Qualquer conta</option>' + State.contas.map(c => `<option value="${c.contaId}">${c.nome}</option>`).join('');
+    document.getElementById('buscaRegras').oninput = () => this.render();
+  },
+
+  async criar() {
+    const palavraChave = document.getElementById('novaRegraPalavra').value.trim();
+    const codigo = document.getElementById('novaRegraCodigo').value;
+    const tipo = document.getElementById('novaRegraTipo').value;
+    const conta = document.getElementById('novaRegraConta').value;
+    if (!palavraChave || !codigo) { toast('Preencha a palavra-chave e o código.', 'err'); return; }
+    try {
+      const res = await Api.post('criarRegra', { palavraChave, codigo, tipo, conta });
+      await App.recarregarTransacoes();
+      document.getElementById('novaRegraPalavra').value = '';
+      this.render();
+      const n = await aplicarRegrasNasPendentes(true);
+      toast((res.atualizada ? 'Regra atualizada.' : 'Regra criada.') + (n ? ` ${n} transação(ões) pendente(s) já classificada(s).` : ''), 'ok');
+    } catch (e) {
+      toast('Erro: ' + e.message, 'err');
+    }
+  },
+
+  async importarLote() {
+    const texto = document.getElementById('loteRegras').value.trim();
+    if (!texto) { toast('Cole ao menos uma linha no formato palavra-chave;codigo.', 'err'); return; }
+    const linhas = texto.split('\n').map(l => l.trim()).filter(Boolean);
+    const regras = [];
+    for (const linha of linhas) {
+      const partes = linha.split(';');
+      if (partes.length < 2) continue;
+      regras.push({ palavraChave: partes[0].trim(), codigo: partes[1].trim(), tipo: partes[2] ? partes[2].trim() : '', conta: partes[3] ? partes[3].trim() : '' });
+    }
+    if (!regras.length) { toast('Não encontrei nenhuma linha válida (use palavra-chave;codigo).', 'err'); return; }
+    const btn = document.getElementById('btnImportarLote');
+    btn.disabled = true; btn.textContent = `Importando ${regras.length} regra(s)...`;
+    try {
+      const res = await Api.post('importarRegrasEmLote', { regras });
+      await App.recarregarTransacoes();
+      document.getElementById('loteRegras').value = '';
+      this.render();
+      const n = await aplicarRegrasNasPendentes(true);
+      toast(`${res.importadas} regra(s) importada(s).` + (n ? ` ${n} transação(ões) pendente(s) já classificada(s) automaticamente.` : ' Nenhuma transação pendente bateu com essas regras.'), 'ok');
+    } catch (e) {
+      toast('Erro: ' + e.message, 'err');
+    } finally {
+      btn.disabled = false; btn.textContent = 'Importar lote';
+    }
+  },
+
+  render() {
+    const busca = normalizar(document.getElementById('buscaRegras').value);
+    let lista = [...State.regras].sort((a, b) => (b.vezesUsada || 0) - (a.vezesUsada || 0));
+    if (busca) lista = lista.filter(r => normalizar(r.palavraChave + ' ' + r.codigo).indexOf(busca) !== -1);
+    document.getElementById('qtdRegras').textContent = State.regras.length;
+    document.getElementById('corpoRegras').innerHTML = lista.map(r => {
+      const info = State.planoContas.find(p => p.codigo === r.codigo);
+      return `<tr>
+        <td>${r.palavraChave}</td>
+        <td><span class="mono">${r.codigo}</span> ${info ? info.nome : ''}</td>
+        <td>${r.tipo === 'C' ? 'Entrada' : r.tipo === 'D' ? 'Saída' : 'Ambos'}</td>
+        <td>${r.conta ? contaNome(r.conta) : '<span class="muted">qualquer</span>'}</td>
+        <td>${r.vezesUsada || 0}</td>
+        <td><input type="checkbox" ${r.ativo ? 'checked' : ''} onchange="Regras.alternarAtiva('${r.id}', this.checked)"></td>
+        <td><button class="btn danger small" onclick="Regras.excluir('${r.id}')">Excluir</button></td>
+      </tr>`;
+    }).join('') || '<tr><td colspan="7" class="muted" style="text-align:center;padding:20px;">Nenhuma regra ainda. Elas são criadas automaticamente quando você concilia transações.</td></tr>';
+  },
+
+  async alternarAtiva(id, ativo) {
+    try {
+      await Api.post('atualizarRegra', { id, ativo });
+      const r = State.regras.find(x => x.id === id);
+      if (r) r.ativo = ativo;
+      toast('Regra atualizada.', 'ok');
+    } catch (e) { toast('Erro: ' + e.message, 'err'); }
+  },
+
+  async excluir(id) {
+    try {
+      await Api.post('excluirRegra', { id });
+      State.regras = State.regras.filter(x => x.id !== id);
+      this.render();
+      toast('Regra excluída.', 'ok');
+    } catch (e) { toast('Erro: ' + e.message, 'err'); }
+  }
+};
+
+/* ======================================================================
+   LANÇAMENTOS PREVISTOS
+   ====================================================================== */
+const Previstos = {
+  filtroAtual: '',
+
+  init() {
+    document.querySelectorAll('#filtroPrevistos button').forEach(b => {
+      b.addEventListener('click', () => {
+        document.querySelectorAll('#filtroPrevistos button').forEach(x => x.classList.remove('active'));
+        b.classList.add('active');
+        this.filtroAtual = b.dataset.v;
+        this.render();
+      });
+    });
+    const hoje = new Date();
+    const iso = hoje.getFullYear() + '-' + String(hoje.getMonth() + 1).padStart(2, '0') + '-' + String(hoje.getDate()).padStart(2, '0');
+    const campoData = document.getElementById('prevData');
+    if (campoData) campoData.value = iso;
+  },
+
+  popularSelects() {
+    const codigosFolha = State.planoContas.filter(p => p.folha).sort((a, b) => a.codigo.localeCompare(b.codigo, undefined, { numeric: true }));
+    const selCodigo = document.getElementById('prevCodigo');
+    if (selCodigo) selCodigo.innerHTML = codigosFolha.map(p => `<option value="${p.codigo}">${p.codigo} — ${p.nome}</option>`).join('');
+    const selConta = document.getElementById('prevConta');
+    if (selConta) {
+      selConta.innerHTML = State.contas.length
+        ? State.contas.map(c => `<option value="${c.contaId}">${c.nome}</option>`).join('')
+        : '<option value="">Importe um extrato primeiro para cadastrar uma conta</option>';
+    }
+  },
+
+  async criar() {
+    const conta = document.getElementById('prevConta').value;
+    const dataPrevista = document.getElementById('prevData').value;
+    const tipo = document.getElementById('prevTipo').value;
+    const valorAbs = Math.abs(parseFloat(document.getElementById('prevValor').value));
+    const codigo = document.getElementById('prevCodigo').value;
+    const descricao = document.getElementById('prevDescricao').value.trim();
+    if (!conta) { toast('Cadastre/importe ao menos uma conta antes (aba Importar).', 'err'); return; }
+    if (!dataPrevista) { toast('Escolha a data prevista.', 'err'); return; }
+    if (!valorAbs || isNaN(valorAbs)) { toast('Informe o valor.', 'err'); return; }
+    if (!codigo) { toast('Escolha o código destino.', 'err'); return; }
+    const valor = tipo === 'D' ? -valorAbs : valorAbs;
+    try {
+      const res = await Api.post('criarPrevisao', { conta, dataPrevista, valor, tipo, codigo, descricao });
+      State.previsoes.push({
+        id: res.id, conta, dataPrevista, valor, tipo, codigo, descricao,
+        status: 'Pendente', chaveUnicaVinculada: '', criadoEm: new Date().toISOString()
+      });
+      document.getElementById('prevValor').value = '';
+      document.getElementById('prevDescricao').value = '';
+      this.render();
+      toast('Lançamento previsto cadastrado — vai casar sozinho quando o extrato chegar.', 'ok');
+    } catch (e) { toast('Erro: ' + e.message, 'err'); }
+  },
+
+  render() {
+    let lista = [...State.previsoes];
+    if (this.filtroAtual) lista = lista.filter(p => p.status === this.filtroAtual);
+    lista.sort((a, b) => (a.dataPrevista || '').localeCompare(b.dataPrevista || ''));
+    document.getElementById('corpoPrevistos').innerHTML = lista.map(p => {
+      const info = State.planoContas.find(x => x.codigo === p.codigo);
+      const bateu = p.status === 'Conciliado';
+      return `<tr>
+        <td>${contaNome(p.conta)}</td>
+        <td>${fmtData(p.dataPrevista)}</td>
+        <td>${p.descricao || '<span class="muted">—</span>'}</td>
+        <td><span class="mono">${p.codigo}</span> ${info ? info.nome : ''}</td>
+        <td style="text-align:right;" class="${p.tipo === 'C' ? 'valC' : 'valD'}">${fmtMoeda(p.valor)}</td>
+        <td><span class="badge ${bateu ? 'conciliado' : 'pendente'}">${bateu ? '✓ já bateu' : 'aguardando'}</span></td>
+        <td style="white-space:nowrap;">
+          ${bateu ? `<button class="btn secondary small" onclick="Previstos.desvincular('${p.id}')">Desvincular</button>` : ''}
+          <button class="btn danger small" onclick="Previstos.excluir('${p.id}')">Excluir</button>
+        </td>
+      </tr>`;
+    }).join('') || '<tr><td colspan="7" class="muted" style="text-align:center;padding:20px;">Nenhum lançamento previsto cadastrado ainda.</td></tr>';
+  },
+
+  async excluir(id) {
+    try {
+      await Api.post('excluirPrevisao', { id });
+      State.previsoes = State.previsoes.filter(p => p.id !== id);
+      this.render();
+      toast('Lançamento previsto excluído.', 'ok');
+    } catch (e) { toast('Erro: ' + e.message, 'err'); }
+  },
+
+  // desfaz um casamento automático que pegou a transação errada — devolve tanto a previsão
+  // quanto a transação vinculada para "Pendente", como se o casamento nunca tivesse acontecido.
+  async desvincular(id) {
+    try {
+      await Api.post('desvincularPrevisao', { id });
+      const p = State.previsoes.find(x => x.id === id);
+      const chaveAntiga = p ? p.chaveUnicaVinculada : '';
+      if (p) { p.status = 'Pendente'; p.chaveUnicaVinculada = ''; }
+      if (chaveAntiga) {
+        const t = State.transacoes.find(x => x.chaveUnica === chaveAntiga);
+        if (t) { t.codigo = ''; t.status = 'Pendente'; t.regraAplicada = ''; t.previsaoId = ''; }
+      }
+      this.render();
+      if (document.getElementById('tab-conciliar') && !document.getElementById('tab-conciliar').classList.contains('hidden')) {
+        Conciliacao.render();
+      }
+      toast('Desvinculado — a transação voltou para pendente de classificação.', 'ok');
+    } catch (e) { toast('Erro: ' + e.message, 'err'); }
+  }
+};
+
+/* ======================================================================
+   CONTAS
+   ====================================================================== */
+const Contas = {
+  render() {
+    document.getElementById('corpoContas').innerHTML = State.contas.map(c => `
+      <tr>
+        <td class="mono">${c.contaId}</td>
+        <td><input type="text" value="${c.nome}" onchange="Contas.renomear('${c.contaId}', this.value)" style="width:100%;"></td>
+        <td>${c.banco || '<span class="muted">—</span>'}</td>
+        <td>${c.tipoConta || ''}</td>
+        <td></td>
+      </tr>`).join('') || '<tr><td colspan="5" class="muted" style="text-align:center;padding:20px;">Nenhuma conta importada ainda.</td></tr>';
+  },
+  async renomear(contaId, nome) {
+    try {
+      await Api.post('criarConta', { contaId, nome });
+      const c = State.contas.find(x => x.contaId === contaId);
+      if (c) c.nome = nome;
+      Conciliacao.popularFiltros();
+      Analises.popularFiltros();
+      toast('Conta renomeada.', 'ok');
+    } catch (e) { toast('Erro: ' + e.message, 'err'); }
+  }
+};
+
+window.addEventListener('DOMContentLoaded', () => {
+  UI.init();
+  Importar.init();
+  Conciliacao.init();
+  Previstos.init();
+  App.iniciar();
+});
+</script>
+</body>
+</html>
