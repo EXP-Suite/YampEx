@@ -3083,6 +3083,12 @@ Conciliacao.salvarTransferencia = function () {
         } else if (esp.vinculada && mirror) {
           mirror.codigo = ''; mirror.status = 'Transferencia'; mirror.regraAplicada = '';
           mirror.contaRelacionada = contaOrigem;
+          // a transação espelho já tinha sido classificada (ex: conciliada com um código, achando
+          // que era uma receita/despesa normal) antes de perceber que era essa transferência —
+          // avisa, porque o código antigo dela acabou de ser apagado e substituído por "Transferência".
+          if (esp.statusAnterior && esp.statusAnterior !== 'Pendente' && esp.statusAnterior !== 'Auto') {
+            toast(`A transação equivalente em ${contaNome(contaRelacionada)} já estava conciliada${esp.codigoAnterior ? ' com o código ' + esp.codigoAnterior : ''} — corrigida para transferência, pra não ficar contando esse valor duas vezes.`, 'ok');
+          }
         }
         Conciliacao.render();
       }
