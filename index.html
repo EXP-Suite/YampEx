@@ -104,10 +104,42 @@ tr.tx-row:hover{background:#f9fafb;cursor:pointer;}
 .dre-linha.final{font-weight:700;background:var(--accent-dim);color:var(--accent);border-radius:6px;margin:8px -4px 0;padding:13px 8px;font-size:15px;border-bottom:none;}
 .dre-linha.final .dre-valor{font-size:15px;}
 .dre-linha.extra{margin-top:10px;padding-top:12px;border-top:1px dashed var(--border);font-size:12.5px;}
+.dre-linha.destaque-lo{border-left:3px solid var(--accent);padding-left:8px;}
+.plano-grupo{border:1px solid var(--border);border-radius:8px;margin-bottom:8px;overflow:hidden;}
+.plano-grupo-head{display:flex;align-items:center;gap:10px;padding:10px 14px;background:#fafbfc;font-weight:700;}
+.plano-grupo-body{padding:6px 10px 10px 24px;}
+.plano-sub{border-top:1px solid #f4f5f7;padding:6px 0;}
+.plano-sub-head{display:flex;align-items:center;gap:8px;padding:4px 0;}
+.plano-sub-head input{flex:1;border:1px solid transparent;background:transparent;font-weight:600;font-size:13px;padding:3px 6px;border-radius:5px;}
+.plano-sub-head input:hover,.plano-sub-head input:focus{border-color:var(--border);background:#fff;}
+.plano-sub-body{padding-left:22px;}
+.plano-leaf{display:flex;align-items:center;gap:8px;padding:4px 0;border-top:1px solid #f8f9fb;font-size:12.5px;}
+.plano-leaf .mono{flex:0 0 70px;color:var(--text-dim);}
+.plano-leaf input{flex:1;border:1px solid transparent;background:transparent;font-size:12.5px;padding:3px 6px;border-radius:5px;}
+.plano-leaf input:hover,.plano-leaf input:focus{border-color:var(--border);background:#fff;}
+.tipo-pill{flex:0 0 auto;font-size:10.5px;font-weight:700;padding:1px 6px;border-radius:20px;}
+.tipo-pill.C{background:var(--green-dim);color:var(--green);}
+.tipo-pill.D{background:var(--red-dim);color:var(--red);}
+.tipo-pill.AMBOS{background:var(--panel-alt,#eef0f3);color:var(--text-dim);}
+.ambos-toggle{flex:0 0 auto;display:flex;align-items:center;gap:4px;font-size:11px;color:var(--text-dim);white-space:nowrap;cursor:pointer;}
+.ambos-toggle input{margin:0;}
+.plano-add-form{display:none;gap:8px;align-items:center;padding:8px 0 4px;flex-wrap:wrap;}
+.plano-add-form.aberto{display:flex;}
+.plano-add-form input[type="text"]{padding:5px 8px;border:1px solid var(--border);border-radius:6px;font-size:12.5px;}
+.plano-add-form input.codigo{width:100px;font-family:ui-monospace,Menlo,monospace;}
+.plano-add-form input.nome{flex:1;min-width:160px;}
+.btn-add{border:none;background:var(--accent-dim);color:var(--accent);width:22px;height:22px;border-radius:50%;font-weight:700;cursor:pointer;font-size:14px;line-height:1;flex:0 0 auto;}
+.btn-add:hover{filter:brightness(0.95);}
 .ind-top{background:linear-gradient(135deg,#f5f3ff,#ede9fe);border:1px solid #ddd6fe;border-radius:10px;padding:16px 18px;margin-bottom:14px;}
 .ind-top .tag{display:inline-block;background:#7c3aed;color:#fff;font-size:10.5px;font-weight:700;letter-spacing:.04em;padding:3px 9px;border-radius:20px;text-transform:uppercase;}
 .ind-top h4{margin:8px 0 2px;font-size:15px;}
 .ind-top h4 b{color:#7c3aed;}
+.gloss-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:8px;margin-top:14px;padding-top:12px;border-top:1px dashed var(--border);}
+.gloss-item{background:var(--panel-alt,#fafbfc);border:1px solid var(--border);border-radius:8px;padding:8px 10px;}
+.gloss-item .t{font-size:11.5px;font-weight:700;color:var(--text-dim);text-transform:uppercase;letter-spacing:.02em;margin-bottom:2px;}
+.gloss-item .d{font-size:12px;line-height:1.4;}
+.ind-premissa{font-size:11.5px;color:var(--text-dim);background:rgba(124,58,237,.07);border-radius:7px;padding:8px 10px;margin-top:10px;line-height:1.5;}
+.ind-alerta{font-size:12px;color:#92400e;background:#fffbeb;border:1px solid #fde68a;border-radius:7px;padding:8px 10px;margin-top:8px;line-height:1.5;}
 .ind-foco{background:linear-gradient(135deg,#fef2f2,#fee2e2);border:1px solid #fecaca;border-radius:10px;padding:16px 18px;margin-bottom:14px;}
 .ind-foco .tag{background:var(--red);}
 .ind-foco h4 b{color:var(--red);}
@@ -214,6 +246,9 @@ tr.tx-row:hover{background:#f9fafb;cursor:pointer;}
 .aviso-dup ul{margin:8px 0 0;padding-left:18px;}
 .aviso-dup li{margin-bottom:2px;}
 .tx-obs{display:block;font-size:11.5px;color:var(--amber);margin-top:2px;}
+.alerta-tipo{cursor:help;font-size:12px;}
+tr.tx-alerta{background:#fff7ed;}
+tr.tx-alerta:hover{background:#fef0dd;}
 .combo-vazio{padding:10px 11px;font-size:12.5px;color:var(--text-dim);}
 .code-item.ativo{background:var(--accent-dim);}
 .code-item mark{background:#fde68a;color:inherit;padding:0 1px;border-radius:2px;}
@@ -452,6 +487,10 @@ tr.tx-row:hover{background:#f4f7fd;cursor:pointer;}
 .stat-card .l{font-size:11px;color:var(--text-dim);margin-top:3px;font-weight:600;text-transform:uppercase;letter-spacing:.045em;}
 .stat-card.stat-pct:before{background:linear-gradient(180deg,var(--green),var(--accent-600));}
 .stat-card.stat-pct .n{color:var(--green);}
+.stat-card.stat-alerta{cursor:pointer;background:#fffbeb;border-color:#fde68a;}
+.stat-card.stat-alerta:before{background:linear-gradient(180deg,var(--amber),var(--red));}
+.stat-card.stat-alerta .n{color:#92400e;}
+.stat-card.stat-alerta.ativo{border-color:var(--amber);box-shadow:0 0 0 2px rgba(180,83,9,.18);}
 .progresso-mini{height:5px;border-radius:20px;background:#e5e9f0;margin-top:9px;overflow:hidden;}
 .progresso-mini-fill{height:100%;background:linear-gradient(90deg,var(--accent-600),var(--green));transition:width .25s;}
 
@@ -586,7 +625,9 @@ footer strong{color:var(--text-dim);font-weight:700;letter-spacing:.02em;}
   <button class="tab" data-tab="previstos">Previstos</button>
   <button class="tab" data-tab="saldo">Saldo</button>
   <button class="tab" data-tab="analises">Análises</button>
+  <button class="tab" data-tab="metodologia">ℹ️ Como Calculamos</button>
   <button class="tab" data-tab="regras">Regras</button>
+  <button class="tab" data-tab="plano">Plano de Contas</button>
   <button class="tab" data-tab="contas">Contas</button>
 </nav>
 
@@ -629,7 +670,7 @@ footer strong{color:var(--text-dim);font-weight:700;letter-spacing:.02em;}
       </div>
       <div class="row" style="margin-bottom:12px;">
         <div class="field"><label>Conta</label><select id="filtroConta"><option value="">Todas</option></select></div>
-        <div class="field"><label>Grupo</label><select id="filtroGrupo"><option value="">Todos</option></select></div>
+        <div class="field"><label>Grupo / subgrupo</label><select id="filtroGrupo"><option value="">Todos</option></select></div>
         <div class="field"><label>De</label><input type="date" id="filtroDe"></div>
         <div class="field"><label>Até</label><input type="date" id="filtroAte"></div>
         <div class="field" style="flex:1;min-width:180px;"><label>Buscar descrição</label><input type="search" id="filtroBusca" placeholder="ex: GYN EMBALAGENS"></div>
@@ -668,19 +709,37 @@ footer strong{color:var(--text-dim);font-weight:700;letter-spacing:.02em;}
     <div class="panel">
       <h2>Cadastrar lançamento previsto</h2>
       <p class="muted" style="margin-top:-6px;font-size:12.5px;">
-        Já sabe que vai sair (ou entrar) um valor certo numa data certa — INSS, Simples Nacional, um boleto recorrente?
-        Cadastre agora, com a conta, o valor e o código. Quando o extrato <span class="mono">.ofx</span> desse período
-        chegar, o sistema procura sozinho uma transação da mesma conta, com o mesmo valor e numa data próxima da
-        prevista, e já concilia com o código que você escolheu aqui — sem precisar lembrar depois o que foi aquele pagamento.
+        Já sabe de um pagamento ou recebimento real — INSS, Simples Nacional, um boleto, um PIX que você mesmo fez —
+        e quer lançar agora, sem esperar o extrato do banco? Preencha a conta, o valor e o código: o lançamento entra
+        <strong>direto na aba Conciliar, já conciliado</strong>. Se o extrato <span class="mono">.ofx</span> desse
+        período trouxer depois essa mesma transação (mesma conta, mesmo dia, mesmo valor), o sistema reconhece e não
+        duplica.
       </p>
       <div class="rule-form">
         <div class="field"><label>Conta</label><select id="prevConta"></select></div>
         <div class="field"><label>Data prevista</label><input type="date" id="prevData"></div>
         <div class="field"><label>Tipo</label><select id="prevTipo"><option value="D">Saída</option><option value="C">Entrada</option></select></div>
-        <div class="field"><label>Valor (R$)</label><input type="number" step="0.01" min="0" id="prevValor" placeholder="0,00"></div>
+        <div class="field"><label id="prevValorLabel">Valor (R$)</label><input type="number" step="0.01" min="0" id="prevValor" placeholder="0,00"></div>
         <div class="field" style="min-width:240px;"><label>Código destino</label><div id="prevCodigoWrap"></div></div>
         <div class="field" style="flex:1;min-width:200px;"><label>Descrição / lembrete (opcional)</label><input type="text" id="prevDescricao" placeholder="ex: INSS agosto/2026"></div>
         <button class="btn small" onclick="Previstos.criar()">+ Cadastrar</button>
+      </div>
+    </div>
+    <div class="panel">
+      <h2>Registrar transferência entre contas</h2>
+      <p class="muted" style="margin-top:-6px;font-size:12.5px;">
+        Transferiu dinheiro entre duas contas da própria empresa (ex: Banco do Brasil → Inter)? Cadastre aqui e as
+        <strong>duas pontas entram direto, já conciliadas</strong> — sem esperar nenhum dos dois extratos. Se o
+        extrato <span class="mono">.ofx</span> de qualquer uma das contas trouxer depois essa mesma transação (mesma
+        conta, mesmo dia, mesmo valor), o sistema reconhece e não duplica.
+      </p>
+      <div class="rule-form">
+        <div class="field"><label>Conta de origem (saiu de)</label><select id="transfContaOrigem"></select></div>
+        <div class="field"><label>Conta de destino (entrou em)</label><select id="transfContaDestino"></select></div>
+        <div class="field"><label>Data</label><input type="date" id="transfData"></div>
+        <div class="field"><label>Valor (R$)</label><input type="number" step="0.01" min="0" id="transfValor" placeholder="0,00"></div>
+        <div class="field" style="flex:1;min-width:200px;"><label>Descrição (opcional)</label><input type="text" id="transfDescricao" placeholder="ex: transferência para cobrir folha"></div>
+        <button class="btn small" onclick="Transferencias.criar()">+ Registrar transferência</button>
       </div>
     </div>
     <div class="panel">
@@ -717,22 +776,21 @@ footer strong{color:var(--text-dim);font-weight:700;letter-spacing:.02em;}
       <div id="saldoConsolidado"></div>
     </div>
     <div class="panel">
-      <h2>Saldo das contas</h2>
+      <h2>📅 Conferência dia a dia</h2>
       <p class="muted" style="margin-top:-6px;font-size:12.5px;">
-        Informe o saldo que a conta tinha numa data de referência (ex: o dia anterior à primeira transação importada).
-        A partir daí, o saldo calculado soma automaticamente todas as transações importadas dessa conta a partir dessa data —
-        inclusive as que ainda não foram conciliadas, porque já são movimentação real no banco. Use o campo "Saldo real"
-        pra colar o saldo que aparece no extrato do banco e conferir se bate.
+        Escolha o banco e o período — a tabela mostra o saldo de cada <strong>dia útil (segunda a sexta)</strong>,
+        do jeito que aparece no extrato do banco. O saldo de segunda-feira já inclui o que aconteceu no sábado e
+        no domingo, se tiver tido alguma transação nesses dias — não precisa conferir fim de semana separado.
+        Confira linha por linha com o extrato físico; na que não bater, clique em <strong>Ver</strong> pra abrir
+        só os lançamentos daquele intervalo na aba Conciliar.
       </p>
-      <div style="overflow-x:auto;">
-        <table>
-          <thead><tr>
-            <th>Conta</th><th>Saldo inicial</th><th>Data do saldo inicial</th><th>Transações</th>
-            <th style="text-align:right;">Saldo calculado</th><th>Saldo real (conferência)</th><th>Diferença</th><th></th>
-          </tr></thead>
-          <tbody id="corpoSaldo"></tbody>
-        </table>
+      <div class="row" style="margin-bottom:14px;">
+        <div class="field"><label>Banco</label><select id="confConta"></select></div>
+        <div class="field"><label>De</label><input type="date" id="confDe"></div>
+        <div class="field"><label>Até</label><input type="date" id="confAte"></div>
+        <button class="btn small" onclick="Conferencia.gerar()" style="align-self:end;">Gerar tabela</button>
       </div>
+      <div id="conferenciaResultado"></div>
     </div>
   </section>
 
@@ -760,6 +818,17 @@ footer strong{color:var(--text-dim);font-weight:700;letter-spacing:.02em;}
         realmente ficou no período.
       </p>
       <div id="anDRE"></div>
+
+      <div class="gloss-grid">
+        <div class="gloss-item"><div class="t">Receita</div><div class="d">Tudo que entrou de vendas no período (grupo 3 do plano de contas).</div></div>
+        <div class="gloss-item"><div class="t">Custos Variáveis (CV)</div><div class="d">Custos que sobem e descem junto com a venda: fornecedor, frete, taxa de cartão, impostos sobre venda.</div></div>
+        <div class="gloss-item"><div class="t">Margem de Contribuição (MC)</div><div class="d">Receita menos Custos Variáveis. É o que sobra pra pagar as despesas fixas e ainda ter lucro.</div></div>
+        <div class="gloss-item"><div class="t">Despesas Fixas (DF)</div><div class="d">Custos que você paga todo mês, quase sem variar, tenha vendido mais ou menos: aluguel, folha de pagamento, contas.</div></div>
+        <div class="gloss-item"><div class="t">Lucro Operacional (LOAI)</div><div class="d">Margem de Contribuição menos Despesas Fixas — mostra se a operação do dia a dia é lucrativa. Não desconta Investimentos nem Movimentações Não Operacionais (empréstimos, juros): isso é decisão de investimento/financiamento, não desempenho da operação. Veja "ℹ️ Como Calculamos" abaixo para entender por quê.</div></div>
+        <div class="gloss-item"><div class="t">Investimentos (INV)</div><div class="d">Compras de bens que vão durar: máquinas, veículos, obras, reformas. Não é gasto do dia a dia, e não afeta o Lucro Operacional — só o Resultado Líquido.</div></div>
+        <div class="gloss-item"><div class="t">Movimentações Não Operacionais</div><div class="d">Dinheiro que entra ou sai mas não tem a ver com a operação normal: empréstimos obtidos/pagos, juros, multas, venda de imobilizado. Também não afeta o Lucro Operacional — só o Resultado Líquido.</div></div>
+        <div class="gloss-item"><div class="t">Resultado Líquido (RL)</div><div class="d">O resultado final do período, depois de tudo — o que realmente ficou no caixa.</div></div>
+      </div>
     </div>
 
     <div class="panel">
@@ -781,6 +850,116 @@ footer strong{color:var(--text-dim);font-weight:700;letter-spacing:.02em;}
     <div class="panel">
       <h2>Detalhamento por grupo e subgrupo</h2>
       <div id="anGrupos"></div>
+    </div>
+  </section>
+
+  <!-- METODOLOGIA (Yampa x Yampex) -->
+  <section id="tab-metodologia" class="tab-content hidden">
+    <div class="panel">
+      <h2>ℹ️ Como Calculamos o Lucro Operacional — Yampa × Yampex</h2>
+      <p class="muted" style="margin-top:-6px;font-size:12.5px;">
+        A partir de 01/09/2026, o Yampex mudou a forma de calcular o <strong>Lucro Operacional</strong>. Essa página
+        explica exatamente o que mudou, por quê, e o que isso significa nos seus relatórios daqui pra frente.
+      </p>
+
+      <h3 style="margin-bottom:6px;">O problema que motivou a mudança</h3>
+      <p style="font-size:13.5px;line-height:1.6;">
+        A empresa fez um investimento (código 6.4.1 — Obra Expansão) financiado por <strong>empréstimo</strong>, não
+        pago com o caixa gerado pela operação. Só que na forma antiga de calcular, o valor inteiro da obra descontava
+        direto do Lucro Operacional — o mesmo indicador usado no Diagnóstico de performance pra dizer se a operação
+        do dia a dia está saudável. Resultado: um investimento estratégico, financiado por terceiros, fazia parecer
+        que a operação piorou (ou até "entrou em prejuízo"), quando na real a operação continuava exatamente igual —
+        só a empresa decidiu investir em crescimento usando dinheiro emprestado.
+      </p>
+
+      <h3 style="margin:18px 0 6px;">O princípio por trás da correção</h3>
+      <p style="font-size:13.5px;line-height:1.6;">
+        Em gestão financeira, o dinheiro de uma empresa se movimenta por três motivos diferentes, e cada um responde
+        a uma pergunta diferente: <strong>operacional</strong> (vender, pagar fornecedor, pagar funcionário — "o
+        negócio dá lucro no dia a dia?"), <strong>investimento</strong> (comprar máquina, construir, reformar —
+        "quanto a empresa está investindo pra crescer?") e <strong>financiamento</strong> (pegar empréstimo, pagar
+        parcela, pagar juro — "como a empresa está se bancando?"). Misturar essas três coisas num único número de
+        "lucro" esconde a real saúde da operação. É por isso que existe o conceito de EBIT/Lucro Operacional em
+        qualquer análise financeira séria: isolar o desempenho do negócio em si, sem deixar decisão de investimento
+        ou de financiamento contaminar esse número. Vale mesmo quando o investimento é pago à vista, com caixa
+        próprio — não é só sobre ser financiado ou não.
+      </p>
+
+      <h3 style="margin:18px 0 10px;">Antes (Yampa / Yampex até 31/08/2026) × Agora (Yampex atualizado)</h3>
+      <div style="overflow-x:auto;">
+        <table>
+          <thead><tr><th></th><th>Antes</th><th>Agora</th></tr></thead>
+          <tbody>
+            <tr>
+              <td>Fórmula do Lucro Operacional</td>
+              <td>Margem de Contribuição − Despesas Fixas <strong>− Investimentos</strong></td>
+              <td>Margem de Contribuição − Despesas Fixas <span class="muted">(só isso)</span></td>
+            </tr>
+            <tr>
+              <td>Investimentos (obras, máquinas, reformas)</td>
+              <td>Descontava direto do Lucro Operacional</td>
+              <td>Vira um bloco separado, informativo — só afeta o Resultado Líquido</td>
+            </tr>
+            <tr>
+              <td>Empréstimos, juros, parcelas pagas</td>
+              <td>Já ficavam fora do Lucro Operacional (Movimentações Não Operacionais)</td>
+              <td>Continuam fora do Lucro Operacional — sem mudança aqui</td>
+            </tr>
+            <tr>
+              <td>Diagnóstico de performance (alavancagem)</td>
+              <td>Reduzir Investimentos aparecia como uma forma de "aumentar o lucro"</td>
+              <td>Investimentos sai da lista de alavancas — ele não move mais o Lucro Operacional</td>
+            </tr>
+            <tr>
+              <td>Resultado Líquido final (o que sobra de verdade)</td>
+              <td colspan="2" style="text-align:center;">Exatamente o mesmo cálculo de sempre — <strong>não mudou</strong></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3 style="margin:20px 0 6px;">Exemplo com números — o caso da Obra Expansão</h3>
+      <p class="muted" style="margin-top:-2px;font-size:12.5px;">
+        Receita R$ 1.000.000 · Custos Variáveis R$ 600.000 · Despesas Fixas R$ 350.000 · Obra Expansão R$ 200.000
+        (financiada 100% por um empréstimo de R$ 200.000 recebido no mesmo mês, sem parcela paga ainda).
+      </p>
+      <div style="display:flex;gap:16px;flex-wrap:wrap;margin-top:10px;">
+        <div style="flex:1 1 280px;min-width:260px;">
+          <div class="badge" style="background:var(--red-dim);color:var(--red);margin-bottom:6px;">Antes (Yampa / Yampex antigo)</div>
+          <div class="dre-linha inicio"><span class="dre-label">Margem de Contribuição</span><span class="dre-valor">R$ 400.000,00</span></div>
+          <div class="dre-linha sub"><span class="dre-label">(–) Despesas Fixas</span><span class="dre-valor" style="color:var(--red);">R$ 350.000,00</span></div>
+          <div class="dre-linha sub"><span class="dre-label">(–) Investimentos (Obra Expansão)</span><span class="dre-valor" style="color:var(--red);">R$ 200.000,00</span></div>
+          <div class="dre-linha total"><span class="dre-label">= Lucro Operacional</span><span class="dre-valor" style="color:var(--red);">– R$ 150.000,00</span></div>
+          <div class="dre-linha sub"><span class="dre-label">(+) Empréstimo obtido</span><span class="dre-valor" style="color:var(--green);">R$ 200.000,00</span></div>
+          <div class="dre-linha final"><span class="dre-label">= Resultado Líquido</span><span class="dre-valor">R$ 50.000,00</span></div>
+          <p class="muted" style="font-size:12px;margin-top:6px;">⚠️ Parecia que a operação deu prejuízo de R$ 150 mil — não deu.</p>
+        </div>
+        <div style="flex:1 1 280px;min-width:260px;">
+          <div class="badge conciliado" style="margin-bottom:6px;">Agora (Yampex atualizado)</div>
+          <div class="dre-linha inicio"><span class="dre-label">Margem de Contribuição</span><span class="dre-valor">R$ 400.000,00</span></div>
+          <div class="dre-linha sub"><span class="dre-label">(–) Despesas Fixas</span><span class="dre-valor" style="color:var(--red);">R$ 350.000,00</span></div>
+          <div class="dre-linha total destaque-lo"><span class="dre-label">= Lucro Operacional</span><span class="dre-valor" style="color:var(--green);">R$ 50.000,00</span></div>
+          <div class="dre-linha sub"><span class="dre-label">(–) Investimentos (Obra Expansão)</span><span class="dre-valor" style="color:var(--red);">R$ 200.000,00</span></div>
+          <div class="dre-linha sub"><span class="dre-label">(+) Empréstimo obtido</span><span class="dre-valor" style="color:var(--green);">R$ 200.000,00</span></div>
+          <div class="dre-linha final"><span class="dre-label">= Resultado Líquido</span><span class="dre-valor">R$ 50.000,00</span></div>
+          <p class="muted" style="font-size:12px;margin-top:6px;">✓ O Lucro Operacional mostra a operação como ela realmente está: saudável.</p>
+        </div>
+      </div>
+      <p style="font-size:13px;line-height:1.6;margin-top:14px;">
+        Repare que o <strong>Resultado Líquido final é idêntico nos dois casos</strong> (R$ 50.000,00) — o dinheiro
+        que sobrou de verdade no caixa da empresa não muda. A diferença é só no meio do caminho: antes, o Lucro
+        Operacional despencava por causa de uma decisão de investimento/financiamento; agora, ele reflete a operação
+        de verdade, e o efeito do investimento/empréstimo aparece separado, mais abaixo, exatamente onde deveria.
+      </p>
+      <p style="font-size:13px;line-height:1.6;margin-top:8px;">
+        Em meses <strong>sem</strong> nenhum investimento novo nem movimentação de empréstimo, o número de Lucro
+        Operacional não muda em nada com essa atualização — a mudança só aparece nos meses em que há investimento
+        (grupo 6) ou movimentação não operacional (grupo 7) no período.
+      </p>
+
+      <div class="row" style="margin-top:16px;">
+        <button class="btn small" onclick="UI.mudarAba('analises')">← Voltar para Análises</button>
+      </div>
     </div>
   </section>
 
@@ -811,6 +990,39 @@ footer strong{color:var(--text-dim);font-weight:700;letter-spacing:.02em;}
           <tbody id="corpoRegras"></tbody>
         </table>
       </div>
+    </div>
+  </section>
+
+  <!-- PLANO DE CONTAS -->
+  <section id="tab-plano" class="tab-content hidden">
+    <div class="panel">
+      <h2>Plano de Contas completo</h2>
+      <p class="muted" style="margin-top:-6px;font-size:12.5px;">
+        Todos os grupos, subgrupos e códigos usados nos lançamentos. Clique no <strong>+</strong> de um grupo ou
+        subgrupo pra criar um código novo dentro dele — o próximo número livre já vem sugerido. Os nomes de
+        subgrupo e código podem ser editados direto aqui; os nomes dos <strong>grupos principais (nível 1:
+        3, 4, 5, 6, 7, 13)</strong> não são editáveis por aqui, porque estão fixos em vários cálculos do
+        sistema (DRE, Diagnóstico de performance) — mudar o nome deles exigiria mudar o código também.
+      </p>
+      <div class="row" style="margin-bottom:14px;">
+        <div class="field" style="flex:1;"><label>Buscar por nome ou código</label><input type="text" id="planoBusca" placeholder="ex: manutenção, ou 5.4" oninput="PlanoContasUI.filtrar(this.value)"></div>
+      </div>
+      <div id="planoArvore"></div>
+    </div>
+
+    <div class="panel">
+      <h2>↔ Migrar lançamentos entre códigos</h2>
+      <p class="muted" style="margin-top:-6px;font-size:12.5px;">
+        Move de uma vez só TUDO que estiver lançado num código para outro — transações conciliadas e pendentes,
+        pedaços de transações divididas, lançamentos previstos e as regras de aprendizado (senão a regra
+        continuaria aplicando o código antigo nas próximas importações). Os dois códigos já precisam existir no
+        plano acima — crie o de destino com o <strong>+</strong> primeiro, se ainda não existir.
+      </p>
+      <div class="row" style="margin-bottom:10px;flex-wrap:wrap;">
+        <div class="field"><label>De (código atual)</label><select id="migrarDe" onchange="PlanoContasUI.atualizarContagemMigracao()"></select></div>
+        <div class="field"><label>Para (código novo)</label><select id="migrarPara" onchange="PlanoContasUI.atualizarContagemMigracao()"></select></div>
+      </div>
+      <div id="migrarResumo"></div>
     </div>
   </section>
 
@@ -856,6 +1068,7 @@ footer strong{color:var(--text-dim);font-weight:700;letter-spacing:.02em;}
   <div class="modal">
     <h3>Conciliar transação</h3>
     <div class="desc-preview" id="mcDescricao"></div>
+    <button type="button" class="btn-link-small" onclick="Conciliacao.editarDescricao()" style="font-size:11.5px;background:none;border:none;color:var(--text-dim);cursor:pointer;padding:0 0 8px;text-decoration:underline;">✏️ corrigir descrição (ex: acento errado vindo do banco)</button>
 
     <div class="pill-filter" id="mcModoTabs" style="margin:12px 0;">
       <button data-modo="classificar" class="active">Classificar</button>
@@ -889,8 +1102,13 @@ footer strong{color:var(--text-dim);font-weight:700;letter-spacing:.02em;}
       </div>
       <p class="muted" style="font-size:12.5px;margin-top:10px;">
         Marca essa transação como movimentação interna entre contas da empresa — ela não entra nas análises de
-        receita/despesa, mas continua contando no saldo da conta (aba Saldo).
+        receita/despesa, mas continua contando no saldo da conta (aba Saldo). Se a outra conta já tiver essa
+        transação no extrato (mesmo dia, valor oposto), ela é marcada automaticamente; se não tiver, o sistema já
+        lança ela do outro lado — sem precisar esperar o extrato.
       </p>
+      <div id="mcDesfazerTransferenciaWrap" class="hidden" style="margin-top:10px;">
+        <button class="btn danger small" onclick="Conciliacao.desfazerTransferencia()">Desfazer transferência (nesta conta e na conta relacionada)</button>
+      </div>
     </div>
 
     <div id="mcDivisaoBox" class="hidden">
@@ -1175,6 +1393,39 @@ function fmtMoeda(v) {
   return n.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 }
 
+// ---- Aritmética de dinheiro sem deriva de ponto flutuante ----
+// JavaScript representa números em ponto flutuante binário, e a maioria dos valores decimais
+// (ex: 150.10) não tem representação exata nessa base — por isso somar muitas transações com "+"
+// comum pode "derivar" um centavo (às vezes mais) por acúmulo de erro, mesmo que cada valor
+// individual pareça certo isoladamente. Isso é o motivo mais comum de um saldo calculado a partir
+// de centenas/milhares de transações não bater exatamente com o saldo real do banco.
+//
+// A solução: internamente, somar sempre em CENTAVOS INTEIROS (que o JavaScript representa com
+// exatidão, sem nenhuma perda) e só converter de volta pra reais no final, numa única divisão.
+
+// converte um valor em reais pra centavos inteiros, com uma pequena margem de segurança contra o
+// erro clássico de arredondamento em ponto flutuante (ex: 1.005*100 pode dar 100.49999999999999
+// em vez de 100.5, fazendo Math.round errar pro lado errado).
+function paraCentavos(v) {
+  const n = Number(v) || 0;
+  const ajuste = n >= 0 ? 1e-9 : -1e-9;
+  return Math.round(n * 100 + ajuste);
+}
+
+// arredonda um valor em reais pra exatamente 2 casas decimais "limpas" — usar sempre que um valor
+// entra no sistema (extrato importado, digitação manual) pra descartar qualquer precisão extra
+// que o próprio parseFloat, ou o banco, tenha introduzido.
+function arred2(v) {
+  return paraCentavos(v) / 100;
+}
+
+// soma uma lista de valores em reais por dentro em centavos inteiros — usar em qualquer soma de
+// muitas transações (saldo, DRE, conferência) em vez de reduce((s,t)=>s+t.valor,0) puro.
+function somarReais(lista, seletor) {
+  const centavos = (lista || []).reduce((s, item) => s + paraCentavos(seletor ? seletor(item) : item), 0);
+  return centavos / 100;
+}
+
 function fmtData(d) {
   if (!d) return '';
   const partes = String(d).split('-');
@@ -1194,9 +1445,19 @@ function fmtDataHora(isoStr) {
 }
 
 // Classifica que tipo de código (Crédito/Débito/Ambos) é permitido para um código do plano de contas,
-// respeitando as exceções do grupo 7 (movimentações não operacionais tem entradas e saídas).
+// respeitando as exceções do grupo 7 (movimentações não operacionais tem entradas e saídas) e do
+// código 3.1.5 "Cheque" (o cheque entra como receita normalmente, mas se voltar sem fundo — ver
+// "Devoluç Cheque Depositado" na conciliação — a saída usa o MESMO código, é a mesma conta contábil
+// vista de outro lado, não uma despesa separada).
 function tipoPermitido(codigo) {
   const c = String(codigo);
+  // exceção configurável pelo usuário na tela de Plano de Contas (coluna "aceita entrada e
+  // saída"): tem prioridade sobre a regra padrão por grupo. É o que resolve casos tipo cheque
+  // recebido que volta sem fundo — a devolução usa o MESMO código da receita original, só que
+  // como saída, sem precisar mexer em código-fonte pra cada código diferente que precisar disso.
+  const registro = State.planoContas.find(p => p.codigo === c);
+  if (registro && registro.aceitaAmbos) return 'AMBOS';
+  if (c === '3.1.5' || c.indexOf('3.1.5.') === 0) return 'AMBOS'; // exceção padrão de fábrica: "Cheque"
   if (c === '3' || c.indexOf('3.') === 0) return 'C';
   if (c.indexOf('7.1') === 0) return 'C';
   if (c.indexOf('7.2') === 0) return 'D';
@@ -1204,6 +1465,15 @@ function tipoPermitido(codigo) {
   if (c === '5' || c.indexOf('5.') === 0) return 'D';
   if (c === '6' || c.indexOf('6.') === 0) return 'D';
   return 'AMBOS';
+}
+
+// Diz se o código escolhido é do tipo errado para essa transação — ex: um código de despesa
+// (só D) aplicado numa entrada (C). É o tipo de erro que uma regra automática salva errada
+// (ou uma edição direta na planilha) pode causar sem ninguém perceber por um tempo.
+function codigoIncompativelComTipo(t) {
+  if (!t || !t.codigo || !t.tipo) return false;
+  const tp = tipoPermitido(t.codigo);
+  return tp !== 'AMBOS' && tp !== t.tipo;
 }
 
 /* ======================================================================
@@ -1381,6 +1651,33 @@ function contaNome(contaId) {
 }
 
 /* ======================================================================
+   LEITURA DO ARQUIVO — detecção de codificação (evita acento virando " ")
+   ======================================================================
+   Muitos bancos brasileiros exportam o OFX em Windows-1252/ISO-8859-1, não em UTF-8. Ler o
+   arquivo com `file.text()` força a leitura como UTF-8 e qualquer byte de acento que não
+   forme um UTF-8 válido vira " " (o texto fica corrompido pra sempre, porque é isso que é
+   gravado na planilha). Esta função lê os bytes crus do arquivo e decide a codificação certa:
+   1) procura uma declaração explícita de CHARSET no cabeçalho do OFX (ex: "CHARSET:1252" no
+      formato antigo, ou CHARSET="1252" no formato novo em XML);
+   2) se não achar nada confiável, tenta decodificar como UTF-8 de verdade — se não for um
+      UTF-8 válido (o caso mais comum vindo de banco brasileiro), cai pra Windows-1252, que
+      aceita qualquer byte e nunca falha. */
+async function lerArquivoComCodificacaoCorreta(file) {
+  const bytes = new Uint8Array(await file.arrayBuffer());
+  const cabecalho = new TextDecoder('windows-1252').decode(bytes.slice(0, 1024));
+  const m = cabecalho.match(/CHARSET[:="]+\s*"?([\w-]+)/i);
+  const declarado = m ? m[1].toUpperCase() : '';
+  if (declarado.indexOf('1252') !== -1 || declarado.indexOf('8859') !== -1 || declarado === 'ANSI') {
+    return new TextDecoder('windows-1252').decode(bytes);
+  }
+  try {
+    return new TextDecoder('utf-8', { fatal: true }).decode(bytes);
+  } catch (e) {
+    return new TextDecoder('windows-1252').decode(bytes);
+  }
+}
+
+/* ======================================================================
    PARSER DE OFX
    ====================================================================== */
 const OfxParser = {
@@ -1400,6 +1697,69 @@ const OfxParser = {
       'SALDO CONTA', 'S A L D O'
     ];
     return padroes.some(p => texto.indexOf(p) !== -1);
+  },
+  // Cheque depositado ainda "em compensação" (ex: Banco do Brasil manda no OFX linhas tipo
+  // "Depos CHQ Imagem 1 Dia" / "2 Dias" / "3 Dias") — é só um AVISO de que um cheque foi
+  // depositado e está no prazo de compensação, não é dinheiro que já entrou no saldo real do
+  // banco (o cheque ainda pode voltar/ser recusado). Confirmado comparando o extrato: o mesmo
+  // FITID reaparece 1 dia depois como uma transação REAL e diferente, "Dep cheque caixa
+  // agencia" — essa sim entra no saldo normalmente, sem precisar de nenhum tratamento especial.
+  // Se o cheque voltar, o banco lança um "Devoluç Cheque Depositado" separado (com FITID
+  // próprio) — esse também é mantido normalmente, pois é uma transação real e independente.
+  ehChequeEmCompensacao(name, memo) {
+    const texto = normalizar((name || '') + ' ' + (memo || ''));
+    const padroes = [
+      'CHQ IMAGEM', 'CHEQUE IMAGEM', 'DEPOSITO CHEQUE EM COMPENSACAO', 'CHEQUE EM COMPENSACAO',
+      'CHEQUE COMPENSACAO'
+    ];
+    return padroes.some(p => texto.indexOf(p) !== -1);
+  },
+  // Monta a ChaveUnica de cada transação (sem chave ainda) pra uma conta de destino. Centralizado
+  // aqui — em vez de espalhado onde cada tela precisa da chave — porque a lógica de desambiguação
+  // de FITID reaproveitado (ver comentário abaixo) precisa olhar TODAS as transações do lote de
+  // uma vez só, não uma por uma; usar essa mesma função nos dois lugares que constroem chave
+  // (import direto e a pré-visualização, quando o usuário troca a conta de destino) evita que os
+  // dois fiquem divergindo com o tempo.
+  montarChaves(brutos, contaId) {
+    // Alguns bancos (visto no Banco do Brasil) reaproveitam o MESMO FITID em transações
+    // recorrentes/automáticas — "Transferido da poupança", parcelas de consórcio, algumas
+    // devoluções de cheque — mesmo quando são dias e valores completamente diferentes. Como o
+    // código normalmente usa só o FITID como ChaveUnica (é o jeito mais confiável de reconhecer
+    // "já importei essa transação antes" quando o banco fornece um FITID de verdade), isso fazia
+    // transações DIFERENTES colidirem na mesma chave — a segunda nunca era importada, ficava
+    // "presa" atrás da primeira pra sempre, mesmo reimportando o mesmo extrato depois.
+    // Por isso: só quando o MESMO FITID aparece em mais de uma combinação dia+valor dentro do
+    // arquivo, a chave passa a incluir também o dia e o valor (só pra esse FITID problemático) —
+    // no resto dos casos (a grande maioria) a chave continua sendo só o FITID puro, exatamente
+    // como antes, pra não deixar de reconhecer transações já importadas em meses anteriores.
+    const combosPorFitid = new Map();
+    brutos.forEach(t => {
+      if (!t.fitid) return;
+      if (!combosPorFitid.has(t.fitid)) combosPorFitid.set(t.fitid, new Set());
+      combosPorFitid.get(t.fitid).add(t.data + '|' + t.valor.toFixed(2));
+    });
+    const fitidsReaproveitados = new Set();
+    combosPorFitid.forEach((combos, fitid) => { if (combos.size > 1) fitidsReaproveitados.add(fitid); });
+
+    // mesmo com dia+valor, ainda pode empatar (ex: várias parcelas idênticas do mesmo fornecedor
+    // no mesmo dia, sem nenhum dado no extrato pra diferenciar uma da outra) — nesses casos, cada
+    // ocorrência a mais ganha um sufixo numerado, pra nenhuma transação real se perder por engano.
+    const contagemChave = new Map();
+    return brutos.map(t => {
+      let chaveBase;
+      if (t.fitid && !fitidsReaproveitados.has(t.fitid)) {
+        chaveBase = t.fitid;
+      } else if (t.fitid) {
+        chaveBase = t.fitid + '|' + t.data + '|' + t.valor.toFixed(2);
+      } else {
+        chaveBase = t.data + '|' + t.valor.toFixed(2) + '|' + normalizar(t.descricao).slice(0, 50);
+      }
+      const n = (contagemChave.get(chaveBase) || 0) + 1;
+      contagemChave.set(chaveBase, n);
+      const chaveUnica = contaId + '|' + chaveBase + (n > 1 ? ('#' + n) : '');
+
+      return Object.assign({}, t, { chaveUnica, conta: contaId });
+    });
   },
   parse(texto) {
     // Conta de origem: pode ser BANKACCTFROM (conta corrente) ou CCACCTFROM (cartão de crédito)
@@ -1421,8 +1781,9 @@ const OfxParser = {
     const orgMatch = texto.match(/<ORG>\s*([^<\r\n]*)/i);
     const banco = orgMatch ? orgMatch[1].trim() : '';
 
-    const transacoes = [];
+    const brutos = [];
     let ignoradasSaldo = 0;
+    let ignoradasChequeCompensacao = 0;
     const blocos = texto.match(/<STMTTRN>([\s\S]*?)<\/STMTTRN>/gi) || [];
     blocos.forEach(blocoRaw => {
       const bloco = blocoRaw;
@@ -1436,22 +1797,24 @@ const OfxParser = {
 
       if (!dtposted || !trnamt) return;
       if (this.ehResumoSaldo(name, memo)) { ignoradasSaldo++; return; }
+      if (this.ehChequeEmCompensacao(name, memo)) { ignoradasChequeCompensacao++; return; }
       const data = dtposted.slice(0, 4) + '-' + dtposted.slice(4, 6) + '-' + dtposted.slice(6, 8);
-      const valor = parseFloat(trnamt.replace(',', '.'));
-      if (isNaN(valor)) return;
+      const valorBruto = parseFloat(trnamt.replace(',', '.'));
+      if (isNaN(valorBruto)) return;
+      // arredonda pra 2 casas decimais limpas — descarta qualquer precisão extra que o próprio
+      // parseFloat (ponto flutuante binário) ou o extrato do banco tenha introduzido, pra evitar
+      // que esse valor fique "sujo" e derive o saldo depois de somado com outras transações
+      const valor = arred2(valorBruto);
       const tipo = valor >= 0 ? 'C' : 'D';
       const descricao = (name || memo || trntype || 'Transação').trim();
 
-      const chaveBase = fitid ? fitid : (data + '|' + valor.toFixed(2) + '|' + normalizar(descricao).slice(0, 50));
-      const chaveUnica = contaId + '|' + chaveBase;
-
-      transacoes.push({
-        chaveUnica, conta: contaId, data, descricao, memo: memo || '',
-        valor, tipo, fitid: fitid || '', codigo: '', status: 'Pendente', regraAplicada: '', conciliadoEm: ''
-      });
+      brutos.push({ data, valor, tipo, descricao, memo: memo || '', fitid: fitid || '' });
     });
 
-    return { contaId, banco, acctType, transacoes, ignoradasSaldo };
+    const transacoes = this.montarChaves(brutos, contaId).map(t =>
+      Object.assign({}, t, { codigo: '', status: 'Pendente', regraAplicada: '', conciliadoEm: '' }));
+
+    return { contaId, banco, acctType, transacoes, ignoradasSaldo, ignoradasChequeCompensacao };
   }
 };
 
@@ -1598,6 +1961,13 @@ function encontrarRegraParaTransacao(t) {
     if (r.ativo === false) return;
     if (r.tipo && r.tipo !== t.tipo) return;
     if (r.conta && r.conta !== t.conta) return;
+    // trava de segurança: mesmo que a regra esteja marcada com o tipo "certo", o código de
+    // destino dela pode não ser compatível de verdade com o tipo da transação (ex: uma regra
+    // salva errada — código de despesa aplicado numa entrada). Isso é exatamente o tipo de erro
+    // que se propaga sozinho toda vez que a regra bate de novo, então aqui a classificação
+    // automática NÃO acontece — a transação fica Pendente, esperando você confirmar na mão.
+    const tp = tipoPermitido(r.codigo);
+    if (tp !== 'AMBOS' && tp !== t.tipo) return;
     const chave = normalizar(r.palavraChave);
     if (!chave) return;
     if (texto.indexOf(chave) !== -1) {
@@ -1654,9 +2024,10 @@ const UI = {
     if (nome === 'conciliar') Conciliacao.render();
     if (nome === 'conciliadas') Conciliadas.render();
     if (nome === 'previstos') Previstos.render();
-    if (nome === 'saldo') Saldo.render();
-    if (nome === 'analises') Analises.render();
+    if (nome === 'saldo') { Saldo.iniciarConsultaData(); Conferencia.init(); }
+    if (nome === 'analises') { Analises.init(); Analises.render(); }
     if (nome === 'regras') Regras.render();
+    if (nome === 'plano') PlanoContasUI.render();
     if (nome === 'contas') Contas.render();
   },
   openConfig() { document.getElementById('modalConfig').classList.remove('hidden'); },
@@ -1712,6 +2083,8 @@ const App = {
     Analises.popularFiltros();
     Regras.popularSelects();
     Previstos.popularSelects();
+    Transferencias.popularSelects();
+    Conferencia.popularSelects();
     const abaAtiva = document.querySelector('nav .tab.active')?.dataset.tab;
     if (abaAtiva) UI.mudarAba(abaAtiva);
   },
@@ -1807,7 +2180,7 @@ const Importar = {
 
   async processarArquivo(file) {
     if (!Config.pronto) { toast('Configure a conexão antes de importar.', 'err'); UI.openConfig(); return; }
-    const texto = await file.text();
+    const texto = await lerArquivoComCodificacaoCorreta(file);
     let resultado;
     try {
       resultado = OfxParser.parse(texto);
@@ -1815,7 +2188,10 @@ const Importar = {
       toast('Não foi possível ler o arquivo OFX: ' + e.message, 'err'); return;
     }
     if (!resultado.transacoes.length) {
-      const extra = resultado.ignoradasSaldo ? ` (${resultado.ignoradasSaldo} linha(s) de resumo de saldo foram ignoradas, mas não havia nenhuma transação real.)` : '';
+      const partes = [];
+      if (resultado.ignoradasSaldo) partes.push(`${resultado.ignoradasSaldo} linha(s) de resumo de saldo`);
+      if (resultado.ignoradasChequeCompensacao) partes.push(`${resultado.ignoradasChequeCompensacao} linha(s) de cheque em compensação`);
+      const extra = partes.length ? ` (${partes.join(' e ')} foram ignoradas, mas não havia nenhuma transação real.)` : '';
       toast('Nenhuma transação encontrada nesse arquivo.' + extra, 'err'); return;
     }
     this.ultimoParse = resultado;
@@ -1881,10 +2257,10 @@ const Importar = {
     document.getElementById('wrapNomeNovaConta').style.display = ehNova ? '' : 'none';
     const contaIdAlvo = ehNova ? resultado.contaId : sel.value;
 
-    const transacoesAlvo = resultado.transacoes.map(t => {
-      const chaveBase = t.fitid ? t.fitid : (t.data + '|' + t.valor.toFixed(2) + '|' + normalizar(t.descricao).slice(0, 50));
-      return Object.assign({}, t, { conta: contaIdAlvo, chaveUnica: contaIdAlvo + '|' + chaveBase });
-    });
+    // reconstrói a chave (mesma lógica de OfxParser.parse) porque a conta de destino pode ter
+    // mudado no dropdown — a chave inclui o contaId, então precisa ser recalculada em cima da
+    // conta escolhida agora, não da conta detectada automaticamente no arquivo.
+    const transacoesAlvo = OfxParser.montarChaves(resultado.transacoes, contaIdAlvo);
 
     const usarDiaValor = document.getElementById('dedupDiaValor').checked;
     const separado = separarNovasDoArquivo(transacoesAlvo, usarDiaValor);
@@ -1903,6 +2279,7 @@ const Importar = {
       <div class="stat-card"><div class="n">${duplicadasNoArquivo}</div><div class="l">já existem (serão ignoradas)</div></div>
       <div class="stat-card"><div class="n">${autoContagem}</div><div class="l">já reconhecidas automaticamente</div></div>
       ${resultado.ignoradasSaldo ? `<div class="stat-card"><div class="n">${resultado.ignoradasSaldo}</div><div class="l">linha(s) de "saldo do dia" ignoradas</div></div>` : ''}
+      ${resultado.ignoradasChequeCompensacao ? `<div class="stat-card"><div class="n">${resultado.ignoradasChequeCompensacao}</div><div class="l">linha(s) de cheque em compensação ignoradas (só informativas — o saldo real só entra depois, como "Dep cheque caixa agência")</div></div>` : ''}
     `;
 
     // detalha o que foi barrado pela regra de dia+valor, para dar pra conferir antes de importar
@@ -1950,6 +2327,8 @@ const Importar = {
       Conciliacao.popularFiltros();
       Analises.popularFiltros();
       Previstos.popularSelects();
+      Transferencias.popularSelects();
+      Conferencia.popularSelects();
       document.getElementById('importPreview').classList.add('hidden');
       document.getElementById('fileInput').value = '';
       Lotes.registrarImportacao(novasNoArquivo.map(t => t.chaveUnica), contaIdAlvo, nome);
@@ -2078,13 +2457,18 @@ function linhaTransacaoHtml(t, idx) {
   const statusClasse = t.status === 'Pendente' ? 'pendente' : t.status === 'Auto' ? 'auto' : t.status === 'Transferencia' ? 'transferencia' : t.status === 'Dividida' ? 'dividida' : 'conciliado';
   const statusLabel = t.status === 'Pendente' ? 'Pendente' : t.status === 'Auto' ? 'Auto' : t.status === 'Transferencia' ? 'Transferência' : t.status === 'Dividida' ? 'Dividida' : 'Conciliada';
   const itensDivisao = t.status === 'Dividida' ? (idx.divPorOrigem.get(t.chaveUnica) || []) : [];
+  // sinaliza um código cujo tipo (entrada/saída) não bate com o tipo real da transação —
+  // normalmente sinal de uma regra automática aplicada errada ou de uma edição direta na planilha
+  const alerta = codigoIncompativelComTipo(t)
+    ? ` <span class="alerta-tipo" title="Esse código normalmente é de ${tipoPermitido(t.codigo) === 'C' ? 'entrada' : 'saída'}, mas essa transação é ${t.tipo === 'C' ? 'uma entrada' : 'uma saída'}. Confira se o código está certo.">⚠️</span>`
+    : '';
   const codigoCel = t.status === 'Transferencia'
     ? `↔ ${nomeConta(t.contaRelacionada)}`
     : t.status === 'Dividida'
     ? `✂ dividida em ${itensDivisao.length} ${itensDivisao.length === 1 ? 'item' : 'itens'}`
-    : (codigoInfo ? `<span class="mono">${codigoInfo.codigo}</span> ${codigoInfo.nome}` : '<span class="muted">—</span>');
+    : (codigoInfo ? `<span class="mono">${codigoInfo.codigo}</span> ${codigoInfo.nome}${alerta}` : '<span class="muted">—</span>');
   const previsao = t.previsaoId ? idx.mapaPrev.get(t.previsaoId) : null;
-  return `<tr class="tx-row" data-chave="${encodeURIComponent(t.chaveUnica)}">
+  return `<tr class="tx-row${alerta ? ' tx-alerta' : ''}" data-chave="${encodeURIComponent(t.chaveUnica)}">
     <td>${fmtData(t.data)}</td>
     <td>${t.descricao}${t.memo && t.memo !== t.descricao ? '<br><span class="muted" style="font-size:11.5px;">' + t.memo + '</span>' : ''}${previsao ? '<br><span class="muted" style="font-size:11.5px;">🔮 previsto' + (previsao.descricao ? ': ' + previsao.descricao : '') + '</span>' : ''}${t.observacao ? '<span class="tx-obs">📝 ' + t.observacao + '</span>' : ''}</td>
     <td class="muted">${nomeConta(t.conta)}</td>
@@ -2106,6 +2490,9 @@ const Conciliacao = {
   // enquanto há um lote em aberto, a tela foca só nele; esse flag é a "escapadela" temporária
   // pra ver tudo sem precisar sair do lote (ele continua em aberto por baixo)
   verTudoTemporario: false,
+  // filtro extra pra achar rápido transações com código de tipo errado (ex: código de despesa
+  // numa entrada) — ligado pelo cartão de alerta nos cartões de resumo
+  filtroTipoIncompativel: false,
 
   init() {
     // um único ouvinte de clique na tabela inteira, em vez de um por linha
@@ -2168,9 +2555,19 @@ const Conciliacao = {
   popularFiltros() {
     const selConta = document.getElementById('filtroConta');
     selConta.innerHTML = '<option value="">Todas</option>' + State.contas.map(c => `<option value="${c.contaId}">${c.nome}</option>`).join('');
-    const grupos = [...new Set(State.planoContas.filter(p => p.nivel === 1).map(p => p.codigo))];
+    // lista grupo (nível 1) e subgrupo (nível 2) juntos, num só select — o subgrupo vem indentado
+    // logo abaixo do grupo dele, ordenado por código, pra dar pra filtrar tanto "5 - Despesas
+    // Fixas" inteiro quanto só "5.3 - Despesas com pessoal" sem precisar de dois campos separados.
+    const grupos = State.planoContas.filter(p => p.nivel === 1).sort((a, b) => a.codigo.localeCompare(b.codigo, undefined, { numeric: true }));
+    const subgrupos = State.planoContas.filter(p => p.nivel === 2).sort((a, b) => a.codigo.localeCompare(b.codigo, undefined, { numeric: true }));
+    const opcoes = grupos.map(g => {
+      const subsDoGrupo = subgrupos.filter(s => s.codigo.split('.')[0] === g.codigo);
+      const opcaoGrupo = `<option value="${g.codigo}">${g.codigo} - ${g.nome}</option>`;
+      const opcoesSubs = subsDoGrupo.map(s => `<option value="${s.codigo}">&nbsp;&nbsp;&nbsp;&nbsp;${s.codigo} - ${s.nome}</option>`).join('');
+      return opcaoGrupo + opcoesSubs;
+    }).join('');
     const selGrupo = document.getElementById('filtroGrupo');
-    selGrupo.innerHTML = '<option value="">Todos</option>' + grupos.map(g => `<option value="${g}">${g} - ${nomeGrupo(g)}</option>`).join('');
+    selGrupo.innerHTML = '<option value="">Todos</option>' + opcoes;
   },
 
   listaFiltrada() {
@@ -2186,14 +2583,27 @@ const Conciliacao = {
 
     return State.transacoes.filter(t => {
       if (chavesLote && !chavesLote.has(t.chaveUnica)) return false;
+      if (this.filtroTipoIncompativel && !codigoIncompativelComTipo(t)) return false;
       if (this.filtroStatusAtual !== 'todos' && t.status !== this.filtroStatusAtual) return false;
       if (conta && t.conta !== conta) return false;
-      if (grupo && (!t.codigo || t.codigo.split('.')[0] !== grupo)) return false;
+      // "grupo" pode ser um grupo (ex: "5") ou um subgrupo (ex: "5.3") — compara só os primeiros
+      // pedaços do código da transação, na mesma quantidade de pedaços do filtro escolhido.
+      if (grupo) {
+        if (!t.codigo) return false;
+        const partes = grupo.split('.').length;
+        if (t.codigo.split('.').slice(0, partes).join('.') !== grupo) return false;
+      }
       if (de && t.data < de) return false;
       if (ate && t.data > ate) return false;
       if (busca && normalizar(t.descricao + ' ' + t.memo).indexOf(busca) === -1) return false;
       return true;
     }).sort((a, b) => b.data.localeCompare(a.data));
+  },
+
+  alternarFiltroTipoIncompativel() {
+    this.filtroTipoIncompativel = !this.filtroTipoIncompativel;
+    this.limiteVisivel = this.PAGINA;
+    this.render();
   },
 
   // banner do lote de importação em aberto, acima dos filtros — mostra o progresso e as ações
@@ -2262,13 +2672,14 @@ const Conciliacao = {
     // com um lote em foco, os cartões de resumo mostram só o lote — é o que importa pra
     // revisar o que acabou de entrar; sem lote (ou vendo tudo), mostram o total geral, como sempre
     const baseStats = (Lotes.ativo && !this.verTudoTemporario) ? Lotes.transacoesDoLote() : State.transacoes;
-    let pend = 0, auto = 0, conc = 0, transf = 0, divid = 0;
+    let pend = 0, auto = 0, conc = 0, transf = 0, divid = 0, tipoErrado = 0;
     for (const t of baseStats) {
       if (t.status === 'Pendente') pend++;
       else if (t.status === 'Auto') auto++;
       else if (t.status === 'Transferencia') transf++;
       else if (t.status === 'Dividida') divid++;
       else conc++;
+      if (codigoIncompativelComTipo(t)) tipoErrado++;
     }
     // percentual de conciliação: quanto já saiu de "Pendente" sobre o total dessa base — sobe
     // conforme você vai classificando, é o "bateu o olho e viu como está indo"
@@ -2285,6 +2696,11 @@ const Conciliacao = {
       <div class="stat-card"><div class="n" style="color:var(--green)">${conc}</div><div class="l">conciliadas</div></div>
       <div class="stat-card"><div class="n" style="color:#7c3aed">${transf}</div><div class="l">transferências</div></div>
       <div class="stat-card"><div class="n" style="color:#db2777">${divid}</div><div class="l">divididas</div></div>
+      ${tipoErrado ? `
+      <div class="stat-card stat-alerta${this.filtroTipoIncompativel ? ' ativo' : ''}" onclick="Conciliacao.alternarFiltroTipoIncompativel()" title="Código de um tipo (entrada/saída) que não bate com o tipo real da transação. Clique para ${this.filtroTipoIncompativel ? 'ver todas de novo' : 'ver só essas'}.">
+        <div class="n">⚠️ ${tipoErrado}</div>
+        <div class="l">${tipoErrado === 1 ? 'possível erro de tipo' : 'possíveis erros de tipo'}</div>
+      </div>` : ''}
     `;
 
     if (!lista.length) {
@@ -2379,6 +2795,7 @@ const Conciliacao = {
     document.getElementById('mcContaDestino').innerHTML = '<option value="">Selecione...</option>' +
       outrasContas.map(c => `<option value="${c.contaId}">${c.nome}</option>`).join('');
     if (t.status === 'Transferencia') document.getElementById('mcContaDestino').value = t.contaRelacionada || '';
+    document.getElementById('mcDesfazerTransferenciaWrap').classList.toggle('hidden', t.status !== 'Transferencia');
 
     // zera a lista de divisão e, se a transação já estiver dividida, repopula com os itens salvos
     document.getElementById('mcDivisaoLista').innerHTML = '';
@@ -2474,6 +2891,59 @@ const Conciliacao = {
     });
   },
 
+  // Corrige o texto da descrição que veio do banco no OFX — principalmente pra casos de
+  // acentuação corrompida (o banco manda o arquivo numa codificação diferente de UTF-8 e o
+  // acento vira " "), mas serve pra qualquer erro de digitação do extrato também.
+  editarDescricao() {
+    const t = this.transacaoSelecionada;
+    if (!t) return;
+    const container = document.getElementById('mcDescricao');
+    container.innerHTML = `
+      <input type="text" id="mcDescricaoEdit" style="width:100%;">
+      <div class="row" style="margin-top:6px;gap:6px;">
+        <button type="button" class="btn small" onclick="Conciliacao.salvarDescricao()">Salvar</button>
+        <button type="button" class="btn secondary small" onclick="Conciliacao.cancelarEdicaoDescricao()">Cancelar</button>
+      </div>`;
+    const campo = document.getElementById('mcDescricaoEdit');
+    campo.value = t.descricao; // via propriedade, não via atributo — evita problema com aspas/caracteres especiais
+    campo.focus();
+    campo.select();
+  },
+
+  cancelarEdicaoDescricao() {
+    const t = this.transacaoSelecionada;
+    if (t) this.abrirModal(t.chaveUnica);
+  },
+
+  salvarDescricao() {
+    const t = this.transacaoSelecionada;
+    const campo = document.getElementById('mcDescricaoEdit');
+    if (!t || !campo) return;
+    const novaDescricao = campo.value.trim();
+    if (!novaDescricao) { toast('A descrição não pode ficar vazia.', 'err'); return; }
+    if (novaDescricao === t.descricao) { this.abrirModal(t.chaveUnica); return; }
+
+    const anterior = t.descricao;
+    t.descricao = novaDescricao;
+    Cache.agendar();
+    this.abrirModal(t.chaveUnica);
+
+    Fila.add({
+      action: 'editarDescricaoTransacao',
+      payload: { chaveUnica: t.chaveUnica, descricao: novaDescricao },
+      aoConcluir: () => {
+        toast('Descrição corrigida.', 'ok');
+        Conciliacao.render();
+        Cache.agendar();
+      },
+      aoFalhar: (e) => {
+        t.descricao = anterior;
+        Cache.agendar();
+        toast('Não deu pra salvar a descrição (' + e.message + ').', 'err');
+      }
+    });
+  },
+
   filtrarListaCodigos() {
     const t = this.transacaoSelecionada;
     if (!t) return;
@@ -2553,7 +3023,7 @@ const Conciliacao = {
   recalcularDivisao() {
     const t = this.transacaoSelecionada;
     const linhas = [...document.querySelectorAll('#mcDivisaoLista .divisao-linha')];
-    const soma = linhas.reduce((s, linha) => s + (parseFloat(linha.querySelector('.mcDivValor').value) || 0), 0);
+    const soma = somarReais(linhas, linha => parseFloat(linha.querySelector('.mcDivValor').value) || 0);
     const totalAlvo = t ? Math.abs(t.valor) : 0;
     const restante = totalAlvo - soma;
     const resumo = document.getElementById('mcDivisaoResumo');
@@ -2580,6 +3050,10 @@ Conciliacao.salvarTransferencia = function () {
   if (!contaRelacionada) { toast('Selecione a conta relacionada à transferência.', 'err'); return; }
 
   const anterior = { codigo: t.codigo, status: t.status, regraAplicada: t.regraAplicada, contaRelacionada: t.contaRelacionada };
+  const contaOrigem = t.conta;
+  const dataOrigem = t.data;
+  const valorMirror = -t.valor;
+  const tipoMirror = valorMirror >= 0 ? 'C' : 'D';
   t.codigo = '';
   t.status = 'Transferencia';
   t.regraAplicada = '';
@@ -2592,7 +3066,27 @@ Conciliacao.salvarTransferencia = function () {
   Fila.add({
     action: 'marcarTransferencia',
     payload: { chaveUnica: t.chaveUnica, contaRelacionada },
-    aoConcluir() { Cache.agendar(); },
+    aoConcluir(res) {
+      Cache.agendar();
+      // se o servidor encontrou ou criou a ponta espelho na outra conta, já reflete aqui também —
+      // assim, quando o usuário for conciliar aquela conta, a transferência já está lá.
+      const esp = res && res.espelho;
+      if (esp && esp.chaveUnica) {
+        let mirror = State.transacoes.find(x => x.chaveUnica === esp.chaveUnica);
+        if (esp.criada && !mirror) {
+          State.transacoes.push({
+            chaveUnica: esp.chaveUnica, conta: contaRelacionada, data: dataOrigem,
+            descricao: 'Transferência entre contas', memo: '', valor: valorMirror, tipo: tipoMirror,
+            fitid: '', codigo: '', status: 'Transferencia', regraAplicada: '',
+            conciliadoEm: new Date().toISOString(), contaRelacionada: contaOrigem, previsaoId: '', observacao: ''
+          });
+        } else if (esp.vinculada && mirror) {
+          mirror.codigo = ''; mirror.status = 'Transferencia'; mirror.regraAplicada = '';
+          mirror.contaRelacionada = contaOrigem;
+        }
+        Conciliacao.render();
+      }
+    },
     aoFalhar(e) {
       Object.assign(t, anterior);
       Conciliacao.render();
@@ -2600,6 +3094,37 @@ Conciliacao.salvarTransferencia = function () {
       toast('Não deu pra salvar na planilha (' + e.message + '). A transação voltou como estava.', 'err');
     }
   });
+};
+
+Conciliacao.desfazerTransferencia = async function () {
+  const t = this.transacaoSelecionada;
+  if (!t) return;
+  try {
+    await Api.post('desfazerTransferencia', { chaveUnica: t.chaveUnica });
+    // acha o espelho na outra conta pelo mesmo critério usado no servidor: mesma data, valor
+    // oposto, também Transferência, apontando de volta pra esta conta.
+    const mirror = State.transacoes.find(x =>
+      x.chaveUnica !== t.chaveUnica && x.conta === t.contaRelacionada && x.status === 'Transferencia' &&
+      x.contaRelacionada === t.conta && x.data === t.data && Math.abs(x.valor + t.valor) < 0.01
+    );
+    function reverterOuRemover(tx) {
+      if (tx.chaveUnica.indexOf('|TRANSF-') !== -1) {
+        const i = State.transacoes.indexOf(tx);
+        if (i !== -1) State.transacoes.splice(i, 1);
+      } else {
+        tx.status = 'Pendente'; tx.codigo = ''; tx.regraAplicada = ''; tx.conciliadoEm = '';
+        tx.contaRelacionada = ''; tx.previsaoId = '';
+      }
+    }
+    reverterOuRemover(t);
+    if (mirror) reverterOuRemover(mirror);
+    Cache.agendar();
+    UI.closeConciliar();
+    Conciliacao.render();
+    toast('Transferência desfeita.', 'ok');
+  } catch (e) {
+    toast('Erro: ' + e.message, 'err');
+  }
 };
 
 Conciliacao.salvarDivisao = async function () {
@@ -2611,7 +3136,7 @@ Conciliacao.salvarDivisao = async function () {
   const itens = [];
   for (const linha of linhas) {
     const codigo = linha.querySelector('.mcDivCodigo').value;
-    const valorAbs = parseFloat(linha.querySelector('.mcDivValor').value);
+    const valorAbs = arred2(parseFloat(linha.querySelector('.mcDivValor').value));
     const descricao = linha.querySelector('.mcDivDescricao').value.trim();
     if (!codigo || !valorAbs || isNaN(valorAbs) || valorAbs <= 0) {
       toast('Preencha o código e um valor maior que zero em todos os itens (ou remova o item vazio).', 'err');
@@ -2619,7 +3144,7 @@ Conciliacao.salvarDivisao = async function () {
     }
     itens.push({ codigo, valor: t.tipo === 'D' ? -valorAbs : valorAbs, descricao });
   }
-  const soma = itens.reduce((s, it) => s + it.valor, 0);
+  const soma = somarReais(itens, it => it.valor);
   if (Math.abs(soma - t.valor) > 0.01) {
     toast('A soma dos itens precisa bater com o valor total da transação — confira o resumo acima.', 'err');
     return;
@@ -2785,17 +3310,21 @@ const Conciliadas = {
 /* ======================================================================
    ANÁLISES
    ====================================================================== */
-// ---- Diagnóstico de performance (indicadores CV/MC/DF/LOAI/INV/LO/SNO/RL) ----
+// ---- Diagnóstico de performance (indicadores CV/MC/DF/LOAI/INV/SNO/RL) ----
 // "tipo":'custo' = quanto menor (em % da receita), melhor (CV, DF, INV, SNO).
-// "tipo":'margem' = quanto maior (em % da receita), melhor (MC, LOAI, LO, RL).
+// "tipo":'margem' = quanto maior (em % da receita), melhor (MC, LOAI, RL).
+// Desde a atualização "Yampa x Yampex" (ver aba Metodologia), LOAI = Lucro Operacional oficial do
+// sistema — não existe mais um "LO" separado (pós-investimentos): Investimentos e Movimentações Não
+// Operacionais não descontam do Lucro Operacional, só do Resultado Líquido. INV e SNO continuam como
+// indicadores informativos (quanto você investe/paga de financiamento como % da receita), mas não
+// entram na alavancagem/elasticidade do Lucro Operacional, porque estruturalmente não o afetam mais.
 // Faixas padrão abaixo são um ponto de partida de mercado; o usuário pode ajustar por "Ajustar metas do seu ramo".
 const INDICADORES_PADRAO = {
   CV:   { curto: 'CV',   label: 'Custos Variáveis',            tipo: 'custo',  grupo: '4',   idealMin: 65, idealMax: 70 },
   MC:   { curto: 'MC',   label: 'Margem de Contribuição',      tipo: 'margem', grupo: null,  idealMin: 33, idealMax: 38 },
   DF:   { curto: 'DF',   label: 'Despesas Fixas',               tipo: 'custo',  grupo: '5',   idealMin: 20, idealMax: 22 },
-  LOAI: { curto: 'LOAI', label: 'LOAI',                         tipo: 'margem', grupo: null,  idealMin: 13, idealMax: 17 },
+  LOAI: { curto: 'LO',   label: 'Lucro Operacional',            tipo: 'margem', grupo: null,  idealMin: 13, idealMax: 17 },
   INV:  { curto: 'INV',  label: 'Investimentos',                tipo: 'custo',  grupo: '6',   idealMin: 4,  idealMax: 6  },
-  LO:   { curto: 'LO',   label: 'Lucro Operacional',            tipo: 'margem', grupo: null,  idealMin: 8,  idealMax: 12 },
   SNO:  { curto: 'SNO',  label: 'Saídas Não Operacionais',      tipo: 'custo',  grupo: '7.2', idealMin: 0,  idealMax: 2  },
   RL:   { curto: 'RL',   label: 'Resultado Líquido',            tipo: 'margem', grupo: null,  idealMin: 6,  idealMax: 10 },
 };
@@ -2823,6 +3352,28 @@ const Analises = {
   popularFiltros() {
     const sel = document.getElementById('anConta');
     sel.innerHTML = '<option value="">Todas</option>' + State.contas.map(c => `<option value="${c.contaId}">${c.nome}</option>`).join('');
+  },
+
+  // preenche De/Até (só na primeira vez, sem sobrescrever o que o usuário já escolheu) com o
+  // último trimestre "fechado" — os 3 meses completos mais recentes, sempre terminando no último
+  // dia do mês ANTERIOR ao atual (o mês corrente nunca está totalmente lançado ainda). Ex: hoje
+  // 27/08 → De 01/05 Até 31/07; hoje 07/11 → De 01/08 Até 31/10. Pode ajustar livremente depois.
+  init() {
+    const inputDe = document.getElementById('anDe');
+    const inputAte = document.getElementById('anAte');
+    if (!inputDe || !inputAte) return;
+    if (!inputAte.value) {
+      const hoje = new Date();
+      // dia 0 de um mês, em JS, "rola" pro último dia do mês anterior
+      const fimMesAnterior = new Date(Date.UTC(hoje.getFullYear(), hoje.getMonth(), 0));
+      inputAte.value = fimMesAnterior.toISOString().slice(0, 10);
+    }
+    if (!inputDe.value) {
+      const [anoF, mesF] = inputAte.value.split('-').map(Number);
+      // início do trimestre = primeiro dia do mês 2 meses antes do mês final (3 meses ao todo)
+      const inicioTrimestre = new Date(Date.UTC(anoF, mesF - 1 - 2, 1));
+      inputDe.value = inicioTrimestre.toISOString().slice(0, 10);
+    }
   },
 
   render() {
@@ -2866,7 +3417,7 @@ const Analises = {
     const itensDivididos = [];
     divididasNoFiltro.forEach(t => {
       const itens = State.divisoes.filter(d => d.chaveUnicaOrigem === t.chaveUnica);
-      const soma = itens.reduce((s, d) => s + (Number(d.valor) || 0), 0);
+      const soma = somarReais(itens, d => Number(d.valor) || 0);
       if (Math.abs(soma - t.valor) > 0.01) divididasDessincronizadas++;
       itens.forEach(d => itensDivididos.push({ codigo: d.codigo, valor: Number(d.valor) || 0, tipo: (Number(d.valor) || 0) >= 0 ? 'C' : 'D' }));
     });
@@ -2875,15 +3426,20 @@ const Analises = {
     // pedaços de cada transação dividida
     const itens = [...consideradas.map(t => ({ codigo: t.codigo, valor: t.valor, tipo: t.tipo })), ...itensDivididos];
 
-    // ---- DRE (demonstração de resultado): mesma lógica de apuração de lucro que se usa em
-    // qualquer negócio — receita, tira custo variável (sobra margem de contribuição), tira despesa
-    // fixa (sobra lucro operacional antes dos investimentos), tira investimento (sobra lucro
-    // operacional), soma/subtrai movimentação não operacional (sobra resultado líquido). Os grupos
-    // do plano de contas (3, 4, 5, 6, 7, 13) já foram desenhados pra bater exatamente com essas
-    // etapas, então é só somar cada grupo com o sinal certo.
-    const somaGrupo = (g, apenasTipo) => itens
-      .filter(i => i.codigo && i.codigo.split('.')[0] === g && (!apenasTipo || i.tipo === apenasTipo))
-      .reduce((s, i) => s + i.valor, 0);
+    // ---- DRE (demonstração de resultado): receita, tira custo variável (sobra margem de
+    // contribuição), tira despesa fixa (sobra Lucro Operacional). A partir daqui, Investimentos
+    // (grupo 6 — obras, máquinas, reformas) e Movimentações Não Operacionais (grupo 7 — empréstimos
+    // obtidos/pagos, juros, multas) são tratados como DECISÃO DE INVESTIMENTO/FINANCIAMENTO, não como
+    // desempenho da operação — por isso ficam "abaixo da linha" do Lucro Operacional, afetando só o
+    // Resultado Líquido final. Isso evita que uma obra financiada por empréstimo (que não sai do caixa
+    // operacional da empresa) derrube artificialmente o indicador de saúde operacional do negócio.
+    // Ver comparação completa em Análises > "ℹ️ Como Calculamos" (Yampa x Yampex). Os grupos do plano
+    // de contas (3, 4, 5, 6, 7, 13) já foram desenhados pra bater exatamente com essas etapas, então é
+    // só somar cada grupo com o sinal certo.
+    const somaGrupo = (g, apenasTipo) => somarReais(
+      itens.filter(i => i.codigo && i.codigo.split('.')[0] === g && (!apenasTipo || i.tipo === apenasTipo)),
+      i => i.valor
+    );
 
     const receita = somaGrupo('3');
     const custosVariaveis = Math.abs(somaGrupo('4'));
@@ -2896,8 +3452,12 @@ const Analises = {
 
     const margemContribuicao = receita - custosVariaveis;
     const loai = margemContribuicao - despesasFixas;
-    const lucroOperacional = loai - investimentos;
-    const resultadoLiquido = lucroOperacional + naoOpLiquido;
+    // Lucro Operacional = LOAI. Investimentos NÃO entra mais aqui (ver comentário acima) — só é
+    // descontado mais adiante, junto com as Movimentações Não Operacionais, para chegar no Resultado
+    // Líquido. O total final do Resultado Líquido não muda — só o "ponto do caminho" em que o
+    // Lucro Operacional é medido, pra ele refletir de fato a operação, não decisões de investimento.
+    const lucroOperacional = loai;
+    const resultadoLiquido = lucroOperacional - investimentos + naoOpLiquido;
 
     const pct = v => receita ? (v / receita * 100) : null;
     const fmtPct = v => v === null || v === undefined
@@ -2933,17 +3493,13 @@ const Analises = {
         <span class="dre-label">(–) Despesas Fixas</span>
         <span class="dre-valor" style="color:var(--red);">${fmtMoeda(despesasFixas)}</span>
       </div>
-      <div class="dre-linha total">
-        <span class="dre-label">= Lucro Operacional Antes dos Investimentos (LOAI)</span>
-        <span class="dre-valor">${fmtMoeda(loai)}${fmtPct(pct(loai))}</span>
-      </div>
-      <div class="dre-linha sub">
-        <span class="dre-label">(–) Investimentos</span>
-        <span class="dre-valor" style="color:var(--red);">${fmtMoeda(investimentos)}</span>
-      </div>
-      <div class="dre-linha total">
+      <div class="dre-linha total destaque-lo">
         <span class="dre-label">= Lucro Operacional</span>
         <span class="dre-valor">${fmtMoeda(lucroOperacional)}${fmtPct(pct(lucroOperacional))}</span>
+      </div>
+      <div class="dre-linha sub">
+        <span class="dre-label">(–) Investimentos <span class="muted" style="font-weight:400;font-size:11px;">(obras, máquinas, reformas — não afeta o Lucro Operacional acima)</span></span>
+        <span class="dre-valor" style="color:var(--red);">${fmtMoeda(investimentos)}</span>
       </div>
       <div class="dre-linha sub">
         <span class="dre-label">(${naoOpLiquido >= 0 ? '+' : '–'}) Movimentações Não Operacionais${naoOpDetalhe}</span>
@@ -2957,17 +3513,27 @@ const Analises = {
         <span class="dre-label">13 — Acerto do Caixa <span class="muted" style="font-weight:400;">(fora do DRE, só informativo)</span></span>
         <span class="dre-valor">${fmtMoeda(acertoCaixa)}</span>
       </div>` : ''}
+      <div style="margin-top:10px;">
+        <button class="btn secondary small" onclick="UI.mudarAba('metodologia')">ℹ️ Por que Investimentos não entra mais no Lucro Operacional? Veja Yampa × Yampex</button>
+      </div>
     `;
 
-    // agrupa por grupo (nível 1) e depois por subgrupo (nível 2)
+    // agrupa por grupo (nível 1) e depois por subgrupo (nível 2) — acumula em centavos inteiros
+    // pra não derivar com muitos itens somados, convertendo de volta pra reais só no final
     const porGrupo = {};
     itens.forEach(i => {
       if (!i.codigo) return;
       const grupo = i.codigo.split('.')[0];
       const subgrupo = i.codigo.split('.').slice(0, 2).join('.');
-      porGrupo[grupo] = porGrupo[grupo] || { total: 0, subs: {} };
-      porGrupo[grupo].total += Math.abs(i.valor);
-      porGrupo[grupo].subs[subgrupo] = (porGrupo[grupo].subs[subgrupo] || 0) + Math.abs(i.valor);
+      porGrupo[grupo] = porGrupo[grupo] || { totalCent: 0, subsCent: {} };
+      const centavos = paraCentavos(Math.abs(i.valor));
+      porGrupo[grupo].totalCent += centavos;
+      porGrupo[grupo].subsCent[subgrupo] = (porGrupo[grupo].subsCent[subgrupo] || 0) + centavos;
+    });
+    Object.keys(porGrupo).forEach(g => {
+      porGrupo[g].total = porGrupo[g].totalCent / 100;
+      porGrupo[g].subs = {};
+      Object.keys(porGrupo[g].subsCent).forEach(s => { porGrupo[g].subs[s] = porGrupo[g].subsCent[s] / 100; });
     });
 
     const maxGrupo = Math.max(1, ...Object.values(porGrupo).map(g => g.total));
@@ -2982,6 +3548,7 @@ const Analises = {
           <span style="min-width:280px;">${g} — ${nomeGrupo(g)}</span>
           <div class="bar-wrap"><div class="bar" style="width:${(info.total / maxGrupo * 100).toFixed(1)}%"></div></div>
           <span style="min-width:120px;text-align:right;">${fmtMoeda(info.total)}</span>
+          <button class="btn secondary small" style="margin-left:8px;" onclick="event.stopPropagation();Analises.verCodigo('${g}')" title="Ver os lançamentos desse grupo em Conciliar">🔎 Ver</button>
         </div>
         <div class="group-body hidden">
           ${subsOrdenados.map(s => {
@@ -2990,6 +3557,7 @@ const Analises = {
               <div class="name">${s} ${nomeS}</div>
               <div class="bar-wrap"><div class="bar" style="width:${(info.subs[s] / maxSub * 100).toFixed(1)}%"></div></div>
               <div class="val">${fmtMoeda(info.subs[s])}</div>
+              <button class="btn secondary small" onclick="Analises.verCodigo('${s}')" title="Ver os lançamentos desse subgrupo em Conciliar">🔎 Ver</button>
             </div>`;
           }).join('')}
         </div>
@@ -2999,7 +3567,7 @@ const Analises = {
     const avisoEl = document.getElementById('anPendenteAviso');
     const avisos = [];
     if (pendentesForaFiltro.length) {
-      const somaPend = pendentesForaFiltro.reduce((s, t) => s + Math.abs(t.valor), 0);
+      const somaPend = somarReais(pendentesForaFiltro, t => Math.abs(t.valor));
       avisos.push(`⚠ ${pendentesForaFiltro.length} transação(ões) pendente(s) de conciliação (${fmtMoeda(somaPend)}) não estão somadas nesta análise.`);
     }
     if (transferenciasForaFiltro.length) {
@@ -3014,6 +3582,31 @@ const Analises = {
       receita, custosVariaveis, despesasFixas, investimentos, margemContribuicao, loai,
       lucroOperacional, naoOpEntradas, naoOpSaidas, resultadoLiquido, itens,
     });
+  },
+
+  // abre a aba Conciliar já filtrada por esse grupo/subgrupo do plano de contas (mantendo a
+  // mesma conta e o mesmo período que estavam selecionados aqui em Análises) — pra dar pra ver
+  // exatamente quais lançamentos formam aquele total e achar rápido o que estiver errado (código
+  // trocado, duplicata, valor digitado errado etc.), em vez de precisar procurar na mão.
+  // Atenção: transações DIVIDIDAS não têm um código próprio (o valor delas é rateado entre vários
+  // códigos na aba Divisoes), então mesmo entrando no total do grupo aqui, elas não aparecem nessa
+  // lista filtrada — se a diferença não aparecer entre as transações normais, vale conferir também
+  // se não tem uma divisão com um pedaço lançado nesse código por engano.
+  verCodigo(codigo) {
+    const conta = document.getElementById('anConta').value;
+    const de = document.getElementById('anDe').value;
+    const ate = document.getElementById('anAte').value;
+
+    document.getElementById('filtroConta').value = conta || '';
+    document.getElementById('filtroGrupo').value = codigo;
+    document.getElementById('filtroDe').value = de || '';
+    document.getElementById('filtroAte').value = ate || '';
+    document.getElementById('filtroBusca').value = '';
+    document.querySelectorAll('#filtroStatus button').forEach(b => b.classList.toggle('active', b.dataset.v === 'todos'));
+    Conciliacao.filtroStatusAtual = 'todos';
+    Conciliacao.limiteVisivel = Conciliacao.PAGINA;
+    if (Lotes.ativo) Conciliacao.verTudoTemporario = true;
+    UI.mudarAba('conciliar');
   },
 
   // -------- Diagnóstico de performance --------
@@ -3032,7 +3625,7 @@ const Analises = {
 
     const valores = {
       CV: custosVariaveis, MC: margemContribuicao, DF: despesasFixas, LOAI: loai,
-      INV: investimentos, LO: lucroOperacional, SNO: naoOpSaidas, RL: resultadoLiquido,
+      INV: investimentos, SNO: naoOpSaidas, RL: resultadoLiquido,
     };
     const percentuais = {};
     Object.keys(valores).forEach(k => { percentuais[k] = (valores[k] / receita) * 100; });
@@ -3066,45 +3659,75 @@ const Analises = {
     };
 
     // impacto no Lucro Operacional de melhorar cada alavanca em 1% do valor próprio dela (não 1 ponto
-    // percentual da receita): reduzir CV/DF/INV em 1% do valor atual libera esse tanto direto pro LO;
-    // aumentar a Receita em 1% carrega junto o custo variável proporcional, então só a margem de
-    // contribuição (1% dela) chega ao LO; SNO fica abaixo da linha do LO, então nunca o afeta.
-    const baseLO = Math.abs(lucroOperacional) || null;
-    const impacto = {
-      CV: baseLO ? (custosVariaveis / baseLO) : null,
-      Receita: baseLO ? (margemContribuicao / baseLO) : null,
-      DF: baseLO ? (despesasFixas / baseLO) : null,
-      INV: baseLO ? (investimentos / baseLO) : null,
-      SNO: 0,
-    };
+    // percentual da receita): reduzir CV/DF em 1% do valor atual libera esse tanto direto pro LO;
+    // aumentar a Receita em 1% carrega junto o custo variável proporcional (que por definição é
+    // variável, escala com a venda), então só a margem de contribuição (1% dela) chega ao LO.
+    // Investimentos e Saídas Não Operacionais NÃO entram como alavanca aqui — desde a atualização
+    // "Yampa x Yampex" eles ficam abaixo da linha do Lucro Operacional por definição (afetam só o
+    // Resultado Líquido), então reduzi-los não move o Lucro Operacional nem um pouco. Continuam
+    // aparecendo como indicadores próprios no painel, só não entram nessa simulação de alavancagem.
+    // É uma simulação "tudo mais constante": mede só o efeito direto e imediato dessa conta isolada,
+    // supondo que Receita/Despesas Fixas ficam exatamente como estão hoje — é a mesma lógica de
+    // "alavancagem operacional" usada em análise financeira. Quanto mais apertada a margem (Lucro
+    // Operacional pequeno perto do Custo Variável ou da Despesa Fixa), maior o efeito percentual de
+    // uma pequena melhora, porque o lucro é só o que "sobra" depois de tirar contas bem maiores que
+    // ele — por isso o percentual pode parecer alto, e é esperado que seja, quanto mais apertada a
+    // margem do negócio. Cada percentual vem de um valor em R$ concreto (mostrado junto), pra dar pra
+    // conferir a conta a olho: deltaReais / |Lucro Operacional| × 100.
+    const baseLO = lucroOperacional || null; // mantém o sinal — negativo = prejuízo operacional
+    const baseAbsLO = baseLO ? Math.abs(baseLO) : null;
+    const noPrejuizo = baseLO !== null && baseLO < 0;
+
+    const valorBaseAlavanca = { CV: custosVariaveis, Receita: margemContribuicao, DF: despesasFixas };
+    const deltaReais = {};
+    const impacto = {};
+    Object.keys(valorBaseAlavanca).forEach(k => {
+      deltaReais[k] = arred2(valorBaseAlavanca[k] * 0.01);
+      impacto[k] = baseAbsLO ? (deltaReais[k] / baseAbsLO * 100) : null;
+    });
+
     const alavancas = [
       { key: 'CV', label: 'Custos Variáveis', direcao: 'Reduzindo', grupo: '4' },
       { key: 'Receita', label: 'Receita', direcao: 'Aumentando', grupo: '3' },
       { key: 'DF', label: 'Despesas Fixas', direcao: 'Reduzindo', grupo: '5' },
-      { key: 'INV', label: 'Investimentos', direcao: 'Reduzindo', grupo: '6' },
-      { key: 'SNO', label: 'Saídas Não Operacionais', direcao: 'Reduzindo', grupo: '7.2' },
     ];
     const vencedora = alavancas.filter(a => impacto[a.key] !== null).sort((a, b) => impacto[b.key] - impacto[a.key])[0];
 
     const elLucro = document.getElementById('anIndLucro');
     if (vencedora && impacto[vencedora.key] > 0) {
       const top3 = top3DoGrupo(vencedora.grupo);
+      const verbo = noPrejuizo ? 'seu prejuízo diminui' : 'seu lucro aumenta';
+      const titulo = noPrejuizo
+        ? `Você está no prejuízo operacional — o que reduz esse prejuízo mais rápido é <b>${vencedora.label.toUpperCase()}</b>`
+        : `O indicador que aumentará seu lucro mais rápido é <b>${vencedora.label.toUpperCase()}</b>`;
+      const alertaExtremo = impacto[vencedora.key] >= 25
+        ? `<p class="ind-alerta">⚠️ Esse percentual está alto porque o Lucro Operacional (${fmtMoeda(baseLO)}) é pequeno perto do valor de ${vencedora.label} (${fmtMoeda(valorBaseAlavanca[vencedora.key])}) — com a margem apertada, qualquer melhora numa conta grande pesa muito no que sobra. Não é erro de conta: é justamente o motivo pra revisar essa área com atenção — inclusive conferir se não tem lançamento errado, com o botão "Ver" abaixo.</p>`
+        : '';
       elLucro.innerHTML = `
         <div class="ind-top">
           <span class="tag">💰 Indicador Lucro</span>
-          <h4>O indicador que aumentará seu lucro mais rápido é <b>${vencedora.label.toUpperCase()}</b></h4>
-          <p class="muted" style="font-size:12.5px;margin:2px 0 0;">${vencedora.direcao} ${vencedora.label} em 1% (do valor atual), o Lucro Operacional aumenta ${impacto[vencedora.key].toFixed(1)}%.</p>
+          <h4>${titulo}</h4>
+          <p class="muted" style="font-size:12.5px;margin:2px 0 0;">
+            ${vencedora.direcao} ${vencedora.label} em 1% — ${fmtMoeda(valorBaseAlavanca[vencedora.key])} × 1% = ${fmtMoeda(deltaReais[vencedora.key])} —
+            ${verbo} de ${fmtMoeda(baseLO)} para ${fmtMoeda(arred2(baseLO + deltaReais[vencedora.key]))} (${impacto[vencedora.key].toFixed(1)}%).
+          </p>
+          <p class="ind-premissa">📐 Como calculamos: simulação "tudo mais igual" — considera Receita, Despesas Fixas e Investimentos exatamente como estão hoje, e mede só o efeito direto de melhorar essa conta em 1%. Quanto mais apertada a sua margem, maior o efeito percentual de uma pequena melhora — é assim mesmo, não é erro de cálculo.</p>
+          ${alertaExtremo}
           <div class="ind-levers">
             ${alavancas.map(a => `
               <div class="ind-lever${a.key === vencedora.key ? ' destaque' : ''}">
                 <div class="k">${a.label}</div>
-                <div class="arrow">${a.direcao} em ${a.direcao === 'Reduzindo' ? '↓' : '↑'} 1%</div>
-                <div class="pct">seu lucro aumenta ${impacto[a.key] === null ? '—' : impacto[a.key].toFixed(1) + '%'}</div>
+                <div class="arrow">${a.direcao} em ${a.direcao === 'Reduzindo' ? '↓' : '↑'} 1% (${fmtMoeda(deltaReais[a.key])})</div>
+                <div class="pct">${verbo} ${impacto[a.key] === null ? '—' : impacto[a.key].toFixed(1) + '%'}</div>
               </div>`).join('')}
           </div>
           ${top3.length ? `<div class="ind-top3">
-            <div class="muted" style="grid-column:1/-1;font-size:11.5px;font-weight:600;">TOP ${top3.length} categoria(s) para atuar dentro de ${vencedora.label}</div>
-            ${top3.map(t => `<div class="ind-top3-item"><div>${t.nome}</div><div class="v">${fmtMoeda(t.valor)} <span class="muted">(${(t.valor / receita * 100).toFixed(1)}%)</span></div></div>`).join('')}
+            <div class="muted" style="grid-column:1/-1;font-size:11.5px;font-weight:600;">TOP ${top3.length} categoria(s) para atuar dentro de ${vencedora.label} — clique em "Ver" pra conferir os lançamentos</div>
+            ${top3.map(t => `<div class="ind-top3-item">
+              <div>${t.nome}</div>
+              <div class="v">${fmtMoeda(t.valor)} <span class="muted">(${(t.valor / receita * 100).toFixed(1)}%)</span></div>
+              <button class="btn secondary small" style="display:block;margin-top:6px;" onclick="Analises.verCodigo('${t.codigo}')">🔎 Ver lançamentos</button>
+            </div>`).join('')}
           </div>` : ''}
         </div>`;
     } else {
@@ -3126,14 +3749,21 @@ const Analises = {
     if (foco) {
       const cfgF = metas[foco];
       const top3 = top3DoGrupo(cfgF.grupo);
+      const gapReais = fmtMoeda(receita * maiorGap / 100);
+      const vFoco = percentuais[foco];
       elFoco.innerHTML = `
         <div class="ind-foco">
           <span class="tag">🎯 Indicador Foco</span>
           <h4>Seu maior ponto de melhoria é: <b>${cfgF.label.toUpperCase()}</b></h4>
-          <p class="muted" style="font-size:12.5px;margin:2px 0 0;">Está ${maiorGap.toFixed(1)} pontos percentuais fora da faixa ideal para o seu ramo.</p>
+          <p class="muted" style="font-size:12.5px;margin:2px 0 0;">Está em ${vFoco.toFixed(1)}% da receita — ${maiorGap.toFixed(1)} pontos percentuais fora da faixa ideal para o seu ramo (não ${maiorGap.toFixed(1)}% a mais de gasto — a diferença em reais é ${gapReais} da receita do período).</p>
+          ${cfgF.grupo ? `<button class="btn secondary small" style="margin-top:8px;" onclick="Analises.verCodigo('${cfgF.grupo}')">🔎 Ver todos os lançamentos de ${cfgF.label}</button>` : ''}
           ${top3.length ? `<div class="ind-top3">
-            <div class="muted" style="grid-column:1/-1;font-size:11.5px;font-weight:600;">TOP ${top3.length} categoria(s) para ficar atento dentro de ${cfgF.label}</div>
-            ${top3.map(t => `<div class="ind-top3-item"><div>${t.nome}</div><div class="v">${fmtMoeda(t.valor)} <span class="muted">(${(t.valor / receita * 100).toFixed(1)}%)</span></div></div>`).join('')}
+            <div class="muted" style="grid-column:1/-1;font-size:11.5px;font-weight:600;">TOP ${top3.length} categoria(s) para ficar atento dentro de ${cfgF.label} — clique em "Ver" pra conferir os lançamentos</div>
+            ${top3.map(t => `<div class="ind-top3-item">
+              <div>${t.nome}</div>
+              <div class="v">${fmtMoeda(t.valor)} <span class="muted">(${(t.valor / receita * 100).toFixed(1)}%)</span></div>
+              <button class="btn secondary small" style="display:block;margin-top:6px;" onclick="Analises.verCodigo('${t.codigo}')">🔎 Ver lançamentos</button>
+            </div>`).join('')}
           </div>` : ''}
         </div>`;
     } else {
@@ -3201,6 +3831,7 @@ const Analises = {
           <div class="ind-detalhe-txt">
             <h4>${texto.titulo}</h4>
             <p>${texto.corpo}</p>
+            ${cfg.grupo ? `<button class="btn secondary small" style="margin-top:8px;" onclick="Analises.verCodigo('${cfg.grupo}')">🔎 Ver os lançamentos desse grupo</button>` : ''}
           </div>
         </div>
         <div class="ind-gauge">
@@ -3225,11 +3856,11 @@ const Analises = {
 
     if (status === 'otimo') {
       if (cfg.tipo === 'custo') {
-        const diff = fmtP(cfg.idealMin - v);
+        const diffPontos = fmtP(cfg.idealMin - v);
         if (key === 'CV') {
-          return { titulo: 'Uau! Precificação excelente', corpo: `Você tem uma ótima precificação de produtos/serviços — gastou ${diff}% a menos que o ideal para o seu ramo em Custos Variáveis. Parabéns, continue assim!` };
+          return { titulo: 'Uau! Precificação excelente', corpo: `Custos Variáveis ficaram em ${fmtP(v)}% da receita — ${diffPontos} pontos percentuais abaixo do piso ideal para o seu ramo. Ótima precificação de produtos/serviços, parabéns, continue assim!` };
         }
-        return { titulo: `Ótimo! ${label} sob controle`, corpo: `Você gastou ${diff}% a menos que o ideal para o seu ramo em ${label}. Continue de olho para manter essa folga.` };
+        return { titulo: `Ótimo! ${label} sob controle`, corpo: `${label} ficaram em ${fmtP(v)}% da receita — ${diffPontos} pontos percentuais abaixo do piso ideal para o seu ramo. Continue de olho para manter essa folga.` };
       }
       return { titulo: `Ótimo! ${label} acima da média`, corpo: `Sua ${label} está acima da média para o seu ramo — isso significa uma ótima gestão. Tente mantê-la sempre acima de ${fmtP(cfg.idealMax)}%.` };
     }
@@ -3239,7 +3870,7 @@ const Analises = {
         return { titulo: `${label} dentro do ideal`, corpo: `Seu ${label} está dentro da faixa ideal para o seu ramo, entre ${fmtP(cfg.idealMin)}% e ${fmtP(cfg.idealMax)}%. Fique de olho para não ultrapassar ${fmtP(cfg.idealMax)}%.` };
       }
       let corpo = `Parabéns! Seu ${cfg.curto} está dentro do ideal. Para melhorar ainda mais, alcance um ${cfg.curto} acima de ${fmtP(cfg.idealMax)}%.`;
-      if (key === 'LOAI') corpo += ' Isso torna a sua estrutura operacional altamente lucrativa — o LOAI reflete a viabilidade do seu negócio.';
+      if (key === 'LOAI') corpo += ' Isso torna a sua estrutura operacional altamente lucrativa — o Lucro Operacional reflete a viabilidade do seu negócio, sem contar investimentos nem empréstimos.';
       if (key === 'RL') {
         corpo += ' Isso aumenta sua segurança financeira e permite possíveis distribuições de lucro.';
         if (naoOpEntradas) corpo += ` Perceba que seu Resultado Líquido pode ter sido impactado pelas Entradas Não Operacionais de ${fmtMoeda(naoOpEntradas)} que seu negócio teve no período.`;
@@ -3247,26 +3878,29 @@ const Analises = {
       return { titulo: `Parabéns! ${label} dentro do ideal`, corpo };
     }
 
-    // ohnao
+    // ohnao — atenção: "diff"/"diffPontos" aqui é uma diferença em PONTOS PERCENTUAIS DA RECEITA
+    // (ex: gastou 31,9% da receita, teto ideal é 22% → 9,9 PONTOS a mais), não "9,9% a mais de
+    // gasto" (que seria outra conta, bem menor). Deixamos isso explícito no texto pra não confundir
+    // com um percentual de aumento sobre o valor ideal.
     if (cfg.tipo === 'custo') {
-      const diff = fmtP(v - cfg.idealMax);
+      const diffPontos = fmtP(v - cfg.idealMax);
       const diffReais = fmtMoeda(valorReais - receita * cfg.idealMax / 100);
-      let corpo = `Dada a sua receita no período, você gastou ${diff}% (${diffReais}) a mais que o ideal para o seu ramo em ${label}.`;
+      let corpo = `${label} ficaram em <strong>${fmtP(v)}% da receita</strong> do período — ${diffPontos} pontos percentuais acima do teto ideal de ${fmtP(cfg.idealMax)}% pro seu ramo (não é "${diffPontos}% a mais de gasto": é o valor gasto passando do teto ideal em ${diffReais}, que é a diferença entre ${fmtMoeda(valorReais)} gastos e os ${valorEmPct(cfg.idealMax)} que ${fmtP(cfg.idealMax)}% da receita representam).`;
       if (key === 'DF') {
-        corpo += ` Para ficar dentro do ideal, gaste entre ${fmtP(cfg.idealMin)}% (${valorEmPct(cfg.idealMin)}) e ${fmtP(cfg.idealMax)}% (${valorEmPct(cfg.idealMax)}).`;
+        corpo += ` Para ficar dentro do ideal, mantenha entre ${fmtP(cfg.idealMin)}% (${valorEmPct(cfg.idealMin)}) e ${fmtP(cfg.idealMax)}% (${valorEmPct(cfg.idealMax)}) da receita.`;
       } else if (key === 'INV') {
-        corpo += ` O ideal seria entre ${fmtP(cfg.idealMin)}% (${valorEmPct(cfg.idealMin)}) e ${fmtP(cfg.idealMax)}% (${valorEmPct(cfg.idealMax)}). Verifique se os investimentos estão trazendo o retorno desejado — você pode estar investindo mais do que a empresa é capaz de suportar.`;
+        corpo += ` O ideal seria entre ${fmtP(cfg.idealMin)}% (${valorEmPct(cfg.idealMin)}) e ${fmtP(cfg.idealMax)}% (${valorEmPct(cfg.idealMax)}) da receita. Verifique se os investimentos estão trazendo o retorno desejado — você pode estar investindo mais do que a empresa é capaz de suportar.`;
       } else if (key === 'SNO') {
-        corpo = `Dada a sua receita no período, você gastou ${diff}% (${diffReais}) a mais que o ideal para o seu ramo. O ideal por aqui é não ter Saídas Não Operacionais, a não ser distribuição de lucros periódicas. Caso tenha empréstimos, evite gastar mais que ${fmtP(cfg.idealMax)}% (${valorEmPct(cfg.idealMax)}).`;
+        corpo = `Saídas Não Operacionais ficaram em <strong>${fmtP(v)}% da receita</strong> do período — ${diffPontos} pontos percentuais acima do teto ideal de ${fmtP(cfg.idealMax)}% (${diffReais} a mais do que os ${valorEmPct(cfg.idealMax)} que ${fmtP(cfg.idealMax)}% da receita representam). O ideal por aqui é não ter Saídas Não Operacionais, a não ser distribuição de lucros periódicas. Caso tenha empréstimos, evite gastar mais que ${fmtP(cfg.idealMax)}% (${valorEmPct(cfg.idealMax)}) da receita.`;
       } else {
-        corpo += ` Para ficar dentro do ideal, mantenha entre ${fmtP(cfg.idealMin)}% (${valorEmPct(cfg.idealMin)}) e ${fmtP(cfg.idealMax)}% (${valorEmPct(cfg.idealMax)}).`;
+        corpo += ` Para ficar dentro do ideal, mantenha entre ${fmtP(cfg.idealMin)}% (${valorEmPct(cfg.idealMin)}) e ${fmtP(cfg.idealMax)}% (${valorEmPct(cfg.idealMax)}) da receita.`;
       }
       return { titulo: `Atenção: ${label} acima do ideal`, corpo };
     }
 
-    const diff = fmtP(cfg.idealMin - v);
-    let corpo = `Seu ${cfg.curto} está ${diff}% abaixo do ideal para o seu ramo. O ideal seria entre ${fmtP(cfg.idealMin)}% e ${fmtP(cfg.idealMax)}%.`;
-    if (key === 'LO') corpo += ' Lembre-se de que o lucro é o indicador-chave de qualquer negócio.';
+    const diffPontos = fmtP(cfg.idealMin - v);
+    let corpo = `${label} ficou em <strong>${fmtP(v)}% da receita</strong> do período — ${diffPontos} pontos percentuais abaixo do piso ideal de ${fmtP(cfg.idealMin)}% pro seu ramo. O ideal seria entre ${fmtP(cfg.idealMin)}% e ${fmtP(cfg.idealMax)}% da receita.`;
+    if (key === 'LOAI') corpo += ' Lembre-se de que o lucro é o indicador-chave de qualquer negócio.';
     if (key === 'RL' && naoOpEntradas) corpo += ` Perceba que seu Resultado Líquido pode ter sido impactado pelas Entradas Não Operacionais de ${fmtMoeda(naoOpEntradas)} que seu negócio teve no período.`;
     return { titulo: `Atenção: ${label} abaixo do ideal`, corpo };
   },
@@ -3429,8 +4063,8 @@ const Saldo = {
   // e conta TODAS as transações (inclusive pendentes/não conciliadas), pois já são movimentação real no banco.
   calcular(c) {
     const txs = State.transacoes.filter(t => t.conta === c.contaId && (!c.dataSaldoInicial || t.data >= c.dataSaldoInicial));
-    const soma = txs.reduce((s, t) => s + (Number(t.valor) || 0), 0);
-    return { saldo: (Number(c.saldoInicial) || 0) + soma, qtd: txs.length };
+    const soma = somarReais(txs, t => Number(t.valor) || 0);
+    return { saldo: arred2((Number(c.saldoInicial) || 0) + soma), qtd: txs.length };
   },
 
   // saldo da conta EM UMA DATA específica (inclusive) — mesma lógica do calcular(), mas somando só
@@ -3439,8 +4073,8 @@ const Saldo = {
   calcularEm(c, dataAlvo) {
     if (c.dataSaldoInicial && dataAlvo < c.dataSaldoInicial) return null;
     const txs = State.transacoes.filter(t => t.conta === c.contaId && t.data <= dataAlvo && (!c.dataSaldoInicial || t.data >= c.dataSaldoInicial));
-    const soma = txs.reduce((s, t) => s + (Number(t.valor) || 0), 0);
-    return (Number(c.saldoInicial) || 0) + soma;
+    const soma = somarReais(txs, t => Number(t.valor) || 0);
+    return arred2((Number(c.saldoInicial) || 0) + soma);
   },
 
   // preenche a data de hoje (só na primeira vez) e mostra o saldo consolidado assim que a aba abre
@@ -3460,17 +4094,18 @@ const Saldo = {
     if (!dataAlvo) { cont.innerHTML = '<div class="empty-state">Escolha uma data.</div>'; return; }
     if (!State.contas.length) { cont.innerHTML = '<div class="empty-state">Nenhuma conta importada ainda.</div>'; return; }
 
-    let total = 0;
     let semDado = 0;
+    const saldosValidos = [];
     const linhas = State.contas.map(c => {
       const saldo = this.calcularEm(c, dataAlvo);
       if (saldo === null) {
         semDado++;
         return `<tr><td>${c.nome}</td><td class="muted" style="text-align:right;">sem dado (antes de ${fmtData(c.dataSaldoInicial)})</td></tr>`;
       }
-      total += saldo;
+      saldosValidos.push(saldo);
       return `<tr><td>${c.nome}</td><td style="text-align:right;font-weight:600;">${fmtMoeda(saldo)}</td></tr>`;
     }).join('');
+    const total = somarReais(saldosValidos);
 
     cont.innerHTML = `
       <div style="overflow-x:auto;">
@@ -3531,8 +4166,8 @@ const Saldo = {
     const saldoInicialTela = parseFloat(siEl.value) || 0;
     const dataTela = sdEl.value || '';
     const txs = State.transacoes.filter(t => t.conta === contaId && (!dataTela || t.data >= dataTela));
-    const soma = txs.reduce((s, t) => s + (Number(t.valor) || 0), 0);
-    const saldoCalc = saldoInicialTela + soma;
+    const soma = somarReais(txs, t => Number(t.valor) || 0);
+    const saldoCalc = arred2(saldoInicialTela + soma);
     document.getElementById('sc-' + contaId).textContent = fmtMoeda(saldoCalc);
     const diffEl = document.getElementById('diff-' + contaId);
     const saldoReal = srEl.value === '' ? null : parseFloat(srEl.value);
@@ -3554,9 +4189,10 @@ const Saldo = {
     const txs = State.transacoes
       .filter(t => t.conta === contaId && (!c.dataSaldoInicial || t.data >= c.dataSaldoInicial))
       .sort((a, b) => a.data.localeCompare(b.data) || String(a.chaveUnica).localeCompare(String(b.chaveUnica)));
-    let saldo = Number(c.saldoInicial) || 0;
+    let saldoCent = paraCentavos(Number(c.saldoInicial) || 0);
     const linhas = txs.map(t => {
-      saldo += Number(t.valor) || 0;
+      saldoCent += paraCentavos(Number(t.valor) || 0);
+      const saldo = saldoCent / 100;
       const statusLabel = t.status === 'Transferencia' ? 'Transferência' : (t.status === 'Pendente' ? 'Pendente' : 'Conciliado');
       return `<tr>
         <td>${fmtData(t.data)}</td>
@@ -3571,6 +4207,128 @@ const Saldo = {
       'Saldo inicial: ' + fmtMoeda(c.saldoInicial || 0) + (c.dataSaldoInicial ? (' em ' + fmtData(c.dataSaldoInicial)) : ' (sem data de referência — considerando todas as transações importadas)') + '.';
     document.getElementById('corpoExtrato').innerHTML = linhas.join('') || '<tr><td colspan="5" class="muted" style="text-align:center;padding:20px;">Nenhuma transação encontrada para essa conta a partir da data de referência.</td></tr>';
     document.getElementById('modalExtrato').classList.remove('hidden');
+  }
+};
+
+/* ======================================================================
+   CONFERÊNCIA DIA A DIA — mostra o saldo de cada dia útil (segunda a sexta)
+   dentro de um período, do jeito que aparece no extrato do banco: o saldo
+   de segunda-feira já é o saldo acumulado incluindo qualquer transação de
+   sábado/domingo, já que o banco não lista fim de semana separado. Cada
+   linha tem um botão "Ver" que abre só os lançamentos daquela janela
+   (incluindo o fim de semana anterior, quando for o caso) na aba Conciliar.
+   ====================================================================== */
+const Conferencia = {
+  DIAS_SEMANA: ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'],
+
+  init() {
+    const inputDe = document.getElementById('confDe');
+    const inputAte = document.getElementById('confAte');
+    if (!inputDe || !inputAte) return;
+    if (!inputAte.value) {
+      const hoje = new Date();
+      inputAte.value = hoje.getFullYear() + '-' + String(hoje.getMonth() + 1).padStart(2, '0') + '-' + String(hoje.getDate()).padStart(2, '0');
+    }
+    if (!inputDe.value) {
+      const [ano, mes] = inputAte.value.split('-');
+      inputDe.value = `${ano}-${mes}-01`;
+    }
+  },
+
+  popularSelects() {
+    const sel = document.getElementById('confConta');
+    if (!sel) return;
+    sel.innerHTML = State.contas.length
+      ? State.contas.map(c => `<option value="${c.contaId}">${c.nome}</option>`).join('')
+      : '<option value="">Importe um extrato primeiro para cadastrar uma conta</option>';
+  },
+
+  // dia da semana (0=domingo...6=sábado) de uma data "AAAA-MM-DD", em UTC pra não sofrer com fuso
+  diaDaSemana(iso) {
+    const [y, m, d] = iso.split('-').map(Number);
+    return new Date(Date.UTC(y, m - 1, d)).getUTCDay();
+  },
+
+  ehDiaUtil(iso) {
+    const dia = this.diaDaSemana(iso);
+    return dia >= 1 && dia <= 5;
+  },
+
+  diaSeguinte(iso) {
+    const [y, m, d] = iso.split('-').map(Number);
+    const dt = new Date(Date.UTC(y, m - 1, d));
+    dt.setUTCDate(dt.getUTCDate() + 1);
+    return dt.toISOString().slice(0, 10);
+  },
+
+  gerar() {
+    const contaId = document.getElementById('confConta').value;
+    const de = document.getElementById('confDe').value;
+    const ate = document.getElementById('confAte').value;
+    const cont = document.getElementById('conferenciaResultado');
+    if (!cont) return;
+    if (!contaId) { cont.innerHTML = '<div class="empty-state">Escolha o banco.</div>'; return; }
+    if (!de || !ate) { cont.innerHTML = '<div class="empty-state">Escolha o período — "De" e "Até".</div>'; return; }
+    if (de > ate) { cont.innerHTML = '<div class="empty-state">A data "De" não pode ser depois da data "Até".</div>'; return; }
+    const c = State.contas.find(x => x.contaId === contaId);
+    if (!c) { cont.innerHTML = '<div class="empty-state">Conta não encontrada.</div>'; return; }
+
+    // percorre dia a dia dentro do período; toda vez que cai num dia útil, fecha uma linha da
+    // tabela com o saldo acumulado até ali — a "janela" daquela linha começa no dia seguinte à
+    // última linha fechada (ou no início do período, na primeira linha), então um fim de semana
+    // no meio do caminho sempre cai dentro da janela da segunda-feira seguinte.
+    const linhas = [];
+    let inicioJanela = de;
+    let cursor = de;
+    while (cursor <= ate) {
+      if (this.ehDiaUtil(cursor)) {
+        linhas.push({ data: cursor, janelaDe: inicioJanela, janelaAte: cursor, saldo: Saldo.calcularEm(c, cursor) });
+        inicioJanela = this.diaSeguinte(cursor);
+      }
+      cursor = this.diaSeguinte(cursor);
+    }
+
+    if (!linhas.length) {
+      cont.innerHTML = '<div class="empty-state">Nenhum dia útil (segunda a sexta) dentro desse período.</div>';
+      return;
+    }
+
+    cont.innerHTML = `
+      <div style="overflow-x:auto;">
+        <table>
+          <thead><tr><th>Dia</th><th>Data</th><th style="text-align:right;">Saldo</th><th></th></tr></thead>
+          <tbody>
+            ${linhas.map(l => {
+              const incluiFimDeSemana = l.janelaDe !== l.data;
+              const spanJanela = incluiFimDeSemana
+                ? `<br><span class="muted" style="font-size:11.5px;">inclui ${fmtData(l.janelaDe)}${l.janelaAte !== l.janelaDe ? (' a ' + fmtData(l.janelaAte)) : ''}</span>`
+                : '';
+              return `<tr>
+                <td>${this.DIAS_SEMANA[this.diaDaSemana(l.data)]}</td>
+                <td>${fmtData(l.data)}${spanJanela}</td>
+                <td style="text-align:right;font-weight:600;">${l.saldo === null ? '<span class="muted">sem dado</span>' : fmtMoeda(l.saldo)}</td>
+                <td><button class="btn secondary small" onclick="Conferencia.ver('${contaId}','${l.janelaDe}','${l.janelaAte}')">Ver</button></td>
+              </tr>`;
+            }).join('')}
+          </tbody>
+        </table>
+      </div>
+    `;
+  },
+
+  // abre a aba Conciliar já filtrada pela conta e pela janela de dias daquela linha — se tiver um
+  // lote de importação em foco, sai do foco primeiro, senão a janela escolhida ficaria escondida
+  ver(contaId, de, ate) {
+    document.getElementById('filtroConta').value = contaId;
+    document.getElementById('filtroGrupo').value = '';
+    document.getElementById('filtroDe').value = de;
+    document.getElementById('filtroAte').value = ate;
+    document.getElementById('filtroBusca').value = '';
+    document.querySelectorAll('#filtroStatus button').forEach(b => b.classList.toggle('active', b.dataset.v === 'todos'));
+    Conciliacao.filtroStatusAtual = 'todos';
+    Conciliacao.limiteVisivel = Conciliacao.PAGINA;
+    if (Lotes.ativo) Conciliacao.verTudoTemporario = true;
+    UI.mudarAba('conciliar');
   }
 };
 
@@ -3689,25 +4447,27 @@ const Previstos = {
     const iso = hoje.getFullYear() + '-' + String(hoje.getMonth() + 1).padStart(2, '0') + '-' + String(hoje.getDate()).padStart(2, '0');
     const campoData = document.getElementById('prevData');
     if (campoData) campoData.value = iso;
+    document.getElementById('prevTipo')?.addEventListener('change', () => {
+      this.atualizarCodigosDisponiveis();
+      this.atualizarLabelValor();
+    });
+    this.atualizarLabelValor();
+  },
+
+  // o campo Valor é sempre digitado positivo, sem sinal — o sistema já decide sozinho se lança
+  // como entrada (+) ou saída (−) a partir do Tipo escolhido, então não tem como errar o sinal por
+  // esquecimento. O rótulo do campo deixa isso explícito, e muda junto quando o Tipo é trocado.
+  atualizarLabelValor() {
+    const tipo = document.getElementById('prevTipo')?.value;
+    const label = document.getElementById('prevValorLabel');
+    if (!label) return;
+    label.textContent = tipo === 'D'
+      ? 'Valor (R$) — digite positivo, sai como saída'
+      : 'Valor (R$) — digite positivo, entra como entrada';
   },
 
   popularSelects() {
-    // campo de busca com autocompletar no lugar da lista suspensa: dá pra digitar um pedaço
-    // do código ("5.4") ou do nome ("manut maq") e as opções vão filtrando na hora
-    const codigosDisponiveis = State.planoContas.filter(p => p.folha).sort((a, b) => a.codigo.localeCompare(b.codigo, undefined, { numeric: true }));
-    const wrapCodigo = document.getElementById('prevCodigoWrap');
-    if (wrapCodigo) {
-      if (this._comboCodigo) {
-        this._comboCodigo.trocarItens(codigosDisponiveis);
-      } else {
-        this._comboCodigo = criarComboCodigo({
-          id: 'prevCodigo',
-          itens: codigosDisponiveis,
-          placeholder: 'digite o código ou o nome...'
-        });
-        wrapCodigo.appendChild(this._comboCodigo);
-      }
-    }
+    this.atualizarCodigosDisponiveis();
     const selConta = document.getElementById('prevConta');
     if (selConta) {
       selConta.innerHTML = State.contas.length
@@ -3716,11 +4476,44 @@ const Previstos = {
     }
   },
 
+  // campo de busca com autocompletar no lugar da lista suspensa: dá pra digitar um pedaço do
+  // código ("5.4") ou do nome ("manut maq") e as opções vão filtrando na hora. Só mostra códigos
+  // compatíveis com o Tipo escolhido (Entrada/Saída) — é o que evita cadastrar um previsto com
+  // um código de despesa numa entrada (ou vice-versa), já que esse lançamento entra direto como
+  // conciliado, sem passar pela revisão que uma classificação manual normalmente tem.
+  atualizarCodigosDisponiveis() {
+    const tipo = document.getElementById('prevTipo')?.value || '';
+    const codigosDisponiveis = codigosFolha(tipo);
+    const wrapCodigo = document.getElementById('prevCodigoWrap');
+    if (!wrapCodigo) return;
+    if (this._comboCodigo) {
+      // se o código já escolhido não serve mais pro tipo novo, limpa a seleção em vez de
+      // deixar um código incompatível "escondido" no campo escondido
+      const atual = document.getElementById('prevCodigo')?.value;
+      if (atual && !codigosDisponiveis.some(p => p.codigo === atual)) {
+        this._comboCodigo.definirCodigo('');
+      }
+      this._comboCodigo.trocarItens(codigosDisponiveis);
+    } else {
+      this._comboCodigo = criarComboCodigo({
+        id: 'prevCodigo',
+        itens: codigosDisponiveis,
+        placeholder: 'digite o código ou o nome...'
+      });
+      wrapCodigo.appendChild(this._comboCodigo);
+    }
+  },
+
+  // Quem cadastra um lançamento previsto já sabe que é real e está correto — então ele entra
+  // direto na aba Conciliar como conciliado, sem ficar "aguardando" um extrato pra confirmar
+  // o que você já confirmou. Se o extrato do banco trouxer depois a mesma conta + mesmo dia +
+  // mesmo valor, a trava de duplicidade da importação reconhece que é a mesma coisa e não
+  // duplica — não precisa se preocupar em apagar nada na hora de importar.
   async criar() {
     const conta = document.getElementById('prevConta').value;
     const dataPrevista = document.getElementById('prevData').value;
     const tipo = document.getElementById('prevTipo').value;
-    const valorAbs = Math.abs(parseFloat(document.getElementById('prevValor').value));
+    const valorAbs = arred2(Math.abs(parseFloat(document.getElementById('prevValor').value)));
     const codigo = document.getElementById('prevCodigo').value;
     const descricao = document.getElementById('prevDescricao').value.trim();
     if (!conta) { toast('Cadastre/importe ao menos uma conta antes (aba Importar).', 'err'); return; }
@@ -3732,12 +4525,18 @@ const Previstos = {
       const res = await Api.post('criarPrevisao', { conta, dataPrevista, valor, tipo, codigo, descricao });
       State.previsoes.push({
         id: res.id, conta, dataPrevista, valor, tipo, codigo, descricao,
-        status: 'Pendente', chaveUnicaVinculada: '', criadoEm: new Date().toISOString()
+        status: 'Conciliado', chaveUnicaVinculada: res.chaveUnica, criadoEm: new Date().toISOString()
+      });
+      State.transacoes.push({
+        chaveUnica: res.chaveUnica, conta, data: dataPrevista, descricao: descricao || 'Lançamento previsto',
+        memo: '', valor, tipo, fitid: '', codigo, status: 'Conciliado', regraAplicada: 'Previsto',
+        conciliadoEm: res.conciliadoEm || dataPrevista, contaRelacionada: '', previsaoId: res.id, observacao: ''
       });
       document.getElementById('prevValor').value = '';
       document.getElementById('prevDescricao').value = '';
       this.render();
-      toast('Lançamento previsto cadastrado — vai casar sozinho quando o extrato chegar.', 'ok');
+      Cache.agendar();
+      toast('Lançamento cadastrado e já conciliado. Se o extrato real trouxer a mesma transação depois, ela não duplica.', 'ok');
     } catch (e) { toast('Erro: ' + e.message, 'err'); }
   },
 
@@ -3763,11 +4562,23 @@ const Previstos = {
     }).join('') || '<tr><td colspan="7" class="muted" style="text-align:center;padding:20px;">Nenhum lançamento previsto cadastrado ainda.</td></tr>';
   },
 
+  // se o previsto foi um dos lançados já direto como conciliado (identificável pela chave
+  // "conta|PREV-..."), a transação vinculada some junto — nasceram juntas, saem juntas. Uma
+  // transação real vinda de um extrato bancário nunca é apagada por aqui, só o previsto em si.
   async excluir(id) {
     try {
+      const p = State.previsoes.find(x => x.id === id);
+      const chaveVinculada = p ? p.chaveUnicaVinculada : '';
       await Api.post('excluirPrevisao', { id });
-      State.previsoes = State.previsoes.filter(p => p.id !== id);
+      State.previsoes = State.previsoes.filter(x => x.id !== id);
+      if (chaveVinculada && chaveVinculada.indexOf('|PREV-') !== -1) {
+        State.transacoes = State.transacoes.filter(t => t.chaveUnica !== chaveVinculada);
+      }
       this.render();
+      Cache.agendar();
+      if (document.getElementById('tab-conciliar') && !document.getElementById('tab-conciliar').classList.contains('hidden')) {
+        Conciliacao.render();
+      }
       toast('Lançamento previsto excluído.', 'ok');
     } catch (e) { toast('Erro: ' + e.message, 'err'); }
   },
@@ -3790,6 +4601,316 @@ const Previstos = {
       }
       toast('Desvinculado — a transação voltou para pendente de classificação.', 'ok');
     } catch (e) { toast('Erro: ' + e.message, 'err'); }
+  }
+};
+
+/* ======================================================================
+   TRANSFERÊNCIAS — registro manual de transferência entre contas da empresa,
+   fora do fluxo de extrato .ofx. Cria as duas pontas de uma vez (saída numa
+   conta, entrada na outra), já conciliadas — mesmo princípio do Previstos:
+   se o extrato real de qualquer uma das contas trouxer depois a mesma
+   transação (mesmo dia, mesmo valor), a trava de duplicidade reconhece e
+   não duplica.
+   ====================================================================== */
+const Transferencias = {
+  init() {
+    const hoje = new Date();
+    const iso = hoje.getFullYear() + '-' + String(hoje.getMonth() + 1).padStart(2, '0') + '-' + String(hoje.getDate()).padStart(2, '0');
+    const campoData = document.getElementById('transfData');
+    if (campoData) campoData.value = iso;
+  },
+
+  popularSelects() {
+    const opcoes = State.contas.length
+      ? State.contas.map(c => `<option value="${c.contaId}">${c.nome}</option>`).join('')
+      : '<option value="">Importe um extrato primeiro para cadastrar uma conta</option>';
+    const selOrigem = document.getElementById('transfContaOrigem');
+    const selDestino = document.getElementById('transfContaDestino');
+    if (selOrigem) selOrigem.innerHTML = opcoes;
+    if (selDestino) selDestino.innerHTML = opcoes;
+  },
+
+  async criar() {
+    const contaOrigem = document.getElementById('transfContaOrigem').value;
+    const contaDestino = document.getElementById('transfContaDestino').value;
+    const data = document.getElementById('transfData').value;
+    const valorAbs = arred2(Math.abs(parseFloat(document.getElementById('transfValor').value)));
+    const descricao = document.getElementById('transfDescricao').value.trim();
+    if (!contaOrigem || !contaDestino) { toast('Cadastre/importe ao menos duas contas antes (aba Importar).', 'err'); return; }
+    if (contaOrigem === contaDestino) { toast('Escolha duas contas diferentes.', 'err'); return; }
+    if (!data) { toast('Escolha a data.', 'err'); return; }
+    if (!valorAbs || isNaN(valorAbs)) { toast('Informe o valor.', 'err'); return; }
+    try {
+      const res = await Api.post('criarTransferencia', { contaOrigem, contaDestino, data, valor: valorAbs, descricao });
+      const descFinal = descricao || 'Transferência entre contas';
+      const agora = new Date().toISOString();
+      State.transacoes.push({
+        chaveUnica: res.chaveOrigem, conta: contaOrigem, data, descricao: descFinal, memo: '',
+        valor: -valorAbs, tipo: 'D', fitid: '', codigo: '', status: 'Transferencia', regraAplicada: '',
+        conciliadoEm: agora, contaRelacionada: contaDestino, previsaoId: '', observacao: ''
+      });
+      State.transacoes.push({
+        chaveUnica: res.chaveDestino, conta: contaDestino, data, descricao: descFinal, memo: '',
+        valor: valorAbs, tipo: 'C', fitid: '', codigo: '', status: 'Transferencia', regraAplicada: '',
+        conciliadoEm: agora, contaRelacionada: contaOrigem, previsaoId: '', observacao: ''
+      });
+      document.getElementById('transfValor').value = '';
+      document.getElementById('transfDescricao').value = '';
+      Cache.agendar();
+      if (document.getElementById('tab-conciliar') && !document.getElementById('tab-conciliar').classList.contains('hidden')) {
+        Conciliacao.render();
+      }
+      toast('Transferência registrada nas duas contas, já conciliada.', 'ok');
+    } catch (e) { toast('Erro: ' + e.message, 'err'); }
+  }
+};
+
+/* ======================================================================
+   PLANO DE CONTAS — visualizar em árvore, criar código novo (com sugestão
+   automática do próximo número livre) e migrar lançamentos entre códigos.
+   ====================================================================== */
+const PlanoContasUI = {
+  filtro: '',
+
+  render() {
+    this.renderArvore();
+    this.popularSelectsMigracao();
+    this.atualizarContagemMigracao();
+  },
+
+  filtrar(valor) {
+    this.filtro = valor;
+    this.renderArvore();
+  },
+
+  // filhos DIRETOS de um código (uma "camada" abaixo, não netos) — genérico, funciona pra
+  // qualquer profundidade (nível 1 -> 2, nível 2 -> 3, etc).
+  filhosDiretos(codigoPai) {
+    const partes = codigoPai.split('.').length;
+    return State.planoContas
+      .filter(p => p.codigo.indexOf(codigoPai + '.') === 0 && p.codigo.split('.').length === partes + 1)
+      .sort((a, b) => a.codigo.localeCompare(b.codigo, undefined, { numeric: true }));
+  },
+
+  // sugere o próximo número livre dentro de um pai — ignora o "catch-all" .99 ("Outros..."),
+  // que deve continuar sempre por último. Ex: pai "5.4" com filhos 5.4.1..5.4.12 e 5.4.99 ->
+  // sugere "5.4.13".
+  proximoCodigoFilho(codigoPai) {
+    const numeros = this.filhosDiretos(codigoPai)
+      .map(f => parseInt(f.codigo.split('.').pop(), 10))
+      .filter(n => Number.isFinite(n) && n !== 99);
+    const proximo = numeros.length ? Math.max(...numeros) + 1 : 1;
+    return codigoPai + '.' + proximo;
+  },
+
+  renderArvore() {
+    const termoBusca = normalizar((this.filtro || '').trim());
+    const buscando = termoBusca.length > 0;
+
+    const bateDireto = {};
+    if (buscando) {
+      State.planoContas.forEach(p => {
+        if (normalizar(p.codigo).indexOf(termoBusca) !== -1 || normalizar(p.nome).indexOf(termoBusca) !== -1) {
+          bateDireto[p.codigo] = true;
+        }
+      });
+    }
+    // um ramo fica visível na busca se ele mesmo bate, ou algum descendente bate
+    const cacheVisivel = {};
+    const ramoVisivel = (codigo) => {
+      if (!buscando) return true;
+      if (cacheVisivel[codigo] !== undefined) return cacheVisivel[codigo];
+      let achou = !!bateDireto[codigo];
+      if (!achou) achou = this.filhosDiretos(codigo).some(f => ramoVisivel(f.codigo));
+      cacheVisivel[codigo] = achou;
+      return achou;
+    };
+
+    const grupos = State.planoContas.filter(p => p.nivel === 1).sort((a, b) => a.codigo.localeCompare(b.codigo, undefined, { numeric: true }));
+
+    const html = grupos.filter(g => ramoVisivel(g.codigo)).map(g => {
+      const subs = this.filhosDiretos(g.codigo).filter(s => ramoVisivel(s.codigo));
+      return `
+        <div class="plano-grupo">
+          <div class="plano-grupo-head">
+            <span class="mono">${g.codigo}</span>
+            <span style="flex:1;">${g.nome}</span>
+            <button class="btn-add" title="Criar subgrupo dentro de ${g.codigo}" onclick="PlanoContasUI.abrirFormAdd('${g.codigo}')">+</button>
+          </div>
+          <div class="plano-grupo-body">
+            ${this.renderFormAdd(g.codigo)}
+            ${subs.map(s => this.renderSub(s, ramoVisivel)).join('') || '<div class="muted" style="font-size:12px;padding:6px 0;">Nenhum subgrupo ainda.</div>'}
+          </div>
+        </div>`;
+    }).join('');
+
+    document.getElementById('planoArvore').innerHTML = html || '<div class="empty-state">Nenhum código encontrado pra essa busca.</div>';
+  },
+
+  renderSub(s, ramoVisivel) {
+    const filhos = this.filhosDiretos(s.codigo).filter(f => ramoVisivel(f.codigo));
+    return `
+      <div class="plano-sub">
+        <div class="plano-sub-head">
+          <span class="mono">${s.codigo}</span>
+          <input type="text" value="${s.nome}" onchange="PlanoContasUI.salvarNome('${s.codigo}', this.value)">
+          <button class="btn-add" title="Criar código dentro de ${s.codigo}" onclick="PlanoContasUI.abrirFormAdd('${s.codigo}')">+</button>
+        </div>
+        ${this.renderFormAdd(s.codigo)}
+        <div class="plano-sub-body">
+          ${filhos.map(f => this.renderLeaf(f)).join('') || '<div class="muted" style="font-size:12px;padding:4px 0;">Nenhum código ainda.</div>'}
+        </div>
+      </div>`;
+  },
+
+  renderLeaf(f) {
+    const tp = tipoPermitido(f.codigo);
+    const tpLabel = tp === 'C' ? 'entrada' : tp === 'D' ? 'saída' : 'ambos';
+    return `
+      <div class="plano-leaf">
+        <span class="mono">${f.codigo}</span>
+        <input type="text" value="${f.nome}" onchange="PlanoContasUI.salvarNome('${f.codigo}', this.value)">
+        <span class="tipo-pill ${tp}">${tpLabel}</span>
+        <label class="ambos-toggle" title="Marque se esse código precisa aparecer tanto pra classificar entradas quanto saídas — ex: um cheque recebido que pode voltar sem fundo/assinatura divergente usa o MESMO código nos dois casos.">
+          <input type="checkbox" ${f.aceitaAmbos ? 'checked' : ''} onchange="PlanoContasUI.alternarAceitaAmbos('${f.codigo}', this.checked)"> entrada e saída
+        </label>
+        <button class="btn secondary small" onclick="PlanoContasUI.irParaMigrar('${f.codigo}')">↔ Migrar</button>
+      </div>`;
+  },
+
+  renderFormAdd(codigoPai) {
+    const sugestao = this.proximoCodigoFilho(codigoPai);
+    const id = 'add-' + codigoPai.replace(/\./g, '-');
+    return `
+      <div class="plano-add-form" id="${id}">
+        <span class="muted" style="font-size:12px;">Novo código dentro de ${codigoPai}:</span>
+        <input type="text" class="codigo" id="${id}-codigo" value="${sugestao}">
+        <input type="text" class="nome" id="${id}-nome" placeholder="Nome do código">
+        <button class="btn small" onclick="PlanoContasUI.confirmarAdd('${codigoPai}', '${id}')">Adicionar</button>
+        <button class="btn secondary small" onclick="PlanoContasUI.fecharFormAdd('${id}')">Cancelar</button>
+      </div>`;
+  },
+
+  abrirFormAdd(codigoPai) {
+    document.querySelectorAll('.plano-add-form.aberto').forEach(el => el.classList.remove('aberto'));
+    const id = 'add-' + codigoPai.replace(/\./g, '-');
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.classList.add('aberto');
+    const inputNome = document.getElementById(id + '-nome');
+    if (inputNome) inputNome.focus();
+  },
+
+  fecharFormAdd(id) {
+    const el = document.getElementById(id);
+    if (el) el.classList.remove('aberto');
+  },
+
+  async confirmarAdd(codigoPai, id) {
+    const codigo = document.getElementById(id + '-codigo').value.trim();
+    const nome = document.getElementById(id + '-nome').value.trim();
+    if (!codigo || !nome) { toast('Preencha o código e o nome.', 'err'); return; }
+    if (State.planoContas.some(p => p.codigo === codigo)) { toast('Esse código já existe.', 'err'); return; }
+    try {
+      await Api.post('criarCodigoPlano', { codigo, nome });
+      const nivel = codigo.split('.').length;
+      const grupo = codigo.split('.')[0];
+      State.planoContas.push({ codigo, nome, grupo, nivel, folha: true });
+      const pai = State.planoContas.find(p => p.codigo === codigoPai);
+      if (pai) pai.folha = false;
+      toast(`Código ${codigo} criado.`, 'ok');
+      this.render();
+      Conciliacao.popularFiltros();
+    } catch (e) { toast('Erro: ' + e.message, 'err'); }
+  },
+
+  async salvarNome(codigo, nome) {
+    nome = nome.trim();
+    if (!nome) { toast('O nome não pode ficar vazio.', 'err'); this.renderArvore(); return; }
+    try {
+      await Api.post('criarCodigoPlano', { codigo, nome });
+      const p = State.planoContas.find(x => x.codigo === codigo);
+      if (p) p.nome = nome;
+      toast('Nome atualizado.', 'ok');
+    } catch (e) { toast('Erro: ' + e.message, 'err'); this.renderArvore(); }
+  },
+
+  async alternarAceitaAmbos(codigo, valor) {
+    try {
+      await Api.post('definirTipoForcadoCodigoPlano', { codigo, aceitaAmbos: valor });
+      const p = State.planoContas.find(x => x.codigo === codigo);
+      if (p) p.aceitaAmbos = valor;
+      toast(valor
+        ? `Código ${codigo} agora aparece pra classificar entradas e saídas.`
+        : `Código ${codigo} voltou a aceitar só o tipo padrão do grupo.`, 'ok');
+      this.renderArvore();
+    } catch (e) { toast('Erro: ' + e.message, 'err'); this.renderArvore(); }
+  },
+
+  // -------- migração de lançamentos entre códigos --------
+
+  popularSelectsMigracao() {
+    const opcoes = codigosFolha().map(p => `<option value="${p.codigo}">${p.codigo} - ${p.nome}</option>`).join('');
+    ['migrarDe', 'migrarPara'].forEach(id => {
+      const sel = document.getElementById(id);
+      if (!sel) return;
+      const atual = sel.value;
+      sel.innerHTML = '<option value="">Escolha um código...</option>' + opcoes;
+      if (atual && [...sel.options].some(o => o.value === atual)) sel.value = atual;
+    });
+  },
+
+  irParaMigrar(codigo) {
+    this.popularSelectsMigracao();
+    const sel = document.getElementById('migrarDe');
+    sel.value = codigo;
+    this.atualizarContagemMigracao();
+    sel.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  },
+
+  contarUsos(codigo) {
+    return {
+      transacoes: State.transacoes.filter(t => t.codigo === codigo).length,
+      divisoes: State.divisoes.filter(d => d.codigo === codigo).length,
+      previsoes: State.previsoes.filter(p => p.codigo === codigo).length,
+      regras: State.regras.filter(r => r.codigo === codigo).length
+    };
+  },
+
+  atualizarContagemMigracao() {
+    const de = document.getElementById('migrarDe').value;
+    const para = document.getElementById('migrarPara').value;
+    const el = document.getElementById('migrarResumo');
+    if (!de || !para) { el.innerHTML = ''; return; }
+    if (de === para) { el.innerHTML = '<div class="empty-state">Escolha dois códigos diferentes.</div>'; return; }
+    const c = this.contarUsos(de);
+    const total = c.transacoes + c.divisoes + c.previsoes + c.regras;
+    if (!total) {
+      el.innerHTML = `<div class="empty-state">Não há nada lançado em ${de} pra migrar.</div>`;
+      return;
+    }
+    el.innerHTML = `
+      <p style="font-size:13px;margin:6px 0 10px;">
+        Serão migrados: <strong>${c.transacoes}</strong> transação(ões), <strong>${c.divisoes}</strong> pedaço(s) de transação dividida,
+        <strong>${c.previsoes}</strong> previsto(s) e <strong>${c.regras}</strong> regra(s) de aprendizado.
+      </p>
+      <button class="btn small" onclick="PlanoContasUI.confirmarMigracao()">Migrar ${total} lançamento(s) de ${de} para ${para}</button>
+    `;
+  },
+
+  async confirmarMigracao() {
+    const de = document.getElementById('migrarDe').value;
+    const para = document.getElementById('migrarPara').value;
+    if (!de || !para || de === para) return;
+    try {
+      const res = await Api.post('migrarCodigoPlano', { codigoAntigo: de, codigoNovo: para });
+      State.transacoes.forEach(t => { if (t.codigo === de) t.codigo = para; });
+      State.divisoes.forEach(d => { if (d.codigo === de) d.codigo = para; });
+      State.previsoes.forEach(p => { if (p.codigo === de) p.codigo = para; });
+      State.regras.forEach(r => { if (r.codigo === de) r.codigo = para; });
+      toast(`Migrado: ${res.transacoes} transação(ões), ${res.divisoes} divisão(ões), ${res.previsoes} previsto(s), ${res.regras} regra(s).`, 'ok');
+      this.atualizarContagemMigracao();
+    } catch (e) { toast('Erro ao migrar: ' + e.message, 'err'); }
   }
 };
 
@@ -3826,6 +4947,8 @@ window.addEventListener('DOMContentLoaded', () => {
   Conciliacao.init();
   Conciliadas.init();
   Previstos.init();
+  Transferencias.init();
+  Conferencia.init();
   App.iniciar();
 });
 </script>
