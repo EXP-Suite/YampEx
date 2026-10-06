@@ -80,9 +80,9 @@ tr.tx-row:hover{background:#f9fafb;cursor:pointer;}
 .code-item .c{font-family:ui-monospace,Menlo,monospace;font-size:11px;color:var(--text-dim);margin-right:6px;}
 .code-item.selected .c{color:#dbeafe;}
 .checkbox-row{display:flex;align-items:center;gap:8px;margin-top:10px;font-size:13px;}
-.stat-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:16px;}
+.stat-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin-bottom:16px;}
 .stat-card{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);padding:14px;}
-.stat-card .n{font-size:20px;font-weight:700;}
+.stat-card .n{font-size:20px;font-weight:700;overflow-wrap:anywhere;word-break:break-word;line-height:1.2;}
 .stat-card .l{font-size:12px;color:var(--text-dim);margin-top:2px;}
 .group-block{margin-bottom:10px;border:1px solid var(--border);border-radius:8px;overflow:hidden;}
 .group-head{display:flex;align-items:center;gap:10px;padding:10px 14px;background:#fafbfc;cursor:pointer;font-weight:600;}
@@ -473,7 +473,7 @@ tr.tx-row:hover{background:#f4f7fd;cursor:pointer;}
 .valD{color:var(--red);font-weight:700;font-variant-numeric:tabular-nums;}
 
 /* ---------- cartões de indicador ---------- */
-.stat-cards{grid-template-columns:repeat(auto-fit,minmax(168px,1fr));gap:14px;margin-bottom:18px;}
+.stat-cards{grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:14px;margin-bottom:18px;}
 .stat-card{
   position:relative;background:var(--panel);border:1px solid var(--border);
   border-radius:var(--radius);padding:16px 16px 15px;box-shadow:var(--shadow);
@@ -484,7 +484,7 @@ tr.tx-row:hover{background:#f4f7fd;cursor:pointer;}
   background:linear-gradient(180deg,var(--accent-600),var(--accent-700));opacity:.85;
 }
 .stat-card:hover{transform:translateY(-1px);box-shadow:0 2px 4px rgba(15,23,42,.06),0 12px 28px -12px rgba(15,23,42,.20);}
-.stat-card .n{font-size:23px;font-weight:800;letter-spacing:-.02em;font-variant-numeric:tabular-nums;}
+.stat-card .n{font-size:23px;font-weight:800;letter-spacing:-.02em;font-variant-numeric:tabular-nums;overflow-wrap:anywhere;word-break:break-word;line-height:1.2;}
 .stat-card .l{font-size:11px;color:var(--text-dim);margin-top:3px;font-weight:600;text-transform:uppercase;letter-spacing:.045em;}
 .stat-card.stat-pct:before{background:linear-gradient(180deg,var(--green),var(--accent-600));}
 .stat-card.stat-pct .n{color:var(--green);}
@@ -613,12 +613,45 @@ footer strong{color:var(--text-dim);font-weight:700;letter-spacing:.02em;}
 .fin-card .muted-row{font-size:12px;color:var(--text-dim);}
 .rel-card{border:1px solid var(--border);border-radius:10px;padding:10px 14px;margin-bottom:8px;background:#fff;}
 .rel-card strong{font-size:13.5px;}
+.rel-dica{border:1px solid var(--border);border-left:4px solid var(--accent-600);border-radius:8px;padding:12px 14px;margin-bottom:10px;background:var(--accent-dim);font-size:13.5px;line-height:1.55;}
+.rel-dica.alerta{border-left-color:var(--amber);background:#fffbeb;}
+.rel-dica.ok{border-left-color:var(--green);background:#f0fdf4;}
+.rel-dica b{color:var(--accent-700);}
+.rel-dica.alerta b{color:#92400e;}
+.rel-proj-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px;}
+.rel-proj-cards .stat-card .l{text-transform:none;letter-spacing:0;font-weight:500;}
+.rel-proj-nota{font-size:11.5px;color:var(--text-dim);margin-top:10px;}
+
+/* ---------- tendência mês a mês (gráfico em SVG, sem biblioteca externa) ---------- */
+.tend-chart-wrap{position:relative;width:100%;max-width:980px;}
+.tend-chart{width:100%;height:auto;display:block;}
+.tend-chart text{font-family:inherit;font-size:11px;fill:var(--text-dim);}
+.tend-chart .rotulo-fim{font-size:11.5px;font-weight:600;fill:#334155;}
+.tend-chart .grade{stroke:#e3e6eb;stroke-width:1;}
+.tend-chart .zero{stroke:#94a3b8;stroke-width:1;}
+.tend-chart .linha{fill:none;stroke-width:2;stroke-linejoin:round;stroke-linecap:round;}
+.tend-chart .ponto{stroke:#fff;stroke-width:2;}
+.tend-chart .mira{stroke:#94a3b8;stroke-width:1;stroke-dasharray:none;opacity:0;}
+.tend-chart .alvo{fill:transparent;cursor:crosshair;}
+.tend-legenda{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:12px;color:var(--text-dim);margin:0 0 8px;}
+.tend-legenda span{display:inline-flex;align-items:center;gap:6px;}
+.tend-legenda i{display:inline-block;width:10px;height:10px;border-radius:50%;}
+.tend-tooltip{position:absolute;pointer-events:none;background:#1f2430;color:#fff;font-size:12px;line-height:1.5;padding:8px 11px;border-radius:8px;white-space:nowrap;box-shadow:0 8px 24px -8px rgba(15,23,42,.4);z-index:5;display:none;}
+.tend-tooltip b{display:block;margin-bottom:2px;}
+.tend-tooltip i{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px;}
+.tend-tabela td.num,.tend-tabela th.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap;}
+.tend-tabela tr.parcial td{color:var(--text-dim);font-style:italic;}
+.tend-tabela tr.media td{font-weight:700;background:var(--panel-alt);}
+.tend-tabela .neg{color:var(--red);}
+.tend-tabela .delta-pos{color:var(--green);}
+.tend-tabela .delta-neg{color:var(--red);}
 
 @media print{
-  header, nav#mainNav, #toastWrap, .no-print{display:none !important;}
+  header, nav#mainNav, #toastWrap, .no-print, .tend-tooltip{display:none !important;}
   body{background:#fff;}
-  #tab-relatorio .panel{border:none;box-shadow:none;padding:4px 0;}
-  #tab-relatorio .stat-card{break-inside:avoid;}
+  #tab-relatorio .panel, #tab-tendencia .panel{border:none;box-shadow:none;padding:4px 0;}
+  #tab-relatorio .stat-card, #tab-tendencia .stat-card{break-inside:avoid;}
+  #tab-relatorio .group-block, .tend-chart-wrap{break-inside:avoid;}
   main{padding:0;}
 }
 
@@ -646,6 +679,7 @@ footer strong{color:var(--text-dim);font-weight:700;letter-spacing:.02em;}
   <button class="tab" data-tab="previstos">Previstos</button>
   <button class="tab" data-tab="saldo">Saldo</button>
   <button class="tab" data-tab="analises">Análises</button>
+  <button class="tab" data-tab="tendencia">Tendência</button>
   <button class="tab" data-tab="financiamentos">Financiamentos</button>
   <button class="tab" data-tab="relatorio">Relatório de Gestão</button>
   <button class="tab" data-tab="metodologia">ℹ️ Como Calculamos</button>
@@ -1063,6 +1097,28 @@ footer strong{color:var(--text-dim);font-weight:700;letter-spacing:.02em;}
     </div>
   </section>
 
+  <!-- TENDÊNCIA MÊS A MÊS -->
+  <section id="tab-tendencia" class="tab-content hidden">
+    <div class="panel no-print">
+      <h2>Tendência mês a mês</h2>
+      <p class="muted" style="margin-top:-6px;font-size:12.5px;">
+        Receita, custos + despesas e lucro operacional de cada mês lado a lado — pra ver se o negócio está
+        subindo, estável ou caindo, em vez de uma foto de um período só. Só conta o que já está conciliado;
+        o mês atual fica de fora por padrão (ainda incompleto), mas dá pra incluir marcado como parcial.
+      </p>
+      <div class="row" style="flex-wrap:wrap;gap:10px;align-items:flex-end;">
+        <div class="field"><label>Quantos meses</label>
+          <select id="tendMeses"><option value="6">6</option><option value="12" selected>12</option><option value="24">24</option></select>
+        </div>
+        <div class="field"><label>Conta</label><select id="tendConta"><option value="">Todas</option></select></div>
+        <label class="checkbox-row" style="margin-top:0;padding-bottom:6px;"><input type="checkbox" id="tendIncluirAtual"> incluir o mês atual (parcial)</label>
+        <button class="btn secondary" onclick="Tendencia.render()">Atualizar</button>
+        <button class="btn" onclick="window.print()">🖨️ Imprimir</button>
+      </div>
+    </div>
+    <div id="tendConteudo"></div>
+  </section>
+
   <!-- FINANCIAMENTOS -->
   <section id="tab-financiamentos" class="tab-content hidden">
     <div class="panel">
@@ -1130,6 +1186,26 @@ footer strong{color:var(--text-dim);font-weight:700;letter-spacing:.02em;}
     <div class="panel">
       <p class="muted" id="relPeriodo" style="font-size:12.5px;margin-top:-6px;"></p>
       <div class="stat-cards" id="relResumo"></div>
+    </div>
+
+    <div class="panel">
+      <h2>DRE do período</h2>
+      <div id="relDRE"></div>
+    </div>
+
+    <div class="panel" id="relIndicadorPanel">
+      <h2>💡 Onde focar — e dicas</h2>
+      <div id="relIndicador"></div>
+    </div>
+
+    <div class="panel">
+      <h2>📈 Projeção</h2>
+      <div id="relProjecao"></div>
+    </div>
+
+    <div class="panel">
+      <h2>Tendência — últimos 12 meses</h2>
+      <div id="relTendencia"></div>
     </div>
 
     <div class="panel">
@@ -2179,6 +2255,7 @@ const UI = {
     if (nome === 'previstos') Previstos.render();
     if (nome === 'saldo') { Saldo.iniciarConsultaData(); Conferencia.init(); }
     if (nome === 'analises') { Analises.init(); Analises.render(); }
+    if (nome === 'tendencia') Tendencia.render();
     if (nome === 'financiamentos') Financiamentos.render();
     if (nome === 'relatorio') { Relatorio.init(); Relatorio.render(); }
     if (nome === 'regras') Regras.render();
@@ -2242,6 +2319,7 @@ const App = {
     Transferencias.popularSelects();
     Conferencia.popularSelects();
     Financiamentos.popularSelects();
+    Tendencia.popularSelects();
     const abaAtiva = document.querySelector('nav .tab.active')?.dataset.tab;
     if (abaAtiva) UI.mudarAba(abaAtiva);
   },
@@ -4683,17 +4761,82 @@ const Relatorio = {
       `Período: ${fmtData(de)} até ${fmtData(ate)}${conta ? ' · ' + contaNome(conta) : ' · todas as contas'}.`;
 
     const dre = calcularDRE(de, ate, conta);
-    const { receita, custosVariaveis, despesasFixas, naoOpSaidas, resultadoLiquido, porGrupo, itens } = dre;
+    const {
+      receita, custosVariaveis, despesasFixas, investimentos, naoOpEntradas, naoOpSaidas, naoOpLiquido,
+      margemContribuicao, lucroOperacional, resultadoLiquido, acertoCaixa, porGrupo, itens
+    } = dre;
     const totalPago = custosVariaveis + despesasFixas;
+    const pct = v => receita ? (v / receita * 100) : null;
+    const fmtPct = v => v === null || v === undefined
+      ? ''
+      : ` <span class="muted" style="font-weight:400;font-size:11.5px;">(${v.toFixed(1)}% da receita)</span>`;
+    const corResultado = v => v >= 0 ? 'var(--green)' : 'var(--red)';
 
+    // ---- resumo rápido (cards) ----
     document.getElementById('relResumo').innerHTML = `
       <div class="stat-card"><div class="n" style="color:var(--green)">${fmtMoeda(receita)}</div><div class="l">vendeu (receita)</div></div>
       <div class="stat-card"><div class="n" style="color:var(--red)">${fmtMoeda(totalPago)}</div><div class="l">pagou (custos + despesas)</div></div>
       <div class="stat-card"><div class="n">${fmtMoeda(naoOpSaidas)}</div><div class="l">pago em financiamentos / investimentos</div></div>
-      <div class="stat-card"><div class="n" style="color:${resultadoLiquido >= 0 ? 'var(--green)' : 'var(--red)'}">${fmtMoeda(resultadoLiquido)}</div><div class="l">resultado líquido do período</div></div>
+      <div class="stat-card"><div class="n" style="color:${corResultado(resultadoLiquido)}">${fmtMoeda(resultadoLiquido)}</div><div class="l">resultado líquido do período${fmtPct(pct(resultadoLiquido))}</div></div>
     `;
 
-    // Financiamentos: quanto cada um teve pago DENTRO deste período (pelo código dele) e, no
+    // ---- DRE completo do período (mesmo formato usado na aba Análises) ----
+    const naoOpDetalhe = (naoOpEntradas || naoOpSaidas)
+      ? ` <span class="muted" style="font-size:11px;">(entradas ${fmtMoeda(naoOpEntradas)} · saídas ${fmtMoeda(naoOpSaidas)})</span>`
+      : '';
+    document.getElementById('relDRE').innerHTML = `
+      <div class="dre-linha inicio">
+        <span class="dre-label">Receita</span>
+        <span class="dre-valor" style="color:var(--green);">${fmtMoeda(receita)}</span>
+      </div>
+      <div class="dre-linha sub">
+        <span class="dre-label">(–) Custos Variáveis</span>
+        <span class="dre-valor" style="color:var(--red);">${fmtMoeda(custosVariaveis)}</span>
+      </div>
+      <div class="dre-linha total">
+        <span class="dre-label">= Margem de Contribuição</span>
+        <span class="dre-valor">${fmtMoeda(margemContribuicao)}${fmtPct(pct(margemContribuicao))}</span>
+      </div>
+      <div class="dre-linha sub">
+        <span class="dre-label">(–) Despesas Fixas</span>
+        <span class="dre-valor" style="color:var(--red);">${fmtMoeda(despesasFixas)}</span>
+      </div>
+      <div class="dre-linha total destaque-lo">
+        <span class="dre-label">= Lucro Operacional</span>
+        <span class="dre-valor">${fmtMoeda(lucroOperacional)}${fmtPct(pct(lucroOperacional))}</span>
+      </div>
+      <div class="dre-linha sub">
+        <span class="dre-label">(–) Investimentos</span>
+        <span class="dre-valor" style="color:var(--red);">${fmtMoeda(investimentos)}</span>
+      </div>
+      <div class="dre-linha sub">
+        <span class="dre-label">(${naoOpLiquido >= 0 ? '+' : '–'}) Movimentações Não Operacionais${naoOpDetalhe}</span>
+        <span class="dre-valor" style="color:${corResultado(naoOpLiquido)};">${fmtMoeda(naoOpLiquido)}</span>
+      </div>
+      <div class="dre-linha final">
+        <span class="dre-label">= Resultado Líquido</span>
+        <span class="dre-valor" style="color:${corResultado(resultadoLiquido)};">${fmtMoeda(resultadoLiquido)}${fmtPct(pct(resultadoLiquido))}</span>
+      </div>
+      ${acertoCaixa ? `<div class="dre-linha extra">
+        <span class="dre-label">13 — Acerto do Caixa <span class="muted" style="font-weight:400;">(fora do DRE, só informativo)</span></span>
+        <span class="dre-valor">${fmtMoeda(acertoCaixa)}</span>
+      </div>` : ''}
+    `;
+
+    // ---- onde focar + dicas ----
+    document.getElementById('relIndicador').innerHTML = this.renderIndicadorDicas(dre);
+
+    // ---- projeção ----
+    document.getElementById('relProjecao').innerHTML = this.renderProjecao(dre, de, ate);
+
+    // ---- tendência dos 12 meses que terminam no mês final do período escolhido ----
+    const elTend = document.getElementById('relTendencia');
+    if (elTend && ate) {
+      const [anoFim, mesFim] = ate.split('-').map(Number);
+      Tendencia.renderEm(elTend, { anoFinal: anoFim, mesFinal: mesFim, qtd: 12, conta, incluirKpis: false, sufixo: 'rel' });
+    }
+
+    // ---- Financiamentos: quanto cada um teve pago DENTRO deste período (pelo código dele) e, no
     // total, sem contar duas vezes quando mais de um financiamento compartilha o mesmo código.
     const comDados = State.financiamentos.map(f => {
       const pagoNoPeriodo = somarReais(itens.filter(i => i.codigo === f.codigo), i => Math.abs(i.valor));
@@ -4715,18 +4858,491 @@ const Relatorio = {
         }).join('')
       : '<div class="empty-state">Nenhum financiamento cadastrado ainda (aba Financiamentos).</div>';
 
+    // ---- detalhamento por grupo, com subgrupos (mesmo formato da aba Análises) ----
     const maxGrupo = Math.max(1, ...Object.values(porGrupo).map(g => g.total));
     const gruposOrdenados = Object.keys(porGrupo).sort((a, b) => porGrupo[b].total - porGrupo[a].total);
     document.getElementById('relGrupos').innerHTML = gruposOrdenados.map(g => {
       const info = porGrupo[g];
+      const subsOrdenados = Object.keys(info.subs).sort((a, b) => info.subs[b] - info.subs[a]);
+      const maxSub = Math.max(1, ...Object.values(info.subs));
       return `<div class="group-block">
-        <div class="group-head">
+        <div class="group-head" onclick="this.nextElementSibling.classList.toggle('hidden')">
           <span style="min-width:280px;">${g} — ${nomeGrupo(g)}</span>
           <div class="bar-wrap"><div class="bar" style="width:${(info.total / maxGrupo * 100).toFixed(1)}%"></div></div>
           <span style="min-width:120px;text-align:right;">${fmtMoeda(info.total)}</span>
+          <button class="btn secondary small no-print" style="margin-left:8px;" onclick="event.stopPropagation();Relatorio.verCodigo('${g}')" title="Ver os lançamentos desse grupo em Conciliar">🔎 Ver</button>
+        </div>
+        <div class="group-body hidden">
+          ${subsOrdenados.map(s => {
+            const nomeS = State.planoContas.find(p => p.codigo === s)?.nome || s;
+            return `<div class="sub-row">
+              <div class="name">${s} ${nomeS}</div>
+              <div class="bar-wrap"><div class="bar" style="width:${(info.subs[s] / maxSub * 100).toFixed(1)}%"></div></div>
+              <div class="val">${fmtMoeda(info.subs[s])}</div>
+              <button class="btn secondary small no-print" onclick="Relatorio.verCodigo('${s}')" title="Ver os lançamentos desse subgrupo em Conciliar">🔎 Ver</button>
+            </div>`;
+          }).join('')}
         </div>
       </div>`;
     }).join('') || '<div class="empty-state">Nenhuma transação conciliada nesse período/conta.</div>';
+  },
+
+  // Painel "onde focar" — reaproveita a mesma lógica de alavancagem/indicadores da aba Análises
+  // (ver Analises.renderIndicadores), só que resumida em texto corrido pronto pra reunião, sem a
+  // interatividade de clicar em cada indicador.
+  renderIndicadorDicas(dre) {
+    const { receita } = dre;
+    if (!receita) return '<div class="empty-state">Sem receita conciliada no período — nada para diagnosticar ainda.</div>';
+
+    const metas = metasIndicadoresAtuais();
+    const valores = {
+      CV: dre.custosVariaveis, MC: dre.margemContribuicao, DF: dre.despesasFixas, LOAI: dre.lucroOperacional,
+      INV: dre.investimentos, SNO: dre.naoOpSaidas, RL: dre.resultadoLiquido
+    };
+    const percentuais = {};
+    Object.keys(valores).forEach(k => { percentuais[k] = (valores[k] / receita) * 100; });
+    const statusDe = key => {
+      const cfg = metas[key], v = percentuais[key];
+      if (cfg.tipo === 'custo') {
+        if (v <= cfg.idealMin) return 'otimo';
+        if (v <= cfg.idealMax) return 'ideal';
+        return 'ohnao';
+      }
+      if (v >= cfg.idealMax) return 'otimo';
+      if (v >= cfg.idealMin) return 'ideal';
+      return 'ohnao';
+    };
+
+    // alavanca com maior impacto no Lucro Operacional (mesma simulação "tudo mais igual" de Análises)
+    const baseLO = dre.lucroOperacional || null;
+    const baseAbsLO = baseLO ? Math.abs(baseLO) : null;
+    const noPrejuizo = baseLO !== null && baseLO < 0;
+    const valorBaseAlavanca = { CV: dre.custosVariaveis, Receita: dre.margemContribuicao, DF: dre.despesasFixas };
+    const deltaReais = {}, impacto = {};
+    Object.keys(valorBaseAlavanca).forEach(k => {
+      deltaReais[k] = arred2(valorBaseAlavanca[k] * 0.01);
+      impacto[k] = baseAbsLO ? (deltaReais[k] / baseAbsLO * 100) : null;
+    });
+    const alavancas = [
+      { key: 'CV', label: 'Custos Variáveis', direcao: 'Reduzindo' },
+      { key: 'Receita', label: 'Receita', direcao: 'Aumentando' },
+      { key: 'DF', label: 'Despesas Fixas', direcao: 'Reduzindo' },
+    ];
+    const vencedora = alavancas.filter(a => impacto[a.key] !== null).sort((a, b) => impacto[b.key] - impacto[a.key])[0];
+
+    let html = '';
+    if (vencedora && impacto[vencedora.key] > 0) {
+      const verbo = noPrejuizo ? 'o prejuízo cai' : 'o lucro sobe';
+      html += `<div class="rel-dica ok">
+        <b>💰 Onde focar para o lucro crescer mais rápido:</b> ${vencedora.direcao} ${vencedora.label} em 1%
+        (${fmtMoeda(deltaReais[vencedora.key])}) — ${verbo} de ${fmtMoeda(baseLO)} para
+        ${fmtMoeda(arred2(baseLO + deltaReais[vencedora.key]))}, um ganho de ${impacto[vencedora.key].toFixed(1)}% no Lucro Operacional.
+      </div>`;
+    }
+
+    // maior ponto de atenção: indicador "fora da faixa" mais distante do ideal
+    const chaves = Object.keys(valores);
+    let foco = null, maiorGap = 0;
+    chaves.forEach(k => {
+      if (statusDe(k) !== 'ohnao') return;
+      const cfg = metas[k];
+      const gap = cfg.tipo === 'custo' ? (percentuais[k] - cfg.idealMax) : (cfg.idealMin - percentuais[k]);
+      if (gap > maiorGap) { maiorGap = gap; foco = k; }
+    });
+    if (foco) {
+      const cfgF = metas[foco];
+      html += `<div class="rel-dica alerta">
+        <b>🎯 Maior ponto de atenção:</b> ${cfgF.label} está em ${percentuais[foco].toFixed(1)}% da receita —
+        ${maiorGap.toFixed(1)} ponto(s) percentual(is) fora da faixa ideal (${cfgF.idealMin}–${cfgF.idealMax}% da receita) pro seu ramo.
+        ${cfgF.grupo ? `<button class="btn secondary small no-print" style="margin-top:6px;display:block;" onclick="Relatorio.verCodigo('${cfgF.grupo}')">🔎 Ver os lançamentos desse grupo</button>` : ''}
+      </div>`;
+    } else {
+      html += `<div class="rel-dica ok"><b>✓ Sem alertas:</b> todos os indicadores estão dentro ou acima da faixa ideal nesse período.</div>`;
+    }
+
+    // chips com todos os indicadores, só leitura (sem clique) — pra dar o panorama completo
+    const chips = chaves.map(k => {
+      const st = statusDe(k), v = percentuais[k];
+      const cor = st === 'otimo' ? 'var(--green)' : st === 'ideal' ? 'var(--accent)' : 'var(--red)';
+      return `<span style="display:inline-block;margin:3px 6px 3px 0;padding:4px 9px;border-radius:20px;background:#f4f6f9;font-size:11.5px;font-weight:600;color:${cor};">${metas[k].curto} ${v.toFixed(0)}%</span>`;
+    }).join('');
+
+    return html + `<div style="margin-top:8px;">${chips}</div>`;
+  },
+
+  // Projeção simples por média (run-rate) do período selecionado, mais o compromisso mensal e o
+  // total que ainda falta pagar em financiamentos ativos — não é previsão estatística, é só
+  // "se continuar nesse ritmo", pra dar uma referência de tendência na reunião.
+  renderProjecao(dre, de, ate) {
+    if (!de || !ate) return '<div class="empty-state">Escolha um período para projetar.</div>';
+    const dias = Math.max(1, Math.round((new Date(ate + 'T00:00:00') - new Date(de + 'T00:00:00')) / 86400000) + 1);
+    const meses = Math.max(dias / 30.44, dias / 365); // nunca menor que ~1 dia em "meses", evita divisão brusca
+    const receitaMes = dre.receita / meses;
+    const pagoMes = (dre.custosVariaveis + dre.despesasFixas) / meses;
+    const resultadoMes = dre.resultadoLiquido / meses;
+
+    const ativos = State.financiamentos.filter(f => f.ativo !== false && f.parcelaAtual < f.totalParcelas);
+    const comprometidoMensal = somarReais(ativos, f => f.valorParcela);
+    const totalRestanteFin = somarReais(ativos, f => Math.max(0, f.totalParcelas - f.parcelaAtual) * f.valorParcela);
+    let maiorPrazo = 0, nomeMaisLongo = '';
+    ativos.forEach(f => {
+      const restantes = Math.max(0, f.totalParcelas - f.parcelaAtual);
+      if (restantes > maiorPrazo) { maiorPrazo = restantes; nomeMaisLongo = f.nome; }
+    });
+
+    const cards = `
+      <div class="rel-proj-cards">
+        <div class="stat-card"><div class="n">${fmtMoeda(receitaMes)}</div><div class="l">média de receita por mês nesse período</div></div>
+        <div class="stat-card"><div class="n" style="color:var(--red)">${fmtMoeda(pagoMes)}</div><div class="l">média de custos + despesas por mês</div></div>
+        <div class="stat-card"><div class="n" style="color:${resultadoMes >= 0 ? 'var(--green)' : 'var(--red)'}">${fmtMoeda(resultadoMes)}</div><div class="l">resultado médio por mês</div></div>
+        <div class="stat-card"><div class="n" style="color:${(resultadoMes * 3) >= 0 ? 'var(--green)' : 'var(--red)'}">${fmtMoeda(resultadoMes * 3)}</div><div class="l">projeção dos próximos 3 meses nesse ritmo</div></div>
+      </div>
+      <p class="rel-proj-nota">Projeção simples por média do período selecionado (não considera sazonalidade, reajustes ou eventos pontuais) — é uma referência de tendência, não uma previsão garantida.</p>
+    `;
+
+    const finHtml = ativos.length ? `
+      <div class="rel-dica" style="margin-top:12px;">
+        <b>📅 Compromisso com financiamentos:</b> ${fmtMoeda(comprometidoMensal)}/mês comprometidos em parcelas ativas.
+        Ainda falta pagar <strong>${fmtMoeda(totalRestanteFin)}</strong> no total${nomeMaisLongo ? `, sendo o mais longo "${nomeMaisLongo}" com ${maiorPrazo} parcela(s) restante(s)` : ''}.
+      </div>
+    ` : '';
+
+    return cards + finHtml;
+  },
+
+  // Igual a Analises.verCodigo, mas lendo o período/conta escolhidos AQUI no Relatório (relDe/
+  // relAte/relConta), não os da aba Análises.
+  verCodigo(codigo) {
+    const conta = document.getElementById('relConta').value;
+    const de = document.getElementById('relDe').value;
+    const ate = document.getElementById('relAte').value;
+    document.getElementById('filtroConta').value = conta || '';
+    document.getElementById('filtroGrupo').value = codigo;
+    document.getElementById('filtroDe').value = de || '';
+    document.getElementById('filtroAte').value = ate || '';
+    document.getElementById('filtroBusca').value = '';
+    document.querySelectorAll('#filtroStatus button').forEach(b => b.classList.toggle('active', b.dataset.v === 'todos'));
+    Conciliacao.filtroStatusAtual = 'todos';
+    Conciliacao.limiteVisivel = Conciliacao.PAGINA;
+    if (Lotes.ativo) Conciliacao.verTudoTemporario = true;
+    UI.mudarAba('conciliar');
+  }
+};
+
+/* ======================================================================
+   TENDÊNCIA MÊS A MÊS — o DRE de cada mês lado a lado (reaproveita calcularDRE por mês), com
+   gráfico de linhas em SVG puro (sem biblioteca externa — o arquivo continua sendo um HTML só),
+   leituras automáticas em texto e a tabela completa. Usado na aba Tendência e, em versão
+   enxuta, dentro do Relatório de Gestão.
+   ====================================================================== */
+const NOMES_MES_ABREV = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez'];
+
+const Tendencia = {
+  SERIES: [
+    { key: 'receita', nome: 'Receita', cor: '#15803d' },
+    { key: 'pagou', nome: 'Custos + despesas', cor: '#dc2626' },
+    { key: 'lucroOperacional', nome: 'Lucro operacional', cor: '#1d4ed8' },
+  ],
+
+  popularSelects() {
+    const sel = document.getElementById('tendConta');
+    if (!sel) return;
+    const atual = sel.value;
+    sel.innerHTML = '<option value="">Todas</option>' + State.contas.map(c => `<option value="${c.contaId}">${c.nome}</option>`).join('');
+    if (atual && [...sel.options].some(o => o.value === atual)) sel.value = atual;
+  },
+
+  // aba Tendência: lê os controles e desenha
+  render() {
+    const qtd = Number(document.getElementById('tendMeses')?.value) || 12;
+    const conta = document.getElementById('tendConta')?.value || '';
+    const incluirAtual = !!document.getElementById('tendIncluirAtual')?.checked;
+    const hoje = new Date();
+    let ano = hoje.getFullYear(), mes = hoje.getMonth() + 1;
+    if (!incluirAtual) { mes--; if (mes === 0) { mes = 12; ano--; } }
+    this.renderEm(document.getElementById('tendConteudo'), { anoFinal: ano, mesFinal: mes, qtd, conta, incluirKpis: true, sufixo: 'tab' });
+  },
+
+  // lista os `qtd` meses que terminam em anoFinal/mesFinal, do mais antigo pro mais novo
+  listarMeses(anoFinal, mesFinal, qtd) {
+    const hoje = new Date();
+    const hojeIso = hoje.getFullYear() + '-' + String(hoje.getMonth() + 1).padStart(2, '0') + '-' + String(hoje.getDate()).padStart(2, '0');
+    const meses = [];
+    let ano = anoFinal, mes = mesFinal;
+    for (let i = 0; i < qtd; i++) {
+      const mm = String(mes).padStart(2, '0');
+      const ultimoDia = new Date(Date.UTC(ano, mes, 0)).getUTCDate();
+      const de = `${ano}-${mm}-01`;
+      const ate = `${ano}-${mm}-${String(ultimoDia).padStart(2, '0')}`;
+      meses.unshift({ ano, mes, de, ate, rotulo: NOMES_MES_ABREV[mes - 1] + '/' + String(ano).slice(2), completo: ate < hojeIso });
+      mes--; if (mes === 0) { mes = 12; ano--; }
+    }
+    return meses;
+  },
+
+  calcular(anoFinal, mesFinal, qtd, conta) {
+    return this.listarMeses(anoFinal, mesFinal, qtd).map(m => {
+      const dre = calcularDRE(m.de, m.ate, conta);
+      return Object.assign({}, m, {
+        receita: dre.receita, custosVariaveis: dre.custosVariaveis, despesasFixas: dre.despesasFixas,
+        pagou: arred2(dre.custosVariaveis + dre.despesasFixas),
+        margemContribuicao: dre.margemContribuicao, lucroOperacional: dre.lucroOperacional,
+        investimentos: dre.investimentos, naoOpLiquido: dre.naoOpLiquido, resultadoLiquido: dre.resultadoLiquido,
+        pendentes: dre.pendentesForaFiltro.length, temDados: dre.itens.length > 0
+      });
+    });
+  },
+
+  // monta tudo dentro de `container` (aba ou relatório)
+  renderEm(container, opcoes) {
+    if (!container) return;
+    const linhas = this.calcular(opcoes.anoFinal, opcoes.mesFinal, opcoes.qtd, opcoes.conta);
+    const comDados = linhas.filter(l => l.temDados);
+    if (!comDados.length) {
+      container.innerHTML = '<div class="panel"><div class="empty-state">Nenhuma transação conciliada nesses meses — concilie o extrato primeiro pra ver a tendência.</div></div>';
+      return;
+    }
+    const sufixo = opcoes.sufixo || 'x';
+    const partes = [];
+    if (opcoes.incluirKpis) partes.push(`<div class="panel"><div class="stat-cards">${this.kpisHtml(linhas)}</div></div>`);
+    partes.push(`<div class="panel">
+      <h2 style="margin-bottom:6px;">Receita, custos + despesas e lucro operacional por mês</h2>
+      ${this.graficoHtml(linhas, sufixo)}
+    </div>`);
+    partes.push(`<div class="panel"><h2>Leitura automática</h2>${this.insightsHtml(linhas)}</div>`);
+    partes.push(`<div class="panel"><h2>Mês a mês</h2><div style="overflow-x:auto;">${this.tabelaHtml(linhas)}</div></div>`);
+    container.innerHTML = opcoes.incluirKpis ? partes.join('') : partes.join('').replace(/<div class="panel">/g, '<div style="margin-bottom:14px;">');
+    this.ligarInteracao(container, linhas, sufixo);
+  },
+
+  media(arr, key) { return arr.length ? somarReais(arr, l => l[key]) / arr.length : 0; },
+  variacaoPct(novo, antigo) { return antigo ? ((novo - antigo) / Math.abs(antigo)) * 100 : null; },
+
+  // compara os últimos 3 meses completos com os 3 anteriores (ou último × primeiro, se tiver menos)
+  tendenciaDe(linhas, key) {
+    const c = linhas.filter(l => l.completo && l.temDados);
+    if (c.length < 2) return null;
+    if (c.length >= 6) {
+      const ult = this.media(c.slice(-3), key), ant = this.media(c.slice(-6, -3), key);
+      return { pct: this.variacaoPct(ult, ant), ult, ant, base: '3 meses anteriores', baseFrase: 'aos 3 meses anteriores', ultFrase: 'a média dos últimos 3 meses' };
+    }
+    const ult = c[c.length - 1][key], ant = c[0][key];
+    return { pct: this.variacaoPct(ult, ant), ult, ant, base: c[0].rotulo, baseFrase: 'a ' + c[0].rotulo, ultFrase: c[c.length - 1].rotulo };
+  },
+
+  fmtPctSinal(p) { return p === null || p === undefined ? '—' : (p >= 0 ? '+' : '') + p.toFixed(1) + '%'; },
+
+  kpisHtml(linhas) {
+    const c = linhas.filter(l => l.completo && l.temDados);
+    const base = c.length ? c : linhas.filter(l => l.temDados);
+    const recMedia = this.media(base, 'receita');
+    const loMedio = this.media(base, 'lucroOperacional');
+    const tRec = this.tendenciaDe(linhas, 'receita');
+    const tDF = this.tendenciaDe(linhas, 'despesasFixas');
+    const corDelta = (p, bomSubir) => p === null ? '' : ((p >= 0) === bomSubir ? 'var(--green)' : 'var(--red)');
+    return `
+      <div class="stat-card"><div class="n">${fmtMoeda(recMedia)}</div><div class="l">receita média por mês (${base.length} ${base.length === 1 ? 'mês' : 'meses'})</div></div>
+      <div class="stat-card"><div class="n" style="color:${loMedio >= 0 ? 'var(--green)' : 'var(--red)'}">${fmtMoeda(loMedio)}</div><div class="l">lucro operacional médio por mês${recMedia ? ' · ' + (loMedio / recMedia * 100).toFixed(1) + '% da receita' : ''}</div></div>
+      <div class="stat-card"><div class="n" style="color:${corDelta(tRec && tRec.pct, true)}">${tRec ? this.fmtPctSinal(tRec.pct) : '—'}</div><div class="l">receita: últimos 3 meses vs ${tRec ? tRec.base : 'anteriores'}</div></div>
+      <div class="stat-card"><div class="n" style="color:${corDelta(tDF && tDF.pct, false)}">${tDF ? this.fmtPctSinal(tDF.pct) : '—'}</div><div class="l">despesa fixa: últimos 3 meses vs ${tDF ? tDF.base : 'anteriores'}</div></div>`;
+  },
+
+  insightsHtml(linhas) {
+    const c = linhas.filter(l => l.completo && l.temDados);
+    const avisos = [];
+    if (c.length < 2) {
+      return '<div class="rel-dica">Ainda há poucos meses completos com dados conciliados pra ler uma tendência — vale a pena depois de 3 ou mais meses.</div>';
+    }
+    const tRec = this.tendenciaDe(linhas, 'receita');
+    if (tRec && tRec.pct !== null) {
+      const sobe = tRec.pct >= 0;
+      avisos.push(`<div class="rel-dica ${sobe ? 'ok' : 'alerta'}"><b>${sobe ? '📈' : '📉'} Receita ${sobe ? 'subindo' : 'caindo'}:</b> ${tRec.ultFrase} (${fmtMoeda(tRec.ult)}) está ${this.fmtPctSinal(tRec.pct)} em relação ${tRec.baseFrase} (${fmtMoeda(tRec.ant)}).</div>`);
+    }
+    const tDF = this.tendenciaDe(linhas, 'despesasFixas');
+    if (tDF && tDF.pct !== null && Math.abs(tDF.pct) >= 5) {
+      const subiu = tDF.pct > 0;
+      avisos.push(`<div class="rel-dica ${subiu ? 'alerta' : 'ok'}"><b>${subiu ? '⚠️' : '✓'} Despesa fixa ${subiu ? 'cresceu' : 'caiu'} ${this.fmtPctSinal(tDF.pct)}:</b> de ${fmtMoeda(tDF.ant)} para ${fmtMoeda(tDF.ult)} por mês (${tDF.ultFrase} em relação ${tDF.baseFrase})${subiu && tRec && tRec.pct !== null && tDF.pct > tRec.pct ? ' — e cresceu mais rápido que a receita, o que aperta a margem' : ''}.</div>`);
+    }
+    // margem de contribuição: primeira metade × segunda metade
+    const comReceita = c.filter(l => l.receita > 0);
+    if (comReceita.length >= 4) {
+      const metade = Math.floor(comReceita.length / 2);
+      const mc = arr => { const r = somarReais(arr, l => l.receita); return r ? somarReais(arr, l => l.margemContribuicao) / r * 100 : null; };
+      const mc1 = mc(comReceita.slice(0, metade)), mc2 = mc(comReceita.slice(metade));
+      if (mc1 !== null && mc2 !== null && Math.abs(mc2 - mc1) >= 2) {
+        const melhorou = mc2 > mc1;
+        avisos.push(`<div class="rel-dica ${melhorou ? 'ok' : 'alerta'}"><b>Margem de contribuição ${melhorou ? 'melhorou' : 'piorou'}:</b> de ${mc1.toFixed(1)}% para ${mc2.toFixed(1)}% da receita entre a primeira e a segunda metade do período${melhorou ? '' : ' — custo variável está comendo uma fatia maior de cada real vendido'}.</div>`);
+      }
+    }
+    const negativos = c.filter(l => l.lucroOperacional < 0);
+    if (negativos.length) {
+      avisos.push(`<div class="rel-dica alerta"><b>Prejuízo operacional em ${negativos.length} ${negativos.length === 1 ? 'mês' : 'meses'}:</b> ${negativos.map(l => l.rotulo + ' (' + fmtMoeda(l.lucroOperacional) + ')').join(', ')}.</div>`);
+    }
+    const melhor = c.reduce((a, b) => (b.lucroOperacional > a.lucroOperacional ? b : a), c[0]);
+    const pior = c.reduce((a, b) => (b.lucroOperacional < a.lucroOperacional ? b : a), c[0]);
+    if (melhor !== pior) {
+      avisos.push(`<div class="rel-dica"><b>Melhor e pior mês (lucro operacional):</b> ${melhor.rotulo} com ${fmtMoeda(melhor.lucroOperacional)} · ${pior.rotulo} com ${fmtMoeda(pior.lucroOperacional)}. Vale olhar o que foi diferente nesses dois.</div>`);
+    }
+    const comPendentes = linhas.filter(l => l.pendentes > 0);
+    if (comPendentes.length) {
+      avisos.push(`<div class="rel-dica alerta" style="font-size:12.5px;"><b>⚠ Números ainda podem mudar:</b> ${comPendentes.map(l => l.rotulo + ' (' + l.pendentes + ' pendente' + (l.pendentes > 1 ? 's' : '') + ')').join(', ')} têm transações sem conciliar, que não entram na conta.</div>`);
+    }
+    return avisos.join('') || '<div class="rel-dica ok"><b>✓</b> Sem variações relevantes no período.</div>';
+  },
+
+  fmtCompacto(v) {
+    const a = Math.abs(v), s = v < 0 ? '-' : '';
+    if (a >= 1e6) return s + (a / 1e6).toLocaleString('pt-BR', { maximumFractionDigits: 1 }) + ' mi';
+    if (a >= 1e3) return s + Math.round(a / 1e3).toLocaleString('pt-BR') + ' mil';
+    return s + Math.round(a).toLocaleString('pt-BR');
+  },
+
+  passoBonito(bruto) {
+    if (!bruto || bruto <= 0) return 1;
+    const pow10 = Math.pow(10, Math.floor(Math.log10(bruto)));
+    const f = bruto / pow10;
+    const m = f <= 1 ? 1 : f <= 2 ? 2 : f <= 2.5 ? 2.5 : f <= 5 ? 5 : 10;
+    return m * pow10;
+  },
+
+  graficoHtml(linhas, sufixo) {
+    const S = this.SERIES;
+    const W = 760, H = 300, padL = 72, padR = 150, padT = 16, padB = 34;
+    const n = linhas.length;
+    const valores = linhas.filter(l => l.temDados).flatMap(l => S.map(s => l[s.key]));
+    let max = Math.max(0, ...valores), min = Math.min(0, ...valores);
+    if (max === min) max = min + 1;
+    const passo = this.passoBonito((max - min) / 4);
+    min = Math.floor(min / passo) * passo;
+    max = Math.ceil(max / passo) * passo;
+    const ticks = [];
+    for (let t = min; t <= max + passo / 1000; t += passo) ticks.push(arred2(t));
+    const x = i => padL + (n === 1 ? (W - padL - padR) / 2 : i * (W - padL - padR) / (n - 1));
+    const y = v => padT + (max - v) / (max - min) * (H - padT - padB);
+
+    const grade = ticks.map(t => `<line class="${t === 0 ? 'zero' : 'grade'}" x1="${padL}" x2="${W - padR}" y1="${y(t).toFixed(1)}" y2="${y(t).toFixed(1)}"></line>
+      <text x="${padL - 8}" y="${(y(t) + 4).toFixed(1)}" text-anchor="end">${this.fmtCompacto(t)}</text>`).join('');
+    const cadaN = n > 12 ? 2 : 1;
+    const eixoX = linhas.map((l, i) => (i % cadaN === 0 || i === n - 1)
+      ? `<text x="${x(i).toFixed(1)}" y="${H - padB + 18}" text-anchor="middle"${l.completo ? '' : ' font-style="italic"'}>${l.rotulo}${l.completo ? '' : '*'}</text>` : '').join('');
+
+    // meses sem nenhum lançamento conciliado viram "buraco" na linha (não um zero falso — zero
+    // seria ler "não vendeu nada", quando na verdade o extrato daquele mês ainda não foi importado)
+    const caminhos = S.map(s => {
+      let d = '', novoTrecho = true;
+      linhas.forEach((l, i) => {
+        if (!l.temDados) { novoTrecho = true; return; }
+        d += (novoTrecho ? 'M' : 'L') + x(i).toFixed(1) + ' ' + y(l[s.key]).toFixed(1) + ' ';
+        novoTrecho = false;
+      });
+      const pontos = linhas.map((l, i) => l.temDados
+        ? `<circle class="ponto" data-i="${i}" cx="${x(i).toFixed(1)}" cy="${y(l[s.key]).toFixed(1)}" r="4" fill="${s.cor}"></circle>` : '').join('');
+      return `<path class="linha" d="${d.trim()}" stroke="${s.cor}"></path>${pontos}`;
+    }).join('');
+
+    // rótulo direto no fim de cada linha (no último mês COM dados) — só se não colidirem; senão
+    // a legenda resolve
+    let iFim = n - 1;
+    while (iFim > 0 && !linhas[iFim].temDados) iFim--;
+    const fins = S.map(s => ({ s, y: y(linhas[iFim][s.key]) })).sort((a, b) => a.y - b.y);
+    const colide = fins.some((f, i) => i && f.y - fins[i - 1].y < 13);
+    const rotulosFim = colide ? '' : fins.map(f => `<text class="rotulo-fim" x="${(x(iFim) + 10).toFixed(1)}" y="${(f.y + 4).toFixed(1)}">${f.s.nome}</text>`).join('');
+
+    const alvos = linhas.map((l, i) => {
+      const x0 = i === 0 ? padL : (x(i - 1) + x(i)) / 2;
+      const x1 = i === n - 1 ? W - padR : (x(i) + x(i + 1)) / 2;
+      return `<rect class="alvo" data-i="${i}" x="${x0.toFixed(1)}" y="${padT}" width="${(x1 - x0).toFixed(1)}" height="${H - padT - padB}"></rect>`;
+    }).join('');
+
+    const legenda = `<div class="tend-legenda">${S.map(s => `<span><i style="background:${s.cor}"></i>${s.nome}</span>`).join('')}${linhas.some(l => !l.completo) ? '<span class="muted">* mês parcial (ainda em andamento)</span>' : ''}</div>`;
+
+    return `${legenda}<div class="tend-chart-wrap" id="tendWrap-${sufixo}">
+      <svg class="tend-chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Gráfico de linhas: receita, custos + despesas e lucro operacional por mês">
+        ${grade}${eixoX}
+        <line class="mira" id="tendMira-${sufixo}" x1="0" x2="0" y1="${padT}" y2="${H - padB}"></line>
+        ${caminhos}${rotulosFim}${alvos}
+      </svg>
+      <div class="tend-tooltip" id="tendTip-${sufixo}"></div>
+    </div>`;
+  },
+
+  // crosshair + tooltip por mês (o SVG é injetado via innerHTML, então os ouvintes entram depois)
+  ligarInteracao(container, linhas, sufixo) {
+    const wrap = container.querySelector('#tendWrap-' + sufixo);
+    if (!wrap) return;
+    const svg = wrap.querySelector('svg');
+    const tip = wrap.querySelector('#tendTip-' + sufixo);
+    const mira = wrap.querySelector('#tendMira-' + sufixo);
+    const S = this.SERIES;
+    svg.addEventListener('mousemove', e => {
+      const alvo = e.target.closest('.alvo');
+      if (!alvo) return;
+      const i = Number(alvo.dataset.i);
+      const l = linhas[i];
+      const cx = Number(alvo.getAttribute('x')) + Number(alvo.getAttribute('width')) / 2;
+      // o centro da coluna é a posição do ponto, não o meio do retângulo de alcance
+      const ponto = svg.querySelector(`.ponto[data-i="${i}"]`);
+      const px = ponto ? Number(ponto.getAttribute('cx')) : cx;
+      mira.setAttribute('x1', px); mira.setAttribute('x2', px); mira.style.opacity = 1;
+      tip.innerHTML = `<b>${l.rotulo}${l.completo ? '' : ' (parcial)'}</b>` + (l.temDados
+        ? S.map(s => `<div><i style="background:${s.cor}"></i>${s.nome}: ${fmtMoeda(l[s.key])}</div>`).join('') +
+          `<div style="opacity:.8;margin-top:2px;">Resultado líquido: ${fmtMoeda(l.resultadoLiquido)}</div>`
+        : '<div style="opacity:.8;">sem lançamentos conciliados</div>');
+      tip.style.display = 'block';
+      const r = wrap.getBoundingClientRect();
+      const left = e.clientX - r.left + 14, top = e.clientY - r.top - 10;
+      tip.style.left = (left + tip.offsetWidth > r.width ? left - tip.offsetWidth - 28 : left) + 'px';
+      tip.style.top = Math.max(0, top) + 'px';
+    });
+    svg.addEventListener('mouseleave', () => { tip.style.display = 'none'; mira.style.opacity = 0; });
+  },
+
+  tabelaHtml(linhas) {
+    const pctDe = (v, base) => base ? ` <span class="muted" style="font-size:11px;">${(v / base * 100).toFixed(0)}%</span>` : '';
+    const neg = v => v < 0 ? ' neg' : '';
+    const corpo = linhas.map((l, i) => {
+      if (!l.temDados) {
+        return `<tr class="parcial"><td style="white-space:nowrap;">${l.rotulo}${l.completo ? '' : ' *'}</td><td colspan="9" class="muted">sem lançamentos conciliados${l.pendentes ? ' (' + l.pendentes + ' pendente' + (l.pendentes > 1 ? 's' : '') + ')' : ''}</td></tr>`;
+      }
+      const ant = i ? linhas[i - 1] : null;
+      const d = ant && ant.temDados && ant.receita ? this.variacaoPct(l.receita, ant.receita) : null;
+      return `<tr class="${l.completo ? '' : 'parcial'}" title="${l.pendentes ? l.pendentes + ' transação(ões) pendente(s) fora da conta' : ''}">
+        <td style="white-space:nowrap;">${l.rotulo}${l.completo ? '' : ' *'}${l.pendentes ? ' <span title="pendentes">⚠</span>' : ''}</td>
+        <td class="num">${fmtMoeda(l.receita)}</td>
+        <td class="num">${fmtMoeda(l.custosVariaveis)}${pctDe(l.custosVariaveis, l.receita)}</td>
+        <td class="num${neg(l.margemContribuicao)}">${fmtMoeda(l.margemContribuicao)}${pctDe(l.margemContribuicao, l.receita)}</td>
+        <td class="num">${fmtMoeda(l.despesasFixas)}${pctDe(l.despesasFixas, l.receita)}</td>
+        <td class="num${neg(l.lucroOperacional)}"><strong>${fmtMoeda(l.lucroOperacional)}</strong>${pctDe(l.lucroOperacional, l.receita)}</td>
+        <td class="num">${fmtMoeda(l.investimentos)}</td>
+        <td class="num${neg(l.naoOpLiquido)}">${fmtMoeda(l.naoOpLiquido)}</td>
+        <td class="num${neg(l.resultadoLiquido)}">${fmtMoeda(l.resultadoLiquido)}</td>
+        <td class="num ${d === null ? 'muted' : d >= 0 ? 'delta-pos' : 'delta-neg'}">${this.fmtPctSinal(d)}</td>
+      </tr>`;
+    }).join('');
+    const c = linhas.filter(l => l.completo && l.temDados);
+    const base = c.length ? c : linhas.filter(l => l.temDados);
+    const m = k => this.media(base, k);
+    const mediaRow = base.length ? `<tr class="media">
+        <td>Média (${base.length} ${base.length === 1 ? 'mês' : 'meses'}${c.length ? ' completos' : ''})</td>
+        <td class="num">${fmtMoeda(m('receita'))}</td>
+        <td class="num">${fmtMoeda(m('custosVariaveis'))}${pctDe(m('custosVariaveis'), m('receita'))}</td>
+        <td class="num${neg(m('margemContribuicao'))}">${fmtMoeda(m('margemContribuicao'))}${pctDe(m('margemContribuicao'), m('receita'))}</td>
+        <td class="num">${fmtMoeda(m('despesasFixas'))}${pctDe(m('despesasFixas'), m('receita'))}</td>
+        <td class="num${neg(m('lucroOperacional'))}">${fmtMoeda(m('lucroOperacional'))}${pctDe(m('lucroOperacional'), m('receita'))}</td>
+        <td class="num">${fmtMoeda(m('investimentos'))}</td>
+        <td class="num${neg(m('naoOpLiquido'))}">${fmtMoeda(m('naoOpLiquido'))}</td>
+        <td class="num${neg(m('resultadoLiquido'))}">${fmtMoeda(m('resultadoLiquido'))}</td>
+        <td></td>
+      </tr>` : '';
+    return `<table class="tend-tabela">
+      <thead><tr>
+        <th>Mês</th><th class="num">Receita</th><th class="num">Custos var.</th><th class="num">Margem contr.</th>
+        <th class="num">Desp. fixas</th><th class="num">Lucro oper.</th><th class="num">Invest.</th>
+        <th class="num">Não oper.</th><th class="num">Result. líq.</th><th class="num">Δ receita</th>
+      </tr></thead>
+      <tbody>${corpo}${mediaRow}</tbody>
+    </table>
+    <p class="rel-proj-nota">Percentuais pequenos ao lado dos valores são "% da receita" do mês. Δ receita = variação em relação ao mês anterior. ${linhas.some(l => !l.completo) ? '* mês parcial, ainda em andamento.' : ''}</p>`;
   }
 };
 
