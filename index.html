@@ -247,6 +247,7 @@ tr.tx-row:hover{background:#f9fafb;cursor:pointer;}
 .aviso-dup li{margin-bottom:2px;}
 .tx-obs{display:block;font-size:11.5px;color:var(--amber);margin-top:2px;}
 .alerta-tipo{cursor:help;font-size:12px;}
+.tipo-aviso{color:#b45309;font-size:10.5px;font-weight:700;margin-left:6px;white-space:nowrap;}
 tr.tx-alerta{background:#fff7ed;}
 tr.tx-alerta:hover{background:#fef0dd;}
 .combo-vazio{padding:10px 11px;font-size:12.5px;color:var(--text-dim);}
@@ -601,6 +602,26 @@ footer strong{color:var(--text-dim);font-weight:700;letter-spacing:.02em;}
   #btnAtualizar:before{content:'⟳';font-size:14px;}
 }
 
+/* ======================================================================
+   FINANCIAMENTOS (empréstimos, consórcios) e RELATÓRIO DE GESTÃO
+   ====================================================================== */
+.fin-card{border:1px solid var(--border);border-radius:10px;padding:12px 14px;margin-bottom:10px;background:#fff;}
+.fin-card-topo{display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap;}
+.fin-card-topo strong{font-size:14.5px;}
+.fin-progress{background:#eef1f5;border-radius:6px;height:8px;overflow:hidden;margin:8px 0 6px;}
+.fin-progress-bar{height:100%;background:linear-gradient(90deg,var(--accent-600),var(--accent-700));border-radius:6px;}
+.fin-card .muted-row{font-size:12px;color:var(--text-dim);}
+.rel-card{border:1px solid var(--border);border-radius:10px;padding:10px 14px;margin-bottom:8px;background:#fff;}
+.rel-card strong{font-size:13.5px;}
+
+@media print{
+  header, nav#mainNav, #toastWrap, .no-print{display:none !important;}
+  body{background:#fff;}
+  #tab-relatorio .panel{border:none;box-shadow:none;padding:4px 0;}
+  #tab-relatorio .stat-card{break-inside:avoid;}
+  main{padding:0;}
+}
+
 </style>
 </head>
 <body>
@@ -625,6 +646,8 @@ footer strong{color:var(--text-dim);font-weight:700;letter-spacing:.02em;}
   <button class="tab" data-tab="previstos">Previstos</button>
   <button class="tab" data-tab="saldo">Saldo</button>
   <button class="tab" data-tab="analises">Análises</button>
+  <button class="tab" data-tab="financiamentos">Financiamentos</button>
+  <button class="tab" data-tab="relatorio">Relatório de Gestão</button>
   <button class="tab" data-tab="metodologia">ℹ️ Como Calculamos</button>
   <button class="tab" data-tab="regras">Regras</button>
   <button class="tab" data-tab="plano">Plano de Contas</button>
@@ -1040,6 +1063,87 @@ footer strong{color:var(--text-dim);font-weight:700;letter-spacing:.02em;}
     </div>
   </section>
 
+  <!-- FINANCIAMENTOS -->
+  <section id="tab-financiamentos" class="tab-content hidden">
+    <div class="panel">
+      <h2>Cadastrar financiamento / consórcio</h2>
+      <p class="muted" style="margin-top:-6px;font-size:12.5px;">
+        Cadastre uma vez (nome, conta, código, valor da parcela, total de parcelas e quantas já foram pagas) e o
+        sistema continua sozinho: a cada extrato importado, ele reconhece a parcela daquele mês (mesma conta +
+        mesmo valor + data perto da prevista) e avança o contador automaticamente — não precisa cadastrar nada de
+        novo mês a mês. Se o reconhecimento automático não achar a transação certa, dá para marcar a parcela como
+        paga manualmente.
+      </p>
+      <div class="row" style="flex-wrap:wrap;gap:10px;">
+        <div class="field" style="flex:1;min-width:200px;"><label>Nome (ex: "Capital de Giro BB")</label><input type="text" id="finNome" style="width:100%;"></div>
+        <div class="field" style="min-width:160px;">
+          <label>Tipo</label>
+          <select id="finTipo" style="width:100%;">
+            <option value="Empréstimo">Empréstimo</option>
+            <option value="Financiamento">Financiamento</option>
+            <option value="Consórcio">Consórcio</option>
+          </select>
+        </div>
+        <div class="field" style="min-width:180px;"><label>Conta</label><select id="finConta" style="width:100%;"></select></div>
+      </div>
+      <div class="row" style="flex-wrap:wrap;gap:10px;margin-top:8px;">
+        <div class="field" style="flex:1;min-width:220px;"><label>Código do plano de contas</label><div id="finCodigoWrap"></div></div>
+        <div class="field" style="min-width:140px;"><label>Valor da parcela (R$)</label><input type="number" step="0.01" min="0" id="finValorParcela" style="width:100%;"></div>
+        <div class="field" style="min-width:120px;"><label>Total de parcelas</label><input type="number" step="1" min="1" id="finTotalParcelas" style="width:100%;"></div>
+        <div class="field" style="min-width:120px;"><label>Parcela atual (já pagas)</label><input type="number" step="1" min="0" id="finParcelaAtual" value="0" style="width:100%;"></div>
+        <div class="field" style="min-width:160px;"><label>Data da próxima parcela</label><input type="date" id="finProximaData" style="width:100%;"></div>
+      </div>
+      <div class="row" style="justify-content:flex-end;margin-top:12px;">
+        <button class="btn" onclick="Financiamentos.criar()">Cadastrar financiamento</button>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2>Financiamentos ativos</h2>
+      <div id="finListaAtivos"></div>
+    </div>
+
+    <div class="panel">
+      <h2>Concluídos</h2>
+      <div id="finListaConcluidos"></div>
+    </div>
+  </section>
+
+  <!-- RELATÓRIO DE GESTÃO -->
+  <section id="tab-relatorio" class="tab-content hidden">
+    <div class="panel no-print">
+      <h2>Relatório de Gestão</h2>
+      <p class="muted" style="margin-top:-6px;font-size:12.5px;">
+        Resumo pronto para mostrar em reunião: quanto vendeu, quanto pagou, quanto disso foi financiamento e
+        quantas parcelas ainda faltam. O período padrão é o mês anterior completo — mude livremente e clique em
+        "Atualizar".
+      </p>
+      <div class="row" style="flex-wrap:wrap;gap:10px;align-items:flex-end;">
+        <div class="field"><label>De</label><input type="date" id="relDe"></div>
+        <div class="field"><label>Até</label><input type="date" id="relAte"></div>
+        <div class="field"><label>Conta</label><select id="relConta"><option value="">Todas</option></select></div>
+        <button class="btn secondary" onclick="Relatorio.render()">Atualizar</button>
+        <button class="btn" onclick="window.print()">🖨️ Imprimir</button>
+      </div>
+    </div>
+
+    <div class="panel">
+      <p class="muted" id="relPeriodo" style="font-size:12.5px;margin-top:-6px;"></p>
+      <div class="stat-cards" id="relResumo"></div>
+    </div>
+
+    <div class="panel">
+      <h2>Financiamentos (empréstimos e consórcios)</h2>
+      <p class="muted" id="relFinanciamentosResumo" style="margin-top:-6px;font-size:12.5px;"></p>
+      <div id="relFinanciamentos"></div>
+    </div>
+
+    <div class="panel">
+      <h2>Detalhamento por grupo</h2>
+      <div id="relGrupos"></div>
+    </div>
+  </section>
+
 </main>
 
 <footer>
@@ -1139,6 +1243,18 @@ footer strong{color:var(--text-dim);font-weight:700;letter-spacing:.02em;}
   </div>
 </div>
 
+<!-- MODAL: Confirmação de código de tipo divergente -->
+<div class="modal-bg hidden" id="modalConfirmarTipo">
+  <div class="modal" style="max-width:420px;">
+    <h3>⚠ Código de tipo diferente</h3>
+    <p id="mctMensagem" style="font-size:13.5px;line-height:1.5;"></p>
+    <div class="row" style="justify-content:flex-end;margin-top:16px;">
+      <button class="btn secondary" id="mctCancelar">Cancelar</button>
+      <button class="btn" id="mctConfirmar">Confirmar mesmo assim</button>
+    </div>
+  </div>
+</div>
+
 <!-- MODAL: Extrato -->
 <div class="modal-bg hidden" id="modalExtrato">
   <div class="modal" style="max-width:680px;">
@@ -1182,6 +1298,7 @@ const State = {
   transacoes: [],
   previsoes: [],
   divisoes: [],
+  financiamentos: [],
   carregado: false,
   assinatura: null   // impressão digital dos dados no servidor, para saber se o cache local está em dia
 };
@@ -1273,6 +1390,7 @@ const Cache = {
       contas: State.contas,
       previsoes: State.previsoes,
       divisoes: State.divisoes,
+      financiamentos: State.financiamentos,
       campos: CAMPOS_TX,
       transacoes: State.transacoes.map(t => CAMPOS_TX.map(c => t[c] === undefined ? '' : t[c]))
     });
@@ -1476,6 +1594,38 @@ function codigoIncompativelComTipo(t) {
   return tp !== 'AMBOS' && tp !== t.tipo;
 }
 
+// Mensagem do popup de confirmação manual, mostrado sempre que o usuário escolhe de propósito
+// um código de tipo diferente do esperado (ex: cadastrar um cheque recebido — entrada — como
+// uma saída). O sistema nunca bloqueia essa escolha, só confirma antes de salvar.
+function mensagemTipoDivergente(codigo, tipoTransacao) {
+  const tipoCodigo = tipoPermitido(codigo);
+  const nomeCodigo = tipoCodigo === 'C' ? 'entrada' : 'saída';
+  const nomeTransacao = tipoTransacao === 'C' ? 'uma entrada' : 'uma saída';
+  return `O código ${codigo} normalmente é de ${nomeCodigo}, mas isso aqui é ${nomeTransacao}. Confirma que quer usar esse código mesmo assim?`;
+}
+
+// Mostra o popup #modalConfirmarTipo e devolve uma Promise: true se confirmou, false se
+// cancelou. Usado em todo lugar que agora deixa escolher um código de qualquer tipo
+// (Conciliar — classificar e dividir —, Previstos e Regras).
+function confirmarTipoDialog(mensagem) {
+  return new Promise(resolve => {
+    document.getElementById('mctMensagem').textContent = mensagem;
+    const modal = document.getElementById('modalConfirmarTipo');
+    const btnConfirmar = document.getElementById('mctConfirmar');
+    const btnCancelar = document.getElementById('mctCancelar');
+    function limpar() {
+      modal.classList.add('hidden');
+      btnConfirmar.removeEventListener('click', onConfirmar);
+      btnCancelar.removeEventListener('click', onCancelar);
+    }
+    function onConfirmar() { limpar(); resolve(true); }
+    function onCancelar() { limpar(); resolve(false); }
+    btnConfirmar.addEventListener('click', onConfirmar);
+    btnCancelar.addEventListener('click', onCancelar);
+    modal.classList.remove('hidden');
+  });
+}
+
 /* ======================================================================
    BUSCA DE CÓDIGO COM AUTOCOMPLETAR
    ======================================================================
@@ -1516,13 +1666,13 @@ function destacar(texto, termos) {
 }
 
 function codigosFolha(tipo) {
+  // Qualquer código pode ser usado em qualquer tipo de lançamento — a escolha de forçar um
+  // código "do tipo errado" (ex: cadastrar um cheque recebido, que é entrada, como uma saída)
+  // é sempre manual e fica a critério de quem está lançando, com confirmação explícita (ver
+  // confirmarTipoDialog). O parâmetro `tipo` é mantido só por compatibilidade com quem chama
+  // essa função — não filtra mais a lista.
   return State.planoContas
-    .filter(p => {
-      if (!p.folha) return false;
-      if (!tipo) return true;
-      const tp = tipoPermitido(p.codigo);
-      return tp === 'AMBOS' || tp === tipo;
-    })
+    .filter(p => p.folha)
     .sort((a, b) => a.codigo.localeCompare(b.codigo, undefined, { numeric: true }));
 }
 
@@ -1589,10 +1739,13 @@ function criarComboCodigo(opcoes) {
     if (!itens.length) {
       lista.innerHTML = '<div class="combo-vazio">Nenhum código encontrado para “' + busca.value + '”.</div>';
     } else {
-      lista.innerHTML = itens.map((p, i) => `
+      lista.innerHTML = itens.map((p, i) => {
+        const divergente = opcoes.tipoAlvo && codigoIncompativelComTipo({ codigo: p.codigo, tipo: opcoes.tipoAlvo });
+        return `
         <div class="combo-item ${i === ativo ? 'ativo' : ''}" data-i="${i}">
-          <span class="c">${destacar(p.codigo, termos)}</span>${destacar(p.nome, termos)}
-        </div>`).join('');
+          <span class="c">${destacar(p.codigo, termos)}</span>${destacar(p.nome, termos)}${divergente ? ' <span class="tipo-aviso">⚠ tipo diferente</span>' : ''}
+        </div>`;
+      }).join('');
     }
     lista.classList.remove('hidden');
   }
@@ -1635,7 +1788,7 @@ function criarComboCodigo(opcoes) {
   });
 
   raiz.definirCodigo = codigo => definir(codigo, true);
-  raiz.trocarItens = novos => { opcoes.itens = novos; definir(escondido.value, true); };
+  raiz.trocarItens = (novos, novoTipoAlvo) => { opcoes.itens = novos; if (novoTipoAlvo !== undefined) opcoes.tipoAlvo = novoTipoAlvo; definir(escondido.value, true); };
   if (opcoes.valor) definir(opcoes.valor, true);
   return raiz;
 }
@@ -2026,6 +2179,8 @@ const UI = {
     if (nome === 'previstos') Previstos.render();
     if (nome === 'saldo') { Saldo.iniciarConsultaData(); Conferencia.init(); }
     if (nome === 'analises') { Analises.init(); Analises.render(); }
+    if (nome === 'financiamentos') Financiamentos.render();
+    if (nome === 'relatorio') { Relatorio.init(); Relatorio.render(); }
     if (nome === 'regras') Regras.render();
     if (nome === 'plano') PlanoContasUI.render();
     if (nome === 'contas') Contas.render();
@@ -2073,6 +2228,7 @@ const App = {
     State.transacoes = dados.transacoes || [];
     State.previsoes = dados.previsoes || [];
     State.divisoes = dados.divisoes || [];
+    State.financiamentos = dados.financiamentos || [];
     if (dados.assinatura) State.assinatura = dados.assinatura;
     State.carregado = true;
   },
@@ -2085,6 +2241,7 @@ const App = {
     Previstos.popularSelects();
     Transferencias.popularSelects();
     Conferencia.popularSelects();
+    Financiamentos.popularSelects();
     const abaAtiva = document.querySelector('nav .tab.active')?.dataset.tab;
     if (abaAtiva) UI.mudarAba(abaAtiva);
   },
@@ -2321,7 +2478,14 @@ const Importar = {
       this.salvarMapaConta(resultado.contaId, contaIdAlvo);
       const extraPrevistas = res.previstasVinculadas ? ` ${res.previstasVinculadas} já veio conciliada com um lançamento previsto.` : '';
       const extraDiaValor = res.ignoradasDiaValor ? ` ${res.ignoradasDiaValor} ignorada(s) por já existirem com o mesmo dia e valor.` : '';
-      toast(`${res.importadas} transação(ões) importada(s). ${res.duplicadas} ignorada(s) por já existirem.${extraDiaValor}${extraPrevistas}`, 'ok');
+      // financiamentos/consórcios reconhecidos automaticamente nessa importação — o contador de
+      // parcelas de cada um já avançou sozinho (ver aba Financiamentos e importarTransacoes_).
+      const extraParcelas = (res.parcelasAvancadas && res.parcelasAvancadas.length)
+        ? ' ' + res.parcelasAvancadas.map(p =>
+            `Parcela de "${p.nome}" reconhecida automaticamente (${p.parcelaAtual}/${p.totalParcelas})${p.concluido ? ' — financiamento concluído! 🎉' : ''}.`
+          ).join(' ')
+        : '';
+      toast(`${res.importadas} transação(ões) importada(s). ${res.duplicadas} ignorada(s) por já existirem.${extraDiaValor}${extraPrevistas}${extraParcelas}`, 'ok');
       await App.recarregarTransacoes();
       Importar.popularSelectContas();
       Conciliacao.popularFiltros();
@@ -2950,16 +3114,17 @@ const Conciliacao = {
     const busca = normalizar(document.getElementById('mcBusca').value);
     const candidatos = State.planoContas.filter(p => {
       if (!p.folha) return false;
-      const tp = tipoPermitido(p.codigo);
-      if (tp !== 'AMBOS' && tp !== t.tipo) return false;
       if (!busca) return true;
       return normalizar(p.codigo + ' ' + p.nome).indexOf(busca) !== -1;
     });
     const lista = document.getElementById('mcLista');
-    lista.innerHTML = candidatos.map(p => `
+    lista.innerHTML = candidatos.map(p => {
+      const divergente = codigoIncompativelComTipo({ codigo: p.codigo, tipo: t.tipo });
+      return `
       <div class="code-item ${this.codigoSelecionado === p.codigo ? 'selected' : ''}" data-codigo="${p.codigo}">
-        <span class="c">${p.codigo}</span>${p.nome}
-      </div>`).join('') || '<div class="code-item muted">Nenhum código compatível encontrado.</div>';
+        <span class="c">${p.codigo}</span>${p.nome}${divergente ? ' <span class="tipo-aviso">⚠ tipo diferente</span>' : ''}
+      </div>`;
+    }).join('') || '<div class="code-item muted">Nenhum código compatível encontrado.</div>';
     lista.querySelectorAll('.code-item[data-codigo]').forEach(el => {
       el.addEventListener('click', () => {
         this.codigoSelecionado = el.dataset.codigo;
@@ -2987,6 +3152,7 @@ const Conciliacao = {
       valor: preset && preset.codigo ? preset.codigo : '',
       placeholder: 'digite o código ou o nome...',
       estiloRaiz: 'flex:2;min-width:240px;',
+      tipoAlvo: t ? t.tipo : '',
       aoMudar: () => this.recalcularDivisao()
     });
 
@@ -3156,6 +3322,15 @@ Conciliacao.salvarDivisao = async function () {
     return;
   }
 
+  const divergentes = itens.filter(it => codigoIncompativelComTipo({ codigo: it.codigo, tipo: t.tipo }));
+  if (divergentes.length) {
+    const msg = divergentes.length === 1
+      ? mensagemTipoDivergente(divergentes[0].codigo, t.tipo)
+      : `${divergentes.length} dos itens têm código de tipo diferente do esperado (ex: ${divergentes[0].codigo}). Confirma que quer usar mesmo assim?`;
+    const confirmado = await confirmarTipoDialog(msg);
+    if (!confirmado) return;
+  }
+
   const btn = document.getElementById('mcSalvar');
   btn.disabled = true; btn.textContent = 'Salvando...';
   try {
@@ -3192,7 +3367,7 @@ Conciliacao.desfazerDivisao = async function () {
   }
 };
 
-Conciliacao.salvar = function () {
+Conciliacao.salvar = async function () {
   const t = this.transacaoSelecionada;
   if (!t) return;
   if (!this.codigoSelecionado) { toast('Selecione um código do plano de contas.', 'err'); return; }
@@ -3202,6 +3377,10 @@ Conciliacao.salvar = function () {
   if (criarRegra && !palavraChave) { toast('Informe a palavra-chave da regra, ou desmarque a opção.', 'err'); return; }
 
   const codigo = this.codigoSelecionado;
+  if (codigoIncompativelComTipo({ codigo, tipo: t.tipo })) {
+    const confirmado = await confirmarTipoDialog(mensagemTipoDivergente(codigo, t.tipo));
+    if (!confirmado) return;
+  }
   const anterior = { codigo: t.codigo, status: t.status, regraAplicada: t.regraAplicada };
 
   // A tela é atualizada imediatamente e o modal fecha; a gravação na planilha acontece
@@ -3352,6 +3531,91 @@ function metasIndicadoresAtuais() {
   return base;
 }
 
+/* ======================================================================
+   DRE COMPARTILHADO — usado pela aba Análises e pelo Relatório de Gestão, pra garantir que as
+   duas telas mostrem exatamente os mesmos números pro mesmo período/conta, sem duplicar a lógica
+   de cálculo em dois lugares (ver comentário completo sobre a lógica do DRE dentro desta função).
+   ====================================================================== */
+function calcularDRE(de, ate, conta) {
+  const dentroDoFiltro = t => {
+    if (conta && t.conta !== conta) return false;
+    if (de && t.data < de) return false;
+    if (ate && t.data > ate) return false;
+    return true;
+  };
+
+  const consideradas = State.transacoes.filter(t =>
+    t.status !== 'Pendente' && t.status !== 'Transferencia' && t.status !== 'Dividida' && dentroDoFiltro(t));
+  const pendentesForaFiltro = State.transacoes.filter(t => t.status === 'Pendente' && dentroDoFiltro(t));
+  const transferenciasForaFiltro = State.transacoes.filter(t => t.status === 'Transferencia' && dentroDoFiltro(t));
+  const divididasNoFiltro = State.transacoes.filter(t => t.status === 'Dividida' && dentroDoFiltro(t));
+
+  // cada transação dividida vira, para efeito de análise, vários itens — um por código escolhido
+  // na divisão — em vez de um só. Uma inconsistência (item excluído depois de dividir, por ex.)
+  // vira aviso em vez de estourar o total.
+  let divididasDessincronizadas = 0;
+  const itensDivididos = [];
+  divididasNoFiltro.forEach(t => {
+    const itensDaDivisao = State.divisoes.filter(d => d.chaveUnicaOrigem === t.chaveUnica);
+    const soma = somarReais(itensDaDivisao, d => Number(d.valor) || 0);
+    if (Math.abs(soma - t.valor) > 0.01) divididasDessincronizadas++;
+    itensDaDivisao.forEach(d => itensDivididos.push({ codigo: d.codigo, valor: Number(d.valor) || 0, tipo: (Number(d.valor) || 0) >= 0 ? 'C' : 'D' }));
+  });
+
+  // itens que entram nos totais e nos agrupadores: transações normais (não divididas) + os
+  // pedaços de cada transação dividida
+  const itens = [...consideradas.map(t => ({ codigo: t.codigo, valor: t.valor, tipo: t.tipo })), ...itensDivididos];
+
+  // ---- DRE: receita, tira custo variável (sobra margem de contribuição), tira despesa fixa
+  // (sobra Lucro Operacional). Investimentos (grupo 6) e Movimentações Não Operacionais (grupo 7
+  // — empréstimos, consórcios, juros, multas) ficam "abaixo da linha" do Lucro Operacional,
+  // afetando só o Resultado Líquido — ver "ℹ️ Como Calculamos" (Yampa x Yampex) para a comparação
+  // completa. Os grupos do plano de contas (3, 4, 5, 6, 7, 13) já foram desenhados pra bater
+  // exatamente com essas etapas, então é só somar cada grupo com o sinal certo.
+  const somaGrupo = (g, apenasTipo) => somarReais(
+    itens.filter(i => i.codigo && i.codigo.split('.')[0] === g && (!apenasTipo || i.tipo === apenasTipo)),
+    i => i.valor
+  );
+
+  const receita = somaGrupo('3');
+  const custosVariaveis = Math.abs(somaGrupo('4'));
+  const despesasFixas = Math.abs(somaGrupo('5'));
+  const investimentos = Math.abs(somaGrupo('6'));
+  const naoOpEntradas = somaGrupo('7', 'C');
+  const naoOpSaidas = Math.abs(somaGrupo('7', 'D'));
+  const naoOpLiquido = naoOpEntradas - naoOpSaidas;
+  const acertoCaixa = somaGrupo('13');
+
+  const margemContribuicao = receita - custosVariaveis;
+  const loai = margemContribuicao - despesasFixas;
+  const lucroOperacional = loai;
+  const resultadoLiquido = lucroOperacional - investimentos + naoOpLiquido;
+
+  // agrupa por grupo (nível 1) e depois por subgrupo (nível 2) — acumula em centavos inteiros
+  // pra não derivar com muitos itens somados, convertendo de volta pra reais só no final
+  const porGrupo = {};
+  itens.forEach(i => {
+    if (!i.codigo) return;
+    const grupo = i.codigo.split('.')[0];
+    const subgrupo = i.codigo.split('.').slice(0, 2).join('.');
+    porGrupo[grupo] = porGrupo[grupo] || { totalCent: 0, subsCent: {} };
+    const centavos = paraCentavos(Math.abs(i.valor));
+    porGrupo[grupo].totalCent += centavos;
+    porGrupo[grupo].subsCent[subgrupo] = (porGrupo[grupo].subsCent[subgrupo] || 0) + centavos;
+  });
+  Object.keys(porGrupo).forEach(g => {
+    porGrupo[g].total = porGrupo[g].totalCent / 100;
+    porGrupo[g].subs = {};
+    Object.keys(porGrupo[g].subsCent).forEach(s => { porGrupo[g].subs[s] = porGrupo[g].subsCent[s] / 100; });
+  });
+
+  return {
+    itens, consideradas, pendentesForaFiltro, transferenciasForaFiltro, divididasDessincronizadas,
+    receita, custosVariaveis, despesasFixas, investimentos, naoOpEntradas, naoOpSaidas, naoOpLiquido,
+    acertoCaixa, margemContribuicao, loai, lucroOperacional, resultadoLiquido, porGrupo
+  };
+}
+
 const Analises = {
   _indicadorAtivo: null,
 
@@ -3387,83 +3651,15 @@ const Analises = {
     const de = document.getElementById('anDe').value;
     const ate = document.getElementById('anAte').value;
 
-    const consideradas = State.transacoes.filter(t => {
-      if (t.status === 'Pendente' || t.status === 'Transferencia' || t.status === 'Dividida') return false;
-      if (conta && t.conta !== conta) return false;
-      if (de && t.data < de) return false;
-      if (ate && t.data > ate) return false;
-      return true;
-    });
-    const pendentesForaFiltro = State.transacoes.filter(t => {
-      if (t.status !== 'Pendente') return false;
-      if (conta && t.conta !== conta) return false;
-      if (de && t.data < de) return false;
-      if (ate && t.data > ate) return false;
-      return true;
-    });
-    const transferenciasForaFiltro = State.transacoes.filter(t => {
-      if (t.status !== 'Transferencia') return false;
-      if (conta && t.conta !== conta) return false;
-      if (de && t.data < de) return false;
-      if (ate && t.data > ate) return false;
-      return true;
-    });
-    const divididasNoFiltro = State.transacoes.filter(t => {
-      if (t.status !== 'Dividida') return false;
-      if (conta && t.conta !== conta) return false;
-      if (de && t.data < de) return false;
-      if (ate && t.data > ate) return false;
-      return true;
-    });
-
-    // cada transação dividida vira, para efeito de análise, vários itens — um por código escolhido
-    // na divisão — em vez de um só. Uma inconsistência (item excluído depois de dividir, por ex.)
-    // vira aviso em vez de estourar o total.
-    let divididasDessincronizadas = 0;
-    const itensDivididos = [];
-    divididasNoFiltro.forEach(t => {
-      const itens = State.divisoes.filter(d => d.chaveUnicaOrigem === t.chaveUnica);
-      const soma = somarReais(itens, d => Number(d.valor) || 0);
-      if (Math.abs(soma - t.valor) > 0.01) divididasDessincronizadas++;
-      itens.forEach(d => itensDivididos.push({ codigo: d.codigo, valor: Number(d.valor) || 0, tipo: (Number(d.valor) || 0) >= 0 ? 'C' : 'D' }));
-    });
-
-    // itens que entram nos totais e nos agrupadores: transações normais (não divididas) + os
-    // pedaços de cada transação dividida
-    const itens = [...consideradas.map(t => ({ codigo: t.codigo, valor: t.valor, tipo: t.tipo })), ...itensDivididos];
-
-    // ---- DRE (demonstração de resultado): receita, tira custo variável (sobra margem de
-    // contribuição), tira despesa fixa (sobra Lucro Operacional). A partir daqui, Investimentos
-    // (grupo 6 — obras, máquinas, reformas) e Movimentações Não Operacionais (grupo 7 — empréstimos
-    // obtidos/pagos, juros, multas) são tratados como DECISÃO DE INVESTIMENTO/FINANCIAMENTO, não como
-    // desempenho da operação — por isso ficam "abaixo da linha" do Lucro Operacional, afetando só o
-    // Resultado Líquido final. Isso evita que uma obra financiada por empréstimo (que não sai do caixa
-    // operacional da empresa) derrube artificialmente o indicador de saúde operacional do negócio.
-    // Ver comparação completa em Análises > "ℹ️ Como Calculamos" (Yampa x Yampex). Os grupos do plano
-    // de contas (3, 4, 5, 6, 7, 13) já foram desenhados pra bater exatamente com essas etapas, então é
-    // só somar cada grupo com o sinal certo.
-    const somaGrupo = (g, apenasTipo) => somarReais(
-      itens.filter(i => i.codigo && i.codigo.split('.')[0] === g && (!apenasTipo || i.tipo === apenasTipo)),
-      i => i.valor
-    );
-
-    const receita = somaGrupo('3');
-    const custosVariaveis = Math.abs(somaGrupo('4'));
-    const despesasFixas = Math.abs(somaGrupo('5'));
-    const investimentos = Math.abs(somaGrupo('6'));
-    const naoOpEntradas = somaGrupo('7', 'C');
-    const naoOpSaidas = Math.abs(somaGrupo('7', 'D'));
-    const naoOpLiquido = naoOpEntradas - naoOpSaidas;
-    const acertoCaixa = somaGrupo('13');
-
-    const margemContribuicao = receita - custosVariaveis;
-    const loai = margemContribuicao - despesasFixas;
-    // Lucro Operacional = LOAI. Investimentos NÃO entra mais aqui (ver comentário acima) — só é
-    // descontado mais adiante, junto com as Movimentações Não Operacionais, para chegar no Resultado
-    // Líquido. O total final do Resultado Líquido não muda — só o "ponto do caminho" em que o
-    // Lucro Operacional é medido, pra ele refletir de fato a operação, não decisões de investimento.
-    const lucroOperacional = loai;
-    const resultadoLiquido = lucroOperacional - investimentos + naoOpLiquido;
+    // DRE (demonstração de resultado) compartilhado com o Relatório de Gestão — ver calcularDRE,
+    // extraída pra garantir que as duas telas mostrem exatamente os mesmos números pro mesmo
+    // período/conta, sem duplicar a lógica em dois lugares.
+    const dre = calcularDRE(de, ate, conta);
+    const {
+      itens, pendentesForaFiltro, transferenciasForaFiltro, divididasDessincronizadas,
+      receita, custosVariaveis, despesasFixas, investimentos, naoOpEntradas, naoOpSaidas, naoOpLiquido,
+      acertoCaixa, margemContribuicao, loai, lucroOperacional, resultadoLiquido, porGrupo
+    } = dre;
 
     const pct = v => receita ? (v / receita * 100) : null;
     const fmtPct = v => v === null || v === undefined
@@ -3524,24 +3720,7 @@ const Analises = {
       </div>
     `;
 
-    // agrupa por grupo (nível 1) e depois por subgrupo (nível 2) — acumula em centavos inteiros
-    // pra não derivar com muitos itens somados, convertendo de volta pra reais só no final
-    const porGrupo = {};
-    itens.forEach(i => {
-      if (!i.codigo) return;
-      const grupo = i.codigo.split('.')[0];
-      const subgrupo = i.codigo.split('.').slice(0, 2).join('.');
-      porGrupo[grupo] = porGrupo[grupo] || { totalCent: 0, subsCent: {} };
-      const centavos = paraCentavos(Math.abs(i.valor));
-      porGrupo[grupo].totalCent += centavos;
-      porGrupo[grupo].subsCent[subgrupo] = (porGrupo[grupo].subsCent[subgrupo] || 0) + centavos;
-    });
-    Object.keys(porGrupo).forEach(g => {
-      porGrupo[g].total = porGrupo[g].totalCent / 100;
-      porGrupo[g].subs = {};
-      Object.keys(porGrupo[g].subsCent).forEach(s => { porGrupo[g].subs[s] = porGrupo[g].subsCent[s] / 100; });
-    });
-
+    // porGrupo (totais por grupo/subgrupo) já vem calculado por calcularDRE() acima.
     const maxGrupo = Math.max(1, ...Object.values(porGrupo).map(g => g.total));
     const gruposOrdenados = Object.keys(porGrupo).sort((a, b) => porGrupo[b].total - porGrupo[a].total);
 
@@ -4339,6 +4518,219 @@ const Conferencia = {
 };
 
 /* ======================================================================
+   FINANCIAMENTOS (empréstimos, consórcios) — PARCELAS SEMI-AUTOMÁTICAS
+   ======================================================================
+   Cadastra uma vez (nome, conta, código, valor da parcela, total de parcelas e quantas já foram
+   pagas) e, a partir daí, o sistema continua sozinho: a cada extrato importado (ver
+   Importar.confirmarImport e importarTransacoes_ no backend), ele reconhece a parcela daquele mês
+   e avança o contador — sem precisar cadastrar nada de novo mês a mês. Se o reconhecimento
+   automático não achar a transação certa, dá para marcar a parcela como paga manualmente. */
+const Financiamentos = {
+  _comboCodigo: null,
+
+  popularSelects() {
+    const selConta = document.getElementById('finConta');
+    if (selConta) {
+      selConta.innerHTML = State.contas.length
+        ? State.contas.map(c => `<option value="${c.contaId}">${c.nome}</option>`).join('')
+        : '<option value="">Importe um extrato primeiro para cadastrar uma conta</option>';
+    }
+    const wrapCodigo = document.getElementById('finCodigoWrap');
+    if (!wrapCodigo) return;
+    const codigosDisponiveis = codigosFolha();
+    if (this._comboCodigo) {
+      this._comboCodigo.trocarItens(codigosDisponiveis);
+    } else {
+      this._comboCodigo = criarComboCodigo({
+        id: 'finCodigo',
+        itens: codigosDisponiveis,
+        placeholder: 'digite o código ou o nome...'
+      });
+      wrapCodigo.appendChild(this._comboCodigo);
+    }
+  },
+
+  async criar() {
+    const nome = document.getElementById('finNome').value.trim();
+    const tipo = document.getElementById('finTipo').value;
+    const conta = document.getElementById('finConta').value;
+    const codigo = document.getElementById('finCodigo')?.value || '';
+    const valorParcela = arred2(parseFloat(document.getElementById('finValorParcela').value));
+    const totalParcelas = parseInt(document.getElementById('finTotalParcelas').value, 10);
+    const parcelaAtual = parseInt(document.getElementById('finParcelaAtual').value || '0', 10) || 0;
+    const proximaData = document.getElementById('finProximaData').value;
+    if (!nome) { toast('Informe o nome do financiamento.', 'err'); return; }
+    if (!conta) { toast('Cadastre/importe ao menos uma conta antes (aba Importar).', 'err'); return; }
+    if (!codigo) { toast('Escolha o código do plano de contas.', 'err'); return; }
+    if (!valorParcela || isNaN(valorParcela) || valorParcela <= 0) { toast('Informe o valor da parcela.', 'err'); return; }
+    if (!totalParcelas || isNaN(totalParcelas) || totalParcelas <= 0) { toast('Informe o total de parcelas.', 'err'); return; }
+    if (parcelaAtual >= totalParcelas) { toast('A parcela atual precisa ser menor que o total de parcelas (senão já está concluído).', 'err'); return; }
+    if (!proximaData) { toast('Informe a data da próxima parcela.', 'err'); return; }
+    const periodicidadeDias = 30;
+    try {
+      const res = await Api.post('criarFinanciamento', {
+        nome, tipo, conta, codigo, valorParcela, totalParcelas, parcelaAtual, proximaData, periodicidadeDias
+      });
+      State.financiamentos.push({
+        id: res.id, nome, tipo, conta, codigo, valorParcela, totalParcelas, parcelaAtual,
+        proximaData, periodicidadeDias, ativo: parcelaAtual < totalParcelas, criadoEm: new Date().toISOString()
+      });
+      document.getElementById('finNome').value = '';
+      document.getElementById('finValorParcela').value = '';
+      document.getElementById('finTotalParcelas').value = '';
+      document.getElementById('finParcelaAtual').value = '0';
+      document.getElementById('finProximaData').value = '';
+      this.render();
+      Cache.agendar();
+      toast('Financiamento cadastrado — as próximas parcelas serão reconhecidas automaticamente ao importar o extrato.', 'ok');
+    } catch (e) {
+      toast('Erro: ' + e.message, 'err');
+    }
+  },
+
+  // Marca a parcela atual como paga sem esperar o extrato — útil quando o reconhecimento
+  // automático não achou a transação certa, ou quando já se sabe que foi pago.
+  async marcarPaga(id) {
+    try {
+      const res = await Api.post('marcarParcelaPagaManual', { id });
+      const fin = State.financiamentos.find(f => f.id === id);
+      if (fin) {
+        fin.parcelaAtual = res.parcelaAtual;
+        fin.ativo = !res.concluido;
+        fin.proximaData = res.proximaData || '';
+      }
+      this.render();
+      Cache.agendar();
+      toast(res.concluido ? `"${fin ? fin.nome : ''}" concluído — todas as parcelas pagas! 🎉` : 'Parcela marcada como paga.', 'ok');
+    } catch (e) {
+      toast('Erro: ' + e.message, 'err');
+    }
+  },
+
+  async excluir(id) {
+    try {
+      await Api.post('excluirFinanciamento', { id });
+      State.financiamentos = State.financiamentos.filter(f => f.id !== id);
+      this.render();
+      Cache.agendar();
+      toast('Financiamento excluído.', 'ok');
+    } catch (e) {
+      toast('Erro: ' + e.message, 'err');
+    }
+  },
+
+  render() {
+    const concluido = f => f.ativo === false || f.parcelaAtual >= f.totalParcelas;
+    const ativos = State.financiamentos.filter(f => !concluido(f));
+    const concluidos = State.financiamentos.filter(concluido);
+
+    const cardHtml = f => {
+      const pct = f.totalParcelas ? (f.parcelaAtual / f.totalParcelas * 100) : 0;
+      const pago = f.parcelaAtual * f.valorParcela;
+      const falta = Math.max(0, f.totalParcelas - f.parcelaAtual) * f.valorParcela;
+      const info = State.planoContas.find(p => p.codigo === f.codigo);
+      return `<div class="fin-card">
+        <div class="fin-card-topo">
+          <strong>${f.nome}</strong>
+          <span class="muted">${f.tipo || ''} · ${contaNome(f.conta)} · <span class="mono">${f.codigo}</span>${info ? ' ' + info.nome : ''}</span>
+        </div>
+        <div class="fin-progress"><div class="fin-progress-bar" style="width:${pct.toFixed(1)}%"></div></div>
+        <div class="muted-row">Parcela <strong>${f.parcelaAtual}/${f.totalParcelas}</strong> · pago até agora ${fmtMoeda(pago)} · falta pagar ${fmtMoeda(falta)}${f.proximaData ? ' · próxima parcela: ' + fmtData(f.proximaData) : ''}</div>
+        <div class="row" style="margin-top:8px;gap:6px;">
+          ${!concluido(f) ? `<button class="btn secondary small" onclick="Financiamentos.marcarPaga('${f.id}')">✓ Marcar parcela paga</button>` : ''}
+          <button class="btn danger small" onclick="Financiamentos.excluir('${f.id}')">Excluir</button>
+        </div>
+      </div>`;
+    };
+
+    const elAtivos = document.getElementById('finListaAtivos');
+    if (elAtivos) elAtivos.innerHTML = ativos.length ? ativos.map(cardHtml).join('') : '<div class="empty-state">Nenhum financiamento ativo cadastrado.</div>';
+    const elConcluidos = document.getElementById('finListaConcluidos');
+    if (elConcluidos) elConcluidos.innerHTML = concluidos.length ? concluidos.map(cardHtml).join('') : '<div class="empty-state">Nenhum financiamento concluído ainda.</div>';
+  }
+};
+
+/* ======================================================================
+   RELATÓRIO DE GESTÃO — resumo pronto para reunião: vendeu X, pagou Y, quanto disso foi
+   financiamento e quantas parcelas ainda faltam. Reaproveita o mesmo calcularDRE() usado em
+   Análises, com período padrão = mês anterior completo (em vez do trimestre usado em Análises).
+   ====================================================================== */
+const Relatorio = {
+  init() {
+    const inputDe = document.getElementById('relDe');
+    const inputAte = document.getElementById('relAte');
+    if (!inputDe || !inputAte) return;
+    if (!inputAte.value) {
+      const hoje = new Date();
+      const fimMesAnterior = new Date(Date.UTC(hoje.getFullYear(), hoje.getMonth(), 0));
+      inputAte.value = fimMesAnterior.toISOString().slice(0, 10);
+    }
+    if (!inputDe.value) {
+      const [anoF, mesF] = inputAte.value.split('-').map(Number);
+      const inicioMes = new Date(Date.UTC(anoF, mesF - 1, 1));
+      inputDe.value = inicioMes.toISOString().slice(0, 10);
+    }
+    const selConta = document.getElementById('relConta');
+    if (selConta) selConta.innerHTML = '<option value="">Todas</option>' + State.contas.map(c => `<option value="${c.contaId}">${c.nome}</option>`).join('');
+  },
+
+  render() {
+    const de = document.getElementById('relDe').value;
+    const ate = document.getElementById('relAte').value;
+    const conta = document.getElementById('relConta')?.value || '';
+
+    document.getElementById('relPeriodo').textContent =
+      `Período: ${fmtData(de)} até ${fmtData(ate)}${conta ? ' · ' + contaNome(conta) : ' · todas as contas'}.`;
+
+    const dre = calcularDRE(de, ate, conta);
+    const { receita, custosVariaveis, despesasFixas, naoOpSaidas, resultadoLiquido, porGrupo, itens } = dre;
+    const totalPago = custosVariaveis + despesasFixas;
+
+    document.getElementById('relResumo').innerHTML = `
+      <div class="stat-card"><div class="n" style="color:var(--green)">${fmtMoeda(receita)}</div><div class="l">vendeu (receita)</div></div>
+      <div class="stat-card"><div class="n" style="color:var(--red)">${fmtMoeda(totalPago)}</div><div class="l">pagou (custos + despesas)</div></div>
+      <div class="stat-card"><div class="n">${fmtMoeda(naoOpSaidas)}</div><div class="l">pago em financiamentos / investimentos</div></div>
+      <div class="stat-card"><div class="n" style="color:${resultadoLiquido >= 0 ? 'var(--green)' : 'var(--red)'}">${fmtMoeda(resultadoLiquido)}</div><div class="l">resultado líquido do período</div></div>
+    `;
+
+    // Financiamentos: quanto cada um teve pago DENTRO deste período (pelo código dele) e, no
+    // total, sem contar duas vezes quando mais de um financiamento compartilha o mesmo código.
+    const comDados = State.financiamentos.map(f => {
+      const pagoNoPeriodo = somarReais(itens.filter(i => i.codigo === f.codigo), i => Math.abs(i.valor));
+      return Object.assign({}, f, { pagoNoPeriodo });
+    });
+    const codigosFinanciamento = new Set(comDados.map(f => f.codigo));
+    const totalPeriodoFin = somarReais(itens.filter(i => codigosFinanciamento.has(i.codigo)), i => Math.abs(i.valor));
+
+    document.getElementById('relFinanciamentosResumo').innerHTML =
+      `Pago em financiamentos neste período: <strong>${fmtMoeda(totalPeriodoFin)}</strong>`;
+
+    document.getElementById('relFinanciamentos').innerHTML = comDados.length
+      ? comDados.map(f => {
+          const falta = Math.max(0, f.totalParcelas - f.parcelaAtual);
+          return `<div class="rel-card">
+            <strong>${f.nome}</strong> — parcela ${f.parcelaAtual}/${f.totalParcelas}
+            <span class="muted"> · ${fmtMoeda(f.valorParcela)}/parcela · pago no período: ${fmtMoeda(f.pagoNoPeriodo)} · faltam ${falta} parcela(s)</span>
+          </div>`;
+        }).join('')
+      : '<div class="empty-state">Nenhum financiamento cadastrado ainda (aba Financiamentos).</div>';
+
+    const maxGrupo = Math.max(1, ...Object.values(porGrupo).map(g => g.total));
+    const gruposOrdenados = Object.keys(porGrupo).sort((a, b) => porGrupo[b].total - porGrupo[a].total);
+    document.getElementById('relGrupos').innerHTML = gruposOrdenados.map(g => {
+      const info = porGrupo[g];
+      return `<div class="group-block">
+        <div class="group-head">
+          <span style="min-width:280px;">${g} — ${nomeGrupo(g)}</span>
+          <div class="bar-wrap"><div class="bar" style="width:${(info.total / maxGrupo * 100).toFixed(1)}%"></div></div>
+          <span style="min-width:120px;text-align:right;">${fmtMoeda(info.total)}</span>
+        </div>
+      </div>`;
+    }).join('') || '<div class="empty-state">Nenhuma transação conciliada nesse período/conta.</div>';
+  }
+};
+
+/* ======================================================================
    REGRAS
    ====================================================================== */
 const Regras = {
@@ -4357,6 +4749,10 @@ const Regras = {
     const tipo = document.getElementById('novaRegraTipo').value;
     const conta = document.getElementById('novaRegraConta').value;
     if (!palavraChave || !codigo) { toast('Preencha a palavra-chave e o código.', 'err'); return; }
+    if (tipo && codigoIncompativelComTipo({ codigo, tipo })) {
+      const confirmado = await confirmarTipoDialog(mensagemTipoDivergente(codigo, tipo));
+      if (!confirmado) return;
+    }
     try {
       const res = await Api.post('criarRegra', { palavraChave, codigo, tipo, conta });
       await App.recarregarTransacoes();
@@ -4483,27 +4879,22 @@ const Previstos = {
   },
 
   // campo de busca com autocompletar no lugar da lista suspensa: dá pra digitar um pedaço do
-  // código ("5.4") ou do nome ("manut maq") e as opções vão filtrando na hora. Só mostra códigos
-  // compatíveis com o Tipo escolhido (Entrada/Saída) — é o que evita cadastrar um previsto com
-  // um código de despesa numa entrada (ou vice-versa), já que esse lançamento entra direto como
-  // conciliado, sem passar pela revisão que uma classificação manual normalmente tem.
+  // código ("5.4") ou do nome ("manut maq") e as opções vão filtrando na hora. Mostra TODOS os
+  // códigos, não só os "compatíveis" com o Tipo escolhido — cadastrar um previsto com um código
+  // de despesa numa entrada (ou vice-versa) é permitido, só que avisado (⚠ tipo diferente) e
+  // confirmado manualmente antes de salvar (ver Previstos.criar e confirmarTipoDialog).
   atualizarCodigosDisponiveis() {
     const tipo = document.getElementById('prevTipo')?.value || '';
     const codigosDisponiveis = codigosFolha(tipo);
     const wrapCodigo = document.getElementById('prevCodigoWrap');
     if (!wrapCodigo) return;
     if (this._comboCodigo) {
-      // se o código já escolhido não serve mais pro tipo novo, limpa a seleção em vez de
-      // deixar um código incompatível "escondido" no campo escondido
-      const atual = document.getElementById('prevCodigo')?.value;
-      if (atual && !codigosDisponiveis.some(p => p.codigo === atual)) {
-        this._comboCodigo.definirCodigo('');
-      }
-      this._comboCodigo.trocarItens(codigosDisponiveis);
+      this._comboCodigo.trocarItens(codigosDisponiveis, tipo);
     } else {
       this._comboCodigo = criarComboCodigo({
         id: 'prevCodigo',
         itens: codigosDisponiveis,
+        tipoAlvo: tipo,
         placeholder: 'digite o código ou o nome...'
       });
       wrapCodigo.appendChild(this._comboCodigo);
@@ -4526,6 +4917,10 @@ const Previstos = {
     if (!dataPrevista) { toast('Escolha a data prevista.', 'err'); return; }
     if (!valorAbs || isNaN(valorAbs)) { toast('Informe o valor.', 'err'); return; }
     if (!codigo) { toast('Escolha o código destino.', 'err'); return; }
+    if (codigoIncompativelComTipo({ codigo, tipo })) {
+      const confirmado = await confirmarTipoDialog(mensagemTipoDivergente(codigo, tipo));
+      if (!confirmado) return;
+    }
     const valor = tipo === 'D' ? -valorAbs : valorAbs;
     try {
       const res = await Api.post('criarPrevisao', { conta, dataPrevista, valor, tipo, codigo, descricao });
