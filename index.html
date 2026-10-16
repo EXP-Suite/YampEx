@@ -353,6 +353,25 @@ header .brand-sub{
   transition:background .15s,color .15s;white-space:nowrap;
 }
 .btn-ghost:hover{background:rgba(255,255,255,.14);color:#fff;}
+
+/* ---------- tela de login (senha de acesso) ---------- */
+.tela-login{
+  position:fixed;inset:0;z-index:400;display:flex;align-items:center;justify-content:center;padding:24px;
+  background:linear-gradient(135deg,var(--brand-900) 0%,var(--brand-800) 55%,var(--brand-700) 100%);
+}
+.login-card{
+  width:100%;max-width:380px;background:#fff;border-radius:16px;padding:28px 26px 22px;
+  box-shadow:0 30px 70px -20px rgba(0,0,0,.55);
+}
+.login-card .marca{width:54px;height:54px;border-radius:15px;margin:0 auto 12px;background:linear-gradient(145deg,var(--accent-600),var(--accent-700));display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:27px;box-shadow:0 6px 18px -6px rgba(37,99,235,.6);}
+.login-card h1{font-size:22px;margin:0;text-align:center;letter-spacing:-.02em;}
+.login-card .sub{text-align:center;color:var(--text-dim);font-size:12.5px;margin:4px 0 20px;}
+.login-card input[type=password]{width:100%;font-size:16px;padding:11px 12px;text-align:center;letter-spacing:.12em;}
+.login-card .btn{width:100%;margin-top:10px;padding:11px;font-size:14px;}
+.login-erro{min-height:18px;font-size:12.5px;color:var(--red);text-align:center;margin-top:10px;}
+.login-rodape{display:flex;justify-content:space-between;align-items:center;margin-top:14px;font-size:11.5px;color:var(--text-dim);flex-wrap:wrap;gap:6px;}
+.login-rodape label{display:flex;align-items:center;gap:6px;cursor:pointer;}
+.login-rodape button{background:none;border:none;color:var(--text-dim);text-decoration:underline;cursor:pointer;font-size:11.5px;font-family:inherit;padding:0;}
 .sync-pill{
   font-size:11px;font-weight:700;letter-spacing:.03em;color:#fde68a;
   background:rgba(180,83,9,.30);border:1px solid rgba(253,230,138,.35);
@@ -670,7 +689,25 @@ footer strong{color:var(--text-dim);font-weight:700;letter-spacing:.02em;}
   <span id="syncPill" class="sync-pill hidden">salvando…</span>
   <button id="btnAtualizar" class="btn-ghost" onclick="UI.atualizarAgora()" title="Buscar alterações feitas na planilha">⟳ Atualizar</button>
   <span id="statusText"><span class="status-dot" id="statusDot"></span><span id="statusLabel">não configurado</span></span>
+  <button class="btn-ghost" onclick="UI.openConfig()" title="Conexão e senha de acesso">⚙</button>
+  <button class="btn-ghost hidden" id="btnSair" onclick="Auth.sair()" title="Sair — a próxima pessoa que abrir vai precisar da senha">Sair</button>
 </header>
+
+<!-- TELA DE LOGIN (senha de acesso — ver Auth) -->
+<div class="tela-login hidden" id="telaLogin">
+  <div class="login-card">
+    <div class="marca">Y</div>
+    <h1>Yampex</h1>
+    <p class="sub">Gestão Financeira · Explosão Alimentos</p>
+    <input type="password" id="loginSenha" placeholder="senha de acesso" autocomplete="current-password">
+    <button class="btn" id="loginEntrar" onclick="Auth.entrar()">Entrar</button>
+    <div class="login-erro" id="loginErro"></div>
+    <div class="login-rodape">
+      <label><input type="checkbox" id="loginLembrar" checked> manter conectado neste computador</label>
+      <button type="button" onclick="UI.openConfig()">⚙ URL do servidor</button>
+    </div>
+  </div>
+</div>
 
 <nav id="mainNav">
   <button class="tab active" data-tab="importar">Importar</button>
@@ -1232,13 +1269,26 @@ footer strong{color:var(--text-dim);font-weight:700;letter-spacing:.02em;}
 <!-- MODAL: Configuração -->
 <div class="modal-bg hidden" id="modalConfig">
   <div class="modal">
-    <h3>Configuração de conexão</h3>
-    <p class="muted" style="font-size:12.5px;">Cole a URL do App da Web (Apps Script) e o TOKEN gerado na aba "Config" da sua planilha.</p>
+    <h3>Conexão e senha de acesso</h3>
+    <p class="muted" style="font-size:12.5px;">A URL do App da Web (Apps Script) já vem embutida — só mexa aqui se reimplantar o script com outra URL. O TOKEN é preenchido sozinho quando você entra com a senha.</p>
     <div class="field" style="margin-top:10px;"><label>URL do Web App (termina em /exec)</label><input type="text" id="cfgUrl" style="width:100%;"></div>
-    <div class="field" style="margin-top:10px;"><label>TOKEN</label><input type="text" id="cfgToken" style="width:100%;"></div>
+    <div class="field" style="margin-top:10px;"><label>TOKEN <span class="muted" style="text-transform:none;letter-spacing:0;font-weight:500;">(avançado — normalmente não precisa)</span></label><input type="text" id="cfgToken" style="width:100%;" placeholder="deixe em branco para manter o atual"></div>
     <div class="row" style="justify-content:flex-end;margin-top:16px;">
       <button class="btn secondary" onclick="UI.closeConfig()">Cancelar</button>
       <button class="btn" onclick="UI.salvarConfig()">Salvar e testar</button>
+    </div>
+
+    <div id="cfgSenhaBox" class="hidden" style="margin-top:22px;padding-top:16px;border-top:1px solid var(--border);">
+      <h3 style="font-size:15px;">Alterar senha de acesso</h3>
+      <p class="muted" style="font-size:12.5px;">Ao trocar, os outros computadores onde o Yampex estiver aberto vão pedir a senha nova. Se esqueceu a atual, rode <span class="mono">definirSenhaDeAcesso</span> no editor do Apps Script da planilha.</p>
+      <div class="row" style="flex-wrap:wrap;gap:10px;margin-top:8px;">
+        <div class="field" style="flex:1;min-width:140px;"><label>Senha atual</label><input type="password" id="cfgSenhaAtual" style="width:100%;" autocomplete="current-password"></div>
+        <div class="field" style="flex:1;min-width:140px;"><label>Nova senha</label><input type="password" id="cfgSenhaNova" style="width:100%;" autocomplete="new-password"></div>
+        <div class="field" style="flex:1;min-width:140px;"><label>Repita a nova</label><input type="password" id="cfgSenhaNova2" style="width:100%;" autocomplete="new-password"></div>
+      </div>
+      <div class="row" style="justify-content:flex-end;margin-top:10px;">
+        <button class="btn" onclick="Auth.alterarSenha()">Trocar senha</button>
+      </div>
     </div>
   </div>
 </div>
@@ -1362,9 +1412,161 @@ const DEFAULT_TOKEN = '7a842a95-e39a-4593-9210-e5fca0659497';
 const Config = {
   get url() { return localStorage.getItem('cb_url') || DEFAULT_URL; },
   set url(v) { localStorage.setItem('cb_url', v); },
-  get token() { return localStorage.getItem('cb_token') || DEFAULT_TOKEN; },
+  // o token vem do login por senha (ver Auth) — guardado neste computador (localStorage, com
+  // validade) ou só nesta aba (sessionStorage, se "manter conectado" estiver desmarcado). O
+  // DEFAULT_TOKEN só serve enquanto a senha de acesso ainda não foi ativada na planilha: assim
+  // que ela é ativada, o servidor troca o token e esse valor embutido deixa de valer.
+  get token() { return Auth.tokenGuardado() || DEFAULT_TOKEN; },
   set token(v) { localStorage.setItem('cb_token', v); },
   get pronto() { return !!(this.url && this.token); }
+};
+
+/* ======================================================================
+   AUTH — senha de acesso
+   ======================================================================
+   Ao abrir, pergunta ao servidor (sem token) se a senha está ativa. Se estiver e não houver um
+   token válido guardado, mostra a tela de login por cima de tudo (e NÃO desenha a cópia local
+   dos dados antes disso). Digitou a senha certa → o servidor devolve o TOKEN, que fica guardado
+   e passa a ser usado em todas as chamadas, como sempre foi. "Sair" apaga o token e a cópia
+   local dos dados deste navegador. */
+const Auth = {
+  VALIDADE_DIAS: 30,
+  exigeSenha: null,   // null = ainda não perguntou ao servidor
+
+  tokenGuardado() {
+    const sessao = sessionStorage.getItem('cb_token_sessao');
+    if (sessao) return sessao;
+    const t = localStorage.getItem('cb_token');
+    if (!t) return '';
+    const exp = Number(localStorage.getItem('cb_token_exp') || 0);
+    if (exp && Date.now() > exp) { this.limparToken(); return ''; }
+    return t;
+  },
+
+  guardarToken(token, lembrar) {
+    this.limparToken();
+    if (lembrar) {
+      localStorage.setItem('cb_token', token);
+      localStorage.setItem('cb_token_exp', String(Date.now() + this.VALIDADE_DIAS * 86400000));
+    } else {
+      sessionStorage.setItem('cb_token_sessao', token);
+    }
+  },
+
+  limparToken() {
+    localStorage.removeItem('cb_token');
+    localStorage.removeItem('cb_token_exp');
+    sessionStorage.removeItem('cb_token_sessao');
+  },
+
+  // consulta pública: a senha está ativa no servidor? (null se não deu pra perguntar — offline)
+  async consultarServidor() {
+    try {
+      const usp = new URLSearchParams({ action: 'infoAcesso' });
+      const resp = await fetch(Config.url + '?' + usp.toString(), { method: 'GET' });
+      const json = await resp.json();
+      this.exigeSenha = !!(json && json.ok && json.dados && json.dados.exigeSenha);
+    } catch (e) {
+      this.exigeSenha = null;
+    }
+    return this.exigeSenha;
+  },
+
+  // true = pode seguir e carregar o sistema; false = ficou na tela de login
+  async garantirAcesso() {
+    if (!Config.url) return true; // sem URL nem tem o que perguntar — a tela de configuração cuida
+    await this.consultarServidor();
+    const temToken = !!this.tokenGuardado();
+    if (this.exigeSenha === true && !temToken) { this.mostrarTela(); return false; }
+    if (this.exigeSenha === null && !temToken) {
+      // sem conexão e sem token guardado: não dá pra entrar nem pra validar — mostra o login com aviso
+      this.mostrarTela('Sem conexão com a planilha agora. Tente de novo em instantes.');
+      return false;
+    }
+    this.esconderTela();
+    return true;
+  },
+
+  mostrarTela(aviso) {
+    const tela = document.getElementById('telaLogin');
+    tela.classList.remove('hidden');
+    document.getElementById('loginErro').textContent = aviso || '';
+    document.getElementById('btnSair').classList.add('hidden');
+    setTimeout(() => document.getElementById('loginSenha').focus(), 50);
+  },
+
+  esconderTela() {
+    document.getElementById('telaLogin').classList.add('hidden');
+    document.getElementById('btnSair').classList.toggle('hidden', this.exigeSenha !== true);
+  },
+
+  async entrar() {
+    const campo = document.getElementById('loginSenha');
+    const erro = document.getElementById('loginErro');
+    const btn = document.getElementById('loginEntrar');
+    const senha = campo.value;
+    if (!senha) { erro.textContent = 'Digite a senha.'; campo.focus(); return; }
+    btn.disabled = true; btn.textContent = 'Entrando...'; erro.textContent = '';
+    try {
+      const resp = await fetch(Config.url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify({ action: 'login', payload: { senha } })
+      });
+      const json = await resp.json();
+      if (!json.ok || !json.dados || !json.dados.token) throw new Error(json.erro || 'Não foi possível entrar.');
+      this.exigeSenha = true;
+      this.guardarToken(json.dados.token, document.getElementById('loginLembrar').checked);
+      campo.value = '';
+      Cache.desativado = false;
+      this.esconderTela();
+      await App.sincronizar({ forcarDownload: !State.carregado, silencioso: State.carregado });
+    } catch (e) {
+      erro.textContent = e.message;
+      campo.select();
+    } finally {
+      btn.disabled = false; btn.textContent = 'Entrar';
+    }
+  },
+
+  // chamado pela camada de API quando o servidor recusa o token (senha trocada, token antigo
+  // embutido numa cópia velha do arquivo etc.) — volta pra tela de login
+  checarRecusa(msg) {
+    if (/token inv[aá]lido/i.test(msg || '')) this.tokenRecusado();
+  },
+
+  tokenRecusado() {
+    this.limparToken();
+    try { localStorage.removeItem(Cache.CHAVE); } catch (e) {}
+    Cache.desativado = true; // não regrava a cópia local enquanto está deslogado
+    this.exigeSenha = true;
+    this.mostrarTela('Sua sessão expirou ou a senha foi trocada. Entre de novo.');
+  },
+
+  sair() {
+    this.limparToken();
+    try { localStorage.removeItem(Cache.CHAVE); } catch (e) {}
+    Cache.desativado = true;
+    location.reload();
+  },
+
+  async alterarSenha() {
+    const atual = document.getElementById('cfgSenhaAtual').value;
+    const nova = document.getElementById('cfgSenhaNova').value;
+    const nova2 = document.getElementById('cfgSenhaNova2').value;
+    if (!atual || !nova) { toast('Preencha a senha atual e a nova.', 'err'); return; }
+    if (nova.length < 4) { toast('A nova senha precisa ter pelo menos 4 caracteres.', 'err'); return; }
+    if (nova !== nova2) { toast('A nova senha e a repetição não são iguais.', 'err'); return; }
+    try {
+      const res = await Api.post('alterarSenha', { senhaAtual: atual, novaSenha: nova });
+      if (res && res.token) this.guardarToken(res.token, !!localStorage.getItem('cb_token') || !sessionStorage.getItem('cb_token_sessao'));
+      ['cfgSenhaAtual', 'cfgSenhaNova', 'cfgSenhaNova2'].forEach(id => { document.getElementById(id).value = ''; });
+      UI.closeConfig();
+      toast('Senha alterada. Os outros computadores vão pedir a senha nova.', 'ok');
+    } catch (e) {
+      toast('Erro: ' + e.message, 'err');
+    }
+  }
 };
 
 const State = {
@@ -1400,7 +1602,7 @@ const Api = {
     const usp = new URLSearchParams(Object.assign({ action, token: Config.token }, params || {}));
     const resp = await fetch(Config.url + '?' + usp.toString(), { method: 'GET' });
     const json = await resp.json();
-    if (!json.ok) throw new Error(json.erro || 'Erro desconhecido no servidor.');
+    if (!json.ok) { Auth.checarRecusa(json.erro); throw new Error(json.erro || 'Erro desconhecido no servidor.'); }
     if (json.assinatura) State.assinatura = json.assinatura;
     return json.dados;
   },
@@ -1412,7 +1614,7 @@ const Api = {
       body: JSON.stringify({ action, token: Config.token, payload: payload || {} })
     });
     const json = await resp.json();
-    if (!json.ok) throw new Error(json.erro || 'Erro desconhecido no servidor.');
+    if (!json.ok) { Auth.checarRecusa(json.erro); throw new Error(json.erro || 'Erro desconhecido no servidor.'); }
     // toda gravação devolve a assinatura nova dos dados: guardando ela aqui, a próxima
     // sincronização já sabe que o cache local está em dia e nem baixa a base de novo.
     if (json.assinatura) State.assinatura = json.assinatura;
@@ -2243,8 +2445,12 @@ const UI = {
       btn.addEventListener('click', () => this.mudarAba(btn.dataset.tab));
     });
     document.getElementById('cfgUrl').value = Config.url;
-    document.getElementById('cfgToken').value = Config.token;
-    if (!Config.pronto) this.openConfig();
+    const campoSenha = document.getElementById('loginSenha');
+    campoSenha.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); Auth.entrar(); } });
+    ['cfgSenhaAtual', 'cfgSenhaNova', 'cfgSenhaNova2'].forEach(id => {
+      document.getElementById(id).addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); Auth.alterarSenha(); } });
+    });
+    if (!Config.url) this.openConfig();
   },
   mudarAba(nome) {
     document.querySelectorAll('nav .tab').forEach(b => b.classList.toggle('active', b.dataset.tab === nome));
@@ -2262,15 +2468,21 @@ const UI = {
     if (nome === 'plano') PlanoContasUI.render();
     if (nome === 'contas') Contas.render();
   },
-  openConfig() { document.getElementById('modalConfig').classList.remove('hidden'); },
+  openConfig() {
+    document.getElementById('cfgUrl').value = Config.url;
+    document.getElementById('cfgToken').value = '';
+    document.getElementById('cfgSenhaBox').classList.toggle('hidden', Auth.exigeSenha !== true);
+    document.getElementById('modalConfig').classList.remove('hidden');
+  },
   closeConfig() { document.getElementById('modalConfig').classList.add('hidden'); },
   async salvarConfig() {
     const url = document.getElementById('cfgUrl').value.trim();
     const token = document.getElementById('cfgToken').value.trim();
-    if (!url || !token) { toast('Preencha a URL e o TOKEN.', 'err'); return; }
-    Config.url = url; Config.token = token;
+    if (!url) { toast('Preencha a URL do Web App.', 'err'); return; }
+    Config.url = url;
+    if (token && token !== Config.token) Auth.guardarToken(token, true);
     this.closeConfig();
-    await App.testarConexaoECarregar();
+    if (await Auth.garantirAcesso()) await App.testarConexaoECarregar();
   },
   setStatus(ok, label) {
     document.getElementById('statusDot').classList.toggle('ok', ok);
@@ -2327,6 +2539,8 @@ const App = {
   // Abertura do sistema: primeiro pinta a tela com o que já está salvo no navegador
   // (instantâneo, sem rede), e só então confere com a planilha se mudou alguma coisa.
   async iniciar() {
+    // 1º: a senha. Sem token válido, nada é desenhado — nem a cópia local dos dados.
+    if (!(await Auth.garantirAcesso())) return;
     let veioDoCache = false;
     const cache = await Cache.ler();
     if (cache && cache.transacoes && cache.transacoes.length) {
