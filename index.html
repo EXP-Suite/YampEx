@@ -60,6 +60,11 @@ tr.tx-row:hover{background:#f9fafb;cursor:pointer;}
 .badge.auto{background:var(--accent-dim);color:var(--accent);}
 .badge.conciliado{background:var(--green-dim);color:var(--green);}
 .badge.transferencia{background:#ede9fe;color:#7c3aed;}
+.ctb-tabela{border-collapse:collapse;font-size:12.5px;width:100%;}
+.ctb-tabela th,.ctb-tabela td{border-bottom:1px solid var(--border);padding:5px 10px;text-align:left;white-space:nowrap;}
+.ctb-tabela th{background:var(--bg);font-size:11.5px;text-transform:uppercase;letter-spacing:.03em;}
+.ctb-tabela .num{text-align:right;font-variant-numeric:tabular-nums;}
+.ctb-baixar:disabled{opacity:.5;cursor:not-allowed;}
 .badge.dividida{background:#fce7f3;color:#db2777;}
 .valC{color:var(--green);font-weight:600;}
 .valD{color:var(--red);font-weight:600;}
@@ -370,6 +375,8 @@ header .brand-sub{
 .login-card .btn{width:100%;margin-top:10px;padding:11px;font-size:14px;}
 .login-erro{min-height:18px;font-size:12.5px;color:var(--red);text-align:center;margin-top:10px;}
 .login-rodape{display:flex;justify-content:space-between;align-items:center;margin-top:14px;font-size:11.5px;color:var(--text-dim);flex-wrap:wrap;gap:6px;}
+.login-versao{text-align:center;margin-top:10px;font-size:11px;color:var(--text-dim);}
+.versao-html{font-weight:600;letter-spacing:.02em;}
 .login-rodape label{display:flex;align-items:center;gap:6px;cursor:pointer;}
 .login-rodape button{background:none;border:none;color:var(--text-dim);text-decoration:underline;cursor:pointer;font-size:11.5px;font-family:inherit;padding:0;}
 .sync-pill{
@@ -702,6 +709,7 @@ footer strong{color:var(--text-dim);font-weight:700;letter-spacing:.02em;}
     <input type="password" id="loginSenha" placeholder="senha de acesso" autocomplete="current-password">
     <button class="btn" id="loginEntrar" onclick="Auth.entrar()">Entrar</button>
     <div class="login-erro" id="loginErro"></div>
+    <div class="login-versao versao-html">Versão Yampex_37.html</div>
     <div class="login-rodape">
       <label><input type="checkbox" id="loginLembrar" checked> manter conectado neste computador</label>
       <button type="button" onclick="UI.openConfig()">⚙ URL do servidor</button>
@@ -719,6 +727,7 @@ footer strong{color:var(--text-dim);font-weight:700;letter-spacing:.02em;}
   <button class="tab" data-tab="tendencia">Tendência</button>
   <button class="tab" data-tab="financiamentos">Financiamentos</button>
   <button class="tab" data-tab="relatorio">Relatório de Gestão</button>
+  <button class="tab" data-tab="contabilidade">Contabilidade</button>
   <button class="tab" data-tab="metodologia">ℹ️ Como Calculamos</button>
   <button class="tab" data-tab="regras">Regras</button>
   <button class="tab" data-tab="plano">Plano de Contas</button>
@@ -1203,6 +1212,41 @@ footer strong{color:var(--text-dim);font-weight:700;letter-spacing:.02em;}
   </section>
 
   <!-- RELATÓRIO DE GESTÃO -->
+  <section id="tab-contabilidade" class="tab-content hidden">
+    <div class="panel no-print">
+      <h2>Relatório para a contabilidade</h2>
+      <p class="muted" style="margin-top:-6px;font-size:12.5px;">
+        Escolha o banco e o período e baixe o extrato já classificado (código e conta do plano de contas) em Excel, PDF ou HTML.
+        Os arquivos saem <strong>sem título, período, totais ou rodapé</strong> — a primeira linha já é o cabeçalho das colunas e o resto são
+        só os lançamentos, pra não desalinhar a importação no sistema deles. Banco e período vão no nome do arquivo.
+      </p>
+      <div class="row" style="flex-wrap:wrap;gap:10px;align-items:flex-end;">
+        <div class="field"><label>Banco</label><select id="ctbConta" onchange="Contabilidade.render()"><option value="">Todos os bancos</option></select></div>
+        <div class="field"><label>De</label><input type="date" id="ctbDe" onchange="Contabilidade.render()"></div>
+        <div class="field"><label>Até</label><input type="date" id="ctbAte" onchange="Contabilidade.render()"></div>
+        <button class="btn secondary" onclick="Contabilidade.periodoPadrao(true)">Mês anterior</button>
+        <button class="btn secondary" onclick="Contabilidade.periodoPadrao(true,'atual')">Este mês</button>
+        <button class="btn secondary" onclick="Contabilidade.periodoPadrao(true,'ano')">Este ano</button>
+      </div>
+      <div class="row" style="flex-wrap:wrap;gap:18px;margin-top:12px;font-size:13px;">
+        <label style="display:flex;gap:6px;align-items:center;"><input type="checkbox" id="ctbPendentes" onchange="Contabilidade.render()"> incluir pendentes (ainda sem código)</label>
+        <label style="display:flex;gap:6px;align-items:center;"><input type="checkbox" id="ctbTransf" checked onchange="Contabilidade.render()"> incluir transferências entre contas</label>
+        <label style="display:flex;gap:6px;align-items:center;"><input type="checkbox" id="ctbSaldos" checked onchange="Contabilidade.render()"> incluir saldo inicial e final do período</label>
+      </div>
+      <div class="row" style="flex-wrap:wrap;gap:10px;margin-top:16px;">
+        <button class="btn ctb-baixar" onclick="Contabilidade.baixarExcel()">⬇ Excel (.xlsx)</button>
+        <button class="btn ctb-baixar" onclick="Contabilidade.baixarPdf()">⬇ PDF</button>
+        <button class="btn ctb-baixar" onclick="Contabilidade.baixarHtml()">⬇ HTML</button>
+      </div>
+    </div>
+    <div class="panel">
+      <h2>Prévia</h2>
+      <p class="muted" id="ctbResumo" style="font-size:13px;margin-top:-6px;"></p>
+      <p class="muted" style="font-size:12px;">Colunas: Data · Banco · Documento · Descrição · Código · Conta contábil · Tipo (C = entrada, D = saída) · Valor (entrada positivo, saída negativo). Transação dividida sai em uma linha por código. Saldo inicial e final saem como primeira e última linha (Descrição "SALDO INICIAL"/"SALDO FINAL", Valor = saldo, Tipo em branco); o saldo conta todas as movimentações do banco, inclusive as pendentes.</p>
+      <div style="overflow-x:auto;" id="ctbPrevia"></div>
+    </div>
+  </section>
+
   <section id="tab-relatorio" class="tab-content hidden">
     <div class="panel no-print">
       <h2>Relatório de Gestão</h2>
@@ -1261,7 +1305,8 @@ footer strong{color:var(--text-dim);font-weight:700;letter-spacing:.02em;}
 
 <footer>
   <strong>Yampex</strong> · Gestão Financeira — Explosão Alimentos<br>
-  <span>Conciliação bancária, previsões e análise de resultado. Dados armazenados na sua Planilha Google via Apps Script.</span>
+  <span>Conciliação bancária, previsões e análise de resultado. Dados armazenados na sua Planilha Google via Apps Script.</span><br>
+  <span class="versao-html" id="rodapeVersao" title="Versão deste arquivo HTML">Versão Yampex_37.html</span>
 </footer>
 
 <div class="toast-wrap" id="toastWrap"></div>
@@ -2464,6 +2509,7 @@ const UI = {
     if (nome === 'tendencia') Tendencia.render();
     if (nome === 'financiamentos') Financiamentos.render();
     if (nome === 'relatorio') { Relatorio.init(); Relatorio.render(); }
+    if (nome === 'contabilidade') { Contabilidade.popularSelects(); Contabilidade.render(); }
     if (nome === 'regras') Regras.render();
     if (nome === 'plano') PlanoContasUI.render();
     if (nome === 'contas') Contas.render();
@@ -2532,6 +2578,7 @@ const App = {
     Conferencia.popularSelects();
     Financiamentos.popularSelects();
     Tendencia.popularSelects();
+    Contabilidade.popularSelects();
     const abaAtiva = document.querySelector('nav .tab.active')?.dataset.tab;
     if (abaAtiva) UI.mudarAba(abaAtiva);
   },
@@ -6168,6 +6215,390 @@ const Contas = {
       Analises.popularFiltros();
       toast('Conta renomeada.', 'ok');
     } catch (e) { toast('Erro: ' + e.message, 'err'); }
+  }
+};
+
+/* ======================================================================
+   CONTABILIDADE — arquivo do extrato classificado, pronto pra importar no sistema da contabilidade
+   ======================================================================
+   Escolhe o banco (ou todos) e o período; gera Excel (.xlsx), PDF ou HTML.
+   Regras pra não atrapalhar a importação:
+   - SEM título, logo, período, totais ou rodapé: a primeira linha já é o cabeçalho das colunas e
+     da segunda em diante só há lançamentos. Todas as informações do filtro ficam no NOME do arquivo.
+   - Mesmas colunas, na mesma ordem, nos três formatos.
+   - Excel: uma planilha só, sem células mescladas, data como data de verdade, valor como número.
+   - PDF: sem cabeçalho/rodapé de página, sem número de página, cabeçalho de colunas só uma vez
+     (não repete a cada página), nenhuma linha quebrada em duas e nenhum texto cortado — a página é
+     só larga o suficiente pra caber a linha inteira.
+   - HTML: uma única tabela simples, sem estilo, sem scripts. */
+const Contabilidade = {
+  COLUNAS: ['Data', 'Banco', 'Documento', 'Descrição', 'Código', 'Conta contábil', 'Tipo', 'Valor'],
+  // larguras dos caracteres (Helvetica, 1000 unidades por corpo, códigos 32..255 em Windows-1252)
+  LARGURAS_HELV: [278,278,355,556,556,889,667,191,333,333,389,584,278,333,278,278,556,556,556,556,556,556,556,556,556,556,278,278,584,584,584,556,1015,667,667,722,722,667,611,778,722,278,500,667,556,833,722,778,667,778,722,667,611,722,667,944,667,667,611,278,278,278,469,556,333,556,556,500,556,556,278,556,556,222,222,500,222,833,556,556,556,556,333,500,278,556,500,722,500,500,500,334,260,334,584,761,556,761,222,556,333,1000,556,556,333,1000,667,333,1000,761,611,761,761,222,222,333,333,350,556,1000,333,1000,500,333,944,761,500,667,278,333,556,556,556,556,260,556,333,737,370,556,584,333,737,333,400,584,333,333,333,556,537,278,333,333,365,556,834,834,834,611,667,667,667,667,667,667,1000,722,667,667,667,667,278,278,278,278,722,722,778,778,778,778,778,584,778,722,722,722,722,667,667,611,556,556,556,556,556,556,889,500,556,556,556,556,278,278,278,278,556,556,556,556,556,556,556,584,611,556,556,556,556,500,556,500],
+  CP1252_ALTO: { 8364:128, 8218:130, 402:131, 8222:132, 8230:133, 8224:134, 8225:135, 710:136, 8240:137, 352:138, 8249:139, 338:140, 381:142, 8216:145, 8217:146, 8220:147, 8221:148, 8226:149, 8211:150, 8212:151, 732:152, 8482:153, 353:154, 8250:155, 339:156, 382:158, 376:159 },
+
+  init() { /* nada a registrar: os controles usam onclick */ },
+
+  popularSelects() {
+    const sel = document.getElementById('ctbConta');
+    if (!sel) return;
+    const atual = sel.value;
+    sel.innerHTML = '<option value="">Todos os bancos</option>' +
+      State.contas.map(c => `<option value="${this.esc(c.contaId)}">${this.esc(c.nome)}${c.banco ? ' — ' + this.esc(c.banco) : ''}</option>`).join('');
+    if (atual && State.contas.some(c => c.contaId === atual)) sel.value = atual;
+    this.periodoPadrao(false);
+  },
+
+  esc(s) {
+    return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  },
+
+  iso(d) { return d.toISOString().slice(0, 10); },
+
+  // atalhos de período; "forcar=false" só preenche se estiver vazio
+  periodoPadrao(forcar, qual) {
+    const de = document.getElementById('ctbDe'), ate = document.getElementById('ctbAte');
+    if (!de || !ate) return;
+    if (!forcar && de.value && ate.value) return;
+    const h = new Date();
+    let ini, fim;
+    if (qual === 'atual') {
+      ini = new Date(Date.UTC(h.getFullYear(), h.getMonth(), 1));
+      fim = new Date(Date.UTC(h.getFullYear(), h.getMonth() + 1, 0));
+    } else if (qual === 'ano') {
+      ini = new Date(Date.UTC(h.getFullYear(), 0, 1));
+      fim = new Date(Date.UTC(h.getFullYear(), 11, 31));
+    } else { // mês anterior (padrão)
+      ini = new Date(Date.UTC(h.getFullYear(), h.getMonth() - 1, 1));
+      fim = new Date(Date.UTC(h.getFullYear(), h.getMonth(), 0));
+    }
+    de.value = this.iso(ini); ate.value = this.iso(fim);
+    if (forcar) this.render();
+  },
+
+  // saldo da conta no INÍCIO do período = saldo de abertura cadastrado + tudo que se moveu antes de "de".
+  // (mesma regra da aba Saldo: conta todas as transações, inclusive pendentes e transferências, porque
+  // é o saldo real do banco.) null = período começa antes da data de referência do saldo cadastrado.
+  saldoAntes(c, de) {
+    if (c.dataSaldoInicial && de < c.dataSaldoInicial) return null;
+    const txs = State.transacoes.filter(t => t.conta === c.contaId && t.data < de && (!c.dataSaldoInicial || t.data >= c.dataSaldoInicial));
+    return arred2((Number(c.saldoInicial) || 0) + somarReais(txs, t => Number(t.valor) || 0));
+  },
+
+  // O Google Sheets às vezes "adivinha" que um código como 4.2.4 é uma data (4/fev/2004) e o devolve como
+  // "4.2.2004" (ou "2004-02-04"). Aqui o código é conferido contra o plano de contas e, se não existir, é
+  // reconstruído a partir da data — só é aceito se o resultado existir de verdade no plano. Se nada bater,
+  // o código fica como veio e a tela avisa.
+  corrigirCodigo(cod, mapaPlano) {
+    cod = String(cod == null ? '' : cod).trim();
+    if (!cod || mapaPlano.has(cod)) return cod;
+    let dia, mes, ano2;
+    let m = cod.match(/^(\d{1,2})\.(\d{1,2})\.(\d{4})$/);
+    if (m) { dia = +m[1]; mes = +m[2]; ano2 = (+m[3]) % 100; }
+    else if ((m = cod.match(/^(\d{4})-(\d{2})-(\d{2})/))) { ano2 = (+m[1]) % 100; mes = +m[2]; dia = +m[3]; }
+    if (dia === undefined) return cod;
+    const candidatos = [`${dia}.${mes}.${ano2}`, `${mes}.${dia}.${ano2}`, `${dia}.${mes}`, `${mes}.${dia}`];
+    return candidatos.find(c => mapaPlano.has(c)) || cod;
+  },
+
+  // ---- monta as linhas que vão pros três formatos --------------------------------------------
+  linhas() {
+    const de = document.getElementById('ctbDe').value;
+    const ate = document.getElementById('ctbAte').value;
+    const conta = document.getElementById('ctbConta').value;
+    const comPendentes = document.getElementById('ctbPendentes').checked;
+    const comTransf = document.getElementById('ctbTransf').checked;
+    const idx = montarIndicesTransacoes();
+    const nomePlano = cod => (idx.mapaPlano.get(cod) || {}).nome || '';
+    const codOk = cod => { const c = this.corrigirCodigo(cod, idx.mapaPlano); if (c !== String(cod || '').trim()) info.codigosCorrigidos++; if (c && !idx.mapaPlano.has(c)) info.codigosDesconhecidos.add(c); return c; };
+    const comSaldos = document.getElementById('ctbSaldos').checked;
+    const info = { pendentesFora: 0, transfFora: 0, divisoesSemItens: 0, saldosSemReferencia: 0, codigosCorrigidos: 0, codigosDesconhecidos: new Set() };
+    const out = [];
+
+    const txs = State.transacoes
+      .filter(t => t.data >= de && t.data <= ate && (!conta || t.conta === conta))
+      .slice()
+      .sort((a, b) => (a.data < b.data ? -1 : a.data > b.data ? 1 : 0));
+
+    for (const t of txs) {
+      const banco = idx.mapaContas.get(t.conta) || t.conta;
+      const base = { data: t.data, banco, documento: t.fitid || '', descricao: String(t.descricao || '').trim() };
+      const linha = (codigoBruto, contaContabilIgnorada, valor, descricao) => {
+        const v = arred2(valor);
+        const codigo = codOk(codigoBruto);
+        const contaContabil = codigo ? nomePlano(codigo) : (contaContabilIgnorada || '');
+        out.push(Object.assign({}, base, {
+          descricao: descricao != null ? String(descricao).trim() : base.descricao,
+          codigo: codigo || '', contaContabil: contaContabil || '',
+          tipo: v >= 0 ? 'C' : 'D', valor: v
+        }));
+      };
+      if (t.status === 'Pendente') {
+        if (!comPendentes) { info.pendentesFora++; continue; }
+        linha('', '', t.valor);
+      } else if (t.status === 'Transferencia') {
+        if (!comTransf) { info.transfFora++; continue; }
+        const rel = t.contaRelacionada ? (idx.mapaContas.get(t.contaRelacionada) || t.contaRelacionada) : '';
+        linha('', 'Transferência entre contas' + (rel ? ' - ' + rel : ''), t.valor);
+      } else if (t.status === 'Dividida') {
+        const itens = idx.divPorOrigem.get(t.chaveUnica) || [];
+        if (!itens.length) { info.divisoesSemItens++; linha('', '', t.valor); continue; }
+        itens.forEach(d => linha(d.codigo, nomePlano(d.codigo), d.valor, d.descricao || t.descricao || ''));
+      } else {
+        linha(t.codigo, nomePlano(t.codigo), t.valor);
+      }
+    }
+    // saldo inicial (no começo) e final (no fim) — uma linha por banco, nas MESMAS colunas: a descrição
+    // diz "SALDO INICIAL"/"SALDO FINAL", o valor é o saldo e Tipo/Código ficam em branco
+    if (comSaldos) {
+      const contas = State.contas.filter(c => !conta || c.contaId === conta);
+      const ini = [], fim = [];
+      for (const c of contas) {
+        const antes = this.saldoAntes(c, de);
+        const depois = Saldo.calcularEm(c, ate);
+        const mk = (data, desc, v) => ({ data, banco: c.nome, documento: '', descricao: desc, codigo: '', contaContabil: '', tipo: '', valor: v, saldo: true });
+        if (antes === null || depois === null) { info.saldosSemReferencia++; continue; }
+        ini.push(mk(de, 'SALDO INICIAL', antes));
+        fim.push(mk(ate, 'SALDO FINAL', depois));
+      }
+      out.unshift(...ini);
+      out.push(...fim);
+    }
+    return { linhas: out, info, de, ate, conta };
+  },
+
+  fmtNum(v) {
+    return v.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  },
+
+  // linha → vetor de textos na ordem das COLUNAS (HTML e PDF)
+  textos(l) {
+    return [fmtData(l.data), l.banco, l.documento, l.descricao, l.codigo, l.contaContabil, l.tipo, this.fmtNum(l.valor)];
+  },
+
+  // ---- tela: prévia ---------------------------------------------------------------------------
+  render() {
+    const box = document.getElementById('ctbPrevia');
+    if (!box) return;
+    const r = this.validar(true);
+    if (!r) { box.innerHTML = ''; document.getElementById('ctbResumo').textContent = ''; this.habilitar(false); return; }
+    const { linhas, info } = r;
+    const movs = linhas.filter(l => !l.saldo);
+    const entradas = somarReais(movs.filter(l => l.valor > 0), l => l.valor);
+    const saidas = somarReais(movs.filter(l => l.valor < 0), l => l.valor);
+    const avisos = [];
+    if (info.pendentesFora) avisos.push(`⚠️ ${info.pendentesFora} transação(ões) <strong>pendente(s)</strong> no período ainda não têm código e ficaram de fora — concilie antes de enviar, ou marque "incluir pendentes".`);
+    if (info.saldosSemReferencia) avisos.push(`⚠️ Saldo inicial/final não incluído para ${info.saldosSemReferencia} banco(s): o período começa antes da data do saldo cadastrado na aba Saldo.`);
+    if (info.codigosCorrigidos) avisos.push(`ℹ️ ${info.codigosCorrigidos} código(s) estavam gravados na planilha como data (ex.: "4.2.2004") e foram reconstruídos pelo plano de contas (ex.: "4.2.4").`);
+    if (info.codigosDesconhecidos.size) avisos.push(`⚠️ Código(s) que não existem no plano de contas — a coluna Conta contábil sai em branco: <strong>${[...info.codigosDesconhecidos].map(c => this.esc(c)).join(', ')}</strong>. Corrija na aba Conciliar/Plano de Contas.`);
+    if (info.transfFora) avisos.push(`${info.transfFora} transferência(s) entre contas ficaram de fora.`);
+    if (info.divisoesSemItens) avisos.push(`⚠️ ${info.divisoesSemItens} transação(ões) dividida(s) sem os itens da divisão — saíram com o valor total e sem código.`);
+    document.getElementById('ctbResumo').innerHTML =
+      `<strong>${movs.length}</strong> lançamento(s) · entradas <strong>${fmtMoeda(entradas)}</strong> · saídas <strong>${fmtMoeda(saidas)}</strong>` +
+      (linhas.some(l => l.saldo) ? ' · saldos: <strong>' + linhas.filter(l => l.saldo).map(l => `${l.descricao === 'SALDO INICIAL' ? 'inicial' : 'final'} ${fmtMoeda(l.valor)}`).join('</strong>, <strong>') + '</strong>' : '') +
+      (avisos.length ? '<div style="margin-top:8px;display:grid;gap:4px;">' + avisos.map(a => `<div>${a}</div>`).join('') + '</div>' : '');
+    this.habilitar(true);
+    const LIM = 300;
+    const mostrar = linhas.slice(0, LIM);
+    box.innerHTML = `<table class="ctb-tabela"><thead><tr>${this.COLUNAS.map((c, i) => `<th${i === 7 ? ' class="num"' : ''}>${c}</th>`).join('')}</tr></thead><tbody>` +
+      mostrar.map(l => `<tr${l.saldo ? ' style="font-weight:600;background:var(--bg);"' : ''}>` + this.textos(l).map((t, i) => `<td${i === 7 ? ' class="num"' : ''}>${this.esc(t)}</td>`).join('') + '</tr>').join('') +
+      '</tbody></table>' +
+      (linhas.length > LIM ? `<p class="muted" style="font-size:12px;">Mostrando os primeiros ${LIM} de ${linhas.length} na tela — os arquivos baixados levam todos.</p>` : '') +
+      (!linhas.length ? '<p class="muted">Nenhum lançamento nesse filtro.</p>' : '');
+  },
+
+  habilitar(sim) {
+    document.querySelectorAll('.ctb-baixar').forEach(b => { b.disabled = !sim; });
+  },
+
+  validar(silencioso) {
+    const de = document.getElementById('ctbDe').value, ate = document.getElementById('ctbAte').value;
+    if (!de || !ate) { if (!silencioso) toast('Escolha o período.', 'err'); return null; }
+    if (de > ate) { if (!silencioso) toast('A data inicial é depois da final.', 'err'); return null; }
+    if (!State.carregado) { if (!silencioso) toast('Os dados ainda não carregaram.', 'err'); return null; }
+    return this.linhas();
+  },
+
+  nomeArquivo(r, ext) {
+    const c = r.conta ? (State.contas.find(x => x.contaId === r.conta) || {}).nome || r.conta : 'todos-os-bancos';
+    const slug = String(c).normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^A-Za-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+    const br = iso => iso.split('-').reverse().join('-'); // 2026-09-01 -> 01-09-2026
+    // ex.: Contabilidade_ITAU-EXPLOSAO_01-09-2026_a_30-09-2026.pdf
+    return `Contabilidade_${slug}_${br(r.de)}_a_${br(r.ate)}.${ext}`;
+  },
+
+  baixar(bytesOuTexto, tipo, nome) {
+    const blob = new Blob([bytesOuTexto], { type: tipo });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = nome;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 4000);
+    toast('Arquivo gerado: ' + nome, 'ok');
+  },
+
+  // ---- HTML: uma tabela, nada além disso -------------------------------------------------------
+  baixarHtml() {
+    const r = this.validar(); if (!r) return;
+    const html = '<!DOCTYPE html>\n<html lang="pt-BR">\n<head>\n<meta charset="utf-8">\n<title>Contabilidade</title>\n</head>\n<body>\n<table border="1">\n' +
+      '<thead>\n<tr>' + this.COLUNAS.map(c => `<th>${c}</th>`).join('') + '</tr>\n</thead>\n<tbody>\n' +
+      r.linhas.map(l => '<tr>' + this.textos(l).map(t => `<td>${this.esc(t)}</td>`).join('') + '</tr>').join('\n') +
+      '\n</tbody>\n</table>\n</body>\n</html>\n';
+    this.baixar(html, 'text/html;charset=utf-8', this.nomeArquivo(r, 'html'));
+  },
+
+  // ---- EXCEL (.xlsx escrito à mão: um zip sem compressão + XMLs mínimos) ------------------------
+  _crcTabela: null,
+  crc32(bytes) {
+    if (!this._crcTabela) {
+      this._crcTabela = new Uint32Array(256);
+      for (let n = 0; n < 256; n++) {
+        let c = n;
+        for (let k = 0; k < 8; k++) c = (c & 1) ? (0xEDB88320 ^ (c >>> 1)) : (c >>> 1);
+        this._crcTabela[n] = c >>> 0;
+      }
+    }
+    let c = 0xFFFFFFFF;
+    for (let i = 0; i < bytes.length; i++) c = this._crcTabela[(c ^ bytes[i]) & 0xFF] ^ (c >>> 8);
+    return (c ^ 0xFFFFFFFF) >>> 0;
+  },
+
+  zip(arquivos) { // [{nome, texto}]
+    const enc = new TextEncoder();
+    const partes = [], central = [];
+    let offset = 0;
+    const u16 = v => [v & 255, (v >>> 8) & 255];
+    const u32 = v => [v & 255, (v >>> 8) & 255, (v >>> 16) & 255, (v >>> 24) & 255];
+    const dosHora = 0, dosData = ((2026 - 1980) << 9) | (1 << 5) | 1;
+    for (const a of arquivos) {
+      const nome = enc.encode(a.nome), dados = enc.encode(a.texto), crc = this.crc32(dados);
+      const cab = [].concat(u32(0x04034b50), u16(20), u16(0x0800), u16(0), u16(dosHora), u16(dosData),
+        u32(crc), u32(dados.length), u32(dados.length), u16(nome.length), u16(0));
+      partes.push(new Uint8Array(cab), nome, dados);
+      central.push({ nome, crc, tam: dados.length, offset });
+      offset += cab.length + nome.length + dados.length;
+    }
+    const iniCentral = offset;
+    for (const c of central) {
+      const cab = [].concat(u32(0x02014b50), u16(20), u16(20), u16(0x0800), u16(0), u16(dosHora), u16(dosData),
+        u32(c.crc), u32(c.tam), u32(c.tam), u16(c.nome.length), u16(0), u16(0), u16(0), u16(0), u32(0), u32(c.offset));
+      partes.push(new Uint8Array(cab), c.nome);
+      offset += cab.length + c.nome.length;
+    }
+    const fim = [].concat(u32(0x06054b50), u16(0), u16(0), u16(central.length), u16(central.length),
+      u32(offset - iniCentral), u32(iniCentral), u16(0));
+    partes.push(new Uint8Array(fim));
+    return new Blob(partes, { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+  },
+
+  baixarExcel() {
+    const r = this.validar(); if (!r) return;
+    const x = s => String(s).replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F]/g, '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    const strings = [], mapa = new Map();
+    const si = s => { if (!mapa.has(s)) { mapa.set(s, strings.length); strings.push(s); } return mapa.get(s); };
+    const serial = iso => { const [a, m, d] = iso.split('-').map(Number); return Math.round((Date.UTC(a, m - 1, d) - Date.UTC(1899, 11, 30)) / 86400000); };
+    const celTxt = (ref, s, estilo) => s === '' ? '' : `<c r="${ref}"${estilo ? ` s="${estilo}"` : ''} t="s"><v>${si(s)}</v></c>`;
+
+    let linhasXml = '<row r="1">' + this.COLUNAS.map((c, i) => celTxt(String.fromCharCode(65 + i) + '1', c, 3)).join('') + '</row>';
+    r.linhas.forEach((l, i) => {
+      const n = i + 2;
+      linhasXml += `<row r="${n}">` +
+        `<c r="A${n}" s="1"><v>${serial(l.data)}</v></c>` +
+        celTxt('B' + n, l.banco) + celTxt('C' + n, l.documento) + celTxt('D' + n, l.descricao) +
+        celTxt('E' + n, l.codigo) + celTxt('F' + n, l.contaContabil) + celTxt('G' + n, l.tipo) +
+        `<c r="H${n}" s="2"><v>${l.valor}</v></c></row>`;
+    });
+    const larg = [12, 22, 18, 50, 10, 38, 6, 16];
+    const NS = 'xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"';
+    const cab = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n';
+    const arquivos = [
+      { nome: '[Content_Types].xml', texto: cab + '<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/><Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/><Override PartName="/xl/sharedStrings.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sharedStrings+xml"/></Types>' },
+      { nome: '_rels/.rels', texto: cab + '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/></Relationships>' },
+      { nome: 'xl/workbook.xml', texto: cab + `<workbook ${NS} xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheets><sheet name="Movimentos" sheetId="1" r:id="rId1"/></sheets></workbook>` },
+      { nome: 'xl/_rels/workbook.xml.rels', texto: cab + '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml"/><Relationship Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/><Relationship Id="rId3" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/sharedStrings" Target="sharedStrings.xml"/></Relationships>' },
+      { nome: 'xl/styles.xml', texto: cab + `<styleSheet ${NS}><numFmts count="1"><numFmt numFmtId="164" formatCode="dd/mm/yyyy"/></numFmts><fonts count="2"><font><sz val="11"/><name val="Calibri"/></font><font><b/><sz val="11"/><name val="Calibri"/></font></fonts><fills count="2"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill></fills><borders count="1"><border><left/><right/><top/><bottom/><diagonal/></border></borders><cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs><cellXfs count="4"><xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/><xf numFmtId="164" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/><xf numFmtId="4" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/><xf numFmtId="0" fontId="1" fillId="0" borderId="0" xfId="0" applyFont="1"/></cellXfs><cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles></styleSheet>` },
+      { nome: 'xl/worksheets/sheet1.xml', texto: cab + `<worksheet ${NS}><cols>${larg.map((w, i) => `<col min="${i + 1}" max="${i + 1}" width="${w}" customWidth="1"/>`).join('')}</cols><sheetData>${linhasXml}</sheetData></worksheet>` },
+      { nome: 'xl/sharedStrings.xml', texto: cab + `<sst ${NS} count="${strings.length}" uniqueCount="${strings.length}">${strings.map(s => `<si><t xml:space="preserve">${x(s)}</t></si>`).join('')}</sst>` }
+    ];
+    this.baixar(this.zip(arquivos), 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', this.nomeArquivo(r, 'xlsx'));
+  },
+
+  // ---- PDF (escrito à mão, só Helvetica padrão — nada embutido) -------------------------------
+  paraWinAnsi(s) {
+    let o = '';
+    for (const ch of String(s)) {
+      const c = ch.codePointAt(0);
+      let b = 63; // '?'
+      if (c >= 32 && c < 127) b = c;
+      else if (c >= 160 && c < 256) b = c;
+      else if (this.CP1252_ALTO[c]) b = this.CP1252_ALTO[c];
+      else if (c === 9 || c === 10 || c === 13) b = 32;
+      else if (c < 32) continue;
+      o += String.fromCharCode(b);
+    }
+    return o;
+  },
+  largura(sWin, corpo) {
+    let w = 0;
+    for (let i = 0; i < sWin.length; i++) {
+      const c = sWin.charCodeAt(i);
+      w += (c >= 32 ? this.LARGURAS_HELV[c - 32] : 278) || 556;
+    }
+    return w * corpo / 1000;
+  },
+
+  baixarPdf() {
+    const r = this.validar(); if (!r) return;
+    const CORPO = 8, ALTURA_LINHA = 13, MARGEM = 28, FOLGA = 14, ALT_PAG = 595;
+    const cab = this.COLUNAS.map(c => this.paraWinAnsi(c));
+    const corpo = r.linhas.map(l => this.textos(l).map(t => this.paraWinAnsi(t)));
+    // largura de cada coluna = o maior texto dela + folga (nada é cortado nem quebrado em 2 linhas)
+    const lg = cab.map((c, i) => {
+      let m = this.largura(c, CORPO);
+      for (const l of corpo) { const w = this.largura(l[i], CORPO); if (w > m) m = w; }
+      return m + FOLGA;
+    });
+    const xs = []; let acc = MARGEM;
+    lg.forEach(w => { xs.push(acc); acc += w; });
+    const largPag = Math.max(842, Math.ceil(acc + MARGEM - FOLGA));
+    const porPagina = Math.max(1, Math.floor((ALT_PAG - 2 * MARGEM) / ALTURA_LINHA));
+    const esc = s => s.replace(/\\/g, '\\\\').replace(/\(/g, '\\(').replace(/\)/g, '\\)');
+    const todas = [cab].concat(corpo);
+    const paginas = [];
+    for (let i = 0; i < todas.length; i += porPagina) paginas.push(todas.slice(i, i + porPagina));
+
+    const objs = []; // string de cada objeto, índice+1 = número
+    objs.push('<< /Type /Catalog /Pages 2 0 R >>');
+    objs.push(null); // Pages, preenchido depois
+    objs.push('<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>');
+    const filhos = [];
+    paginas.forEach(linhas => {
+      let cs = `BT /F1 ${CORPO} Tf\n`;
+      linhas.forEach((cols, li) => {
+        const y = ALT_PAG - MARGEM - CORPO - li * ALTURA_LINHA;
+        cols.forEach((t, ci) => {
+          if (t === '') return;
+          const x = ci === 7 ? xs[ci] + lg[ci] - FOLGA - this.largura(t, CORPO) : xs[ci];
+          cs += `1 0 0 1 ${x.toFixed(2)} ${y.toFixed(2)} Tm (${esc(t)}) Tj\n`;
+        });
+      });
+      cs += 'ET';
+      const nConteudo = objs.length + 2;
+      objs.push(`<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${largPag} ${ALT_PAG}] /Resources << /Font << /F1 3 0 R >> >> /Contents ${nConteudo} 0 R >>`);
+      filhos.push(objs.length);
+      objs.push(`<< /Length ${cs.length} >>\nstream\n${cs}\nendstream`);
+    });
+    objs[1] = `<< /Type /Pages /Kids [${filhos.map(n => n + ' 0 R').join(' ')}] /Count ${filhos.length} >>`;
+
+    let pdf = '%PDF-1.4\n';
+    const offs = [];
+    objs.forEach((o, i) => { offs.push(pdf.length); pdf += `${i + 1} 0 obj\n${o}\nendobj\n`; });
+    const xref = pdf.length;
+    pdf += `xref\n0 ${objs.length + 1}\n0000000000 65535 f \n` + offs.map(o => String(o).padStart(10, '0') + ' 00000 n \n').join('');
+    pdf += `trailer\n<< /Size ${objs.length + 1} /Root 1 0 R >>\nstartxref\n${xref}\n%%EOF\n`;
+    const bytes = new Uint8Array(pdf.length);
+    for (let i = 0; i < pdf.length; i++) bytes[i] = pdf.charCodeAt(i) & 255;
+    this.baixar(bytes, 'application/pdf', this.nomeArquivo(r, 'pdf'));
   }
 };
 
