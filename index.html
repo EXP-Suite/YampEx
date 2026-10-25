@@ -709,7 +709,7 @@ footer strong{color:var(--text-dim);font-weight:700;letter-spacing:.02em;}
     <input type="password" id="loginSenha" placeholder="senha de acesso" autocomplete="current-password">
     <button class="btn" id="loginEntrar" onclick="Auth.entrar()">Entrar</button>
     <div class="login-erro" id="loginErro"></div>
-    <div class="login-versao versao-html">Versão Yampex_37.html</div>
+    <div class="login-versao versao-html">Versão Yampex_38.html</div>
     <div class="login-rodape">
       <label><input type="checkbox" id="loginLembrar" checked> manter conectado neste computador</label>
       <button type="button" onclick="UI.openConfig()">⚙ URL do servidor</button>
@@ -1222,8 +1222,16 @@ footer strong{color:var(--text-dim);font-weight:700;letter-spacing:.02em;}
       </p>
       <div class="row" style="flex-wrap:wrap;gap:10px;align-items:flex-end;">
         <div class="field"><label>Banco</label><select id="ctbConta" onchange="Contabilidade.render()"><option value="">Todos os bancos</option></select></div>
-        <div class="field"><label>De</label><input type="date" id="ctbDe" onchange="Contabilidade.render()"></div>
-        <div class="field"><label>Até</label><input type="date" id="ctbAte" onchange="Contabilidade.render()"></div>
+        <div class="field"><label>Mês</label>
+          <div class="row" style="gap:4px;flex-wrap:nowrap;align-items:center;">
+            <button class="btn secondary" type="button" id="ctbMesAnt" title="Mês anterior" onclick="Contabilidade.mesNav(-1)" style="padding:6px 11px;">‹</button>
+            <select id="ctbMesSel" onchange="Contabilidade.mesMudou()"></select>
+            <select id="ctbAnoSel" onchange="Contabilidade.mesMudou()"></select>
+            <button class="btn secondary" type="button" id="ctbMesProx" title="Próximo mês" onclick="Contabilidade.mesNav(1)" style="padding:6px 11px;">›</button>
+          </div>
+        </div>
+        <div class="field"><label>De</label><input type="date" id="ctbDe" onchange="Contabilidade.dataMudou()"></div>
+        <div class="field"><label>Até</label><input type="date" id="ctbAte" onchange="Contabilidade.dataMudou()"></div>
         <button class="btn secondary" onclick="Contabilidade.periodoPadrao(true)">Mês anterior</button>
         <button class="btn secondary" onclick="Contabilidade.periodoPadrao(true,'atual')">Este mês</button>
         <button class="btn secondary" onclick="Contabilidade.periodoPadrao(true,'ano')">Este ano</button>
@@ -1306,7 +1314,7 @@ footer strong{color:var(--text-dim);font-weight:700;letter-spacing:.02em;}
 <footer>
   <strong>Yampex</strong> · Gestão Financeira — Explosão Alimentos<br>
   <span>Conciliação bancária, previsões e análise de resultado. Dados armazenados na sua Planilha Google via Apps Script.</span><br>
-  <span class="versao-html" id="rodapeVersao" title="Versão deste arquivo HTML">Versão Yampex_37.html</span>
+  <span class="versao-html" id="rodapeVersao" title="Versão deste arquivo HTML">Versão Yampex_38.html</span>
 </footer>
 
 <div class="toast-wrap" id="toastWrap"></div>
@@ -6246,8 +6254,86 @@ const Contabilidade = {
     sel.innerHTML = '<option value="">Todos os bancos</option>' +
       State.contas.map(c => `<option value="${this.esc(c.contaId)}">${this.esc(c.nome)}${c.banco ? ' — ' + this.esc(c.banco) : ''}</option>`).join('');
     if (atual && State.contas.some(c => c.contaId === atual)) sel.value = atual;
+    this.montarSeletoresMes();
     this.periodoPadrao(false);
+    this.sincronizarMes();
   },
+
+  // ---- filtro de mês: [‹] [mês] [ano] [›] — escolhe o mês inteiro (dia 1 ao último dia) ----------
+  MESES: ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'],
+
+  montarSeletoresMes() {
+    const selM = document.getElementById('ctbMesSel'), selA = document.getElementById('ctbAnoSel');
+    if (!selM || !selA) return;
+    if (!selM.options.length) {
+      selM.innerHTML = '<option value="">— mês —</option>' + this.MESES.map((m, i) => `<option value="${i + 1}">${m}</option>`).join('');
+    }
+    const hoje = new Date().getFullYear();
+    let min = hoje, max = hoje + 1;
+    State.transacoes.forEach(t => { const a = +String(t.data || '').slice(0, 4); if (a) { if (a < min) min = a; if (a > max) max = a; } });
+    const atual = selA.value;
+    selA.innerHTML = '<option value="">ano</option>';
+    for (let a = max; a >= min; a--) selA.insertAdjacentHTML('beforeend', `<option value="${a}">${a}</option>`);
+    if (atual) this.garantirAno(+atual);
+    if (atual) selA.value = atual;
+  },
+
+  garantirAno(a) {
+    const selA = document.getElementById('ctbAnoSel');
+    if ([...selA.options].some(o => +o.value === a)) return;
+    const op = document.createElement('option'); op.value = a; op.textContent = a;
+    const antes = [...selA.options].find(o => o.value && +o.value < a);
+    selA.insertBefore(op, antes || null);
+  },
+
+  // põe o filtro de mês de acordo com De/Até: se o período é exatamente um mês cheio, mostra esse mês;
+  // senão (período personalizado) deixa em "— mês —"
+  sincronizarMes() {
+    const selM = document.getElementById('ctbMesSel'), selA = document.getElementById('ctbAnoSel');
+    if (!selM || !selA) return;
+    const de = document.getElementById('ctbDe').value, ate = document.getElementById('ctbAte').value;
+    let cheio = false, a = 0, m = 0;
+    if (de && ate) {
+      [a, m] = de.split('-').map(Number);
+      const ultimo = new Date(Date.UTC(a, m, 0)).getUTCDate();
+      cheio = de === `${a}-${String(m).padStart(2, '0')}-01` && ate === `${a}-${String(m).padStart(2, '0')}-${String(ultimo).padStart(2, '0')}`;
+    }
+    if (cheio) { this.garantirAno(a); selM.value = String(m); selA.value = String(a); }
+    else { selM.value = ''; selA.value = ''; }
+  },
+
+  mesMudou() {
+    const m = +document.getElementById('ctbMesSel').value, a = +document.getElementById('ctbAnoSel').value;
+    if (!m || !a) return; // falta escolher o outro: só aplica quando mês E ano estão definidos
+    this.aplicarMes(a, m);
+  },
+
+  aplicarMes(a, m) {
+    const ultimo = new Date(Date.UTC(a, m, 0)).getUTCDate();
+    const mm = String(m).padStart(2, '0');
+    document.getElementById('ctbDe').value = `${a}-${mm}-01`;
+    document.getElementById('ctbAte').value = `${a}-${mm}-${String(ultimo).padStart(2, '0')}`;
+    this.sincronizarMes();
+    this.render();
+  },
+
+  // seta ‹ / ›: de dezembro volta/avança o ano sozinho. Se o período atual não for um mês cheio,
+  // parte do mês da data inicial (ou do mês atual se estiver vazio).
+  mesNav(delta) {
+    let m = +document.getElementById('ctbMesSel').value, a = +document.getElementById('ctbAnoSel').value;
+    if (!m || !a) {
+      const de = document.getElementById('ctbDe').value;
+      if (de) { [a, m] = de.split('-').map(Number); }
+      else { const h = new Date(); a = h.getFullYear(); m = h.getMonth() + 1; }
+    }
+    m += delta;
+    if (m < 1) { m = 12; a--; }
+    if (m > 12) { m = 1; a++; }
+    this.garantirAno(a);
+    this.aplicarMes(a, m);
+  },
+
+  dataMudou() { this.sincronizarMes(); this.render(); },
 
   esc(s) {
     return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
@@ -6273,6 +6359,7 @@ const Contabilidade = {
       fim = new Date(Date.UTC(h.getFullYear(), h.getMonth(), 0));
     }
     de.value = this.iso(ini); ate.value = this.iso(fim);
+    this.sincronizarMes();
     if (forcar) this.render();
   },
 
