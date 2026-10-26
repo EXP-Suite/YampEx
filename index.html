@@ -732,7 +732,7 @@ footer strong{color:var(--text-dim);font-weight:700;letter-spacing:.02em;}
     <input type="password" id="loginSenha" placeholder="senha de acesso" autocomplete="current-password">
     <button class="btn" id="loginEntrar" onclick="Auth.entrar()">Entrar</button>
     <div class="login-erro" id="loginErro"></div>
-    <div class="login-versao versao-html">Versão 2.5.2</div>
+    <div class="login-versao versao-html">Versão 2.5.3</div>
     <div class="login-rodape">
       <label><input type="checkbox" id="loginLembrar" checked> manter conectado neste computador</label>
       <button type="button" onclick="UI.openConfig()">⚙ URL do servidor</button>
@@ -925,9 +925,9 @@ footer strong{color:var(--text-dim);font-weight:700;letter-spacing:.02em;}
   <section id="tab-analises" class="tab-content hidden">
     <div class="panel">
       <div class="row" style="margin-bottom:14px;">
-        <div class="field"><label>Conta</label><select id="anConta"><option value="">Todas</option></select></div>
-        <div class="field"><label>De</label><input type="date" id="anDe"></div>
-        <div class="field"><label>Até</label><input type="date" id="anAte"></div>
+        <div class="field"><label>Conta</label><select id="anConta" onchange="Analises.render()"><option value="">Todas</option></select></div>
+        <div class="field"><label>De</label><input type="date" id="anDe" onchange="Analises.render()"></div>
+        <div class="field"><label>Até</label><input type="date" id="anAte" onchange="Analises.render()"></div>
         <button class="btn secondary small" onclick="Analises.render()" style="align-self:end;">Atualizar</button>
       </div>
       <div id="anResumo" class="stat-cards"></div>
@@ -1375,9 +1375,9 @@ footer strong{color:var(--text-dim);font-weight:700;letter-spacing:.02em;}
         "Atualizar".
       </p>
       <div class="row" style="flex-wrap:wrap;gap:10px;align-items:flex-end;">
-        <div class="field"><label>De</label><input type="date" id="relDe"></div>
-        <div class="field"><label>Até</label><input type="date" id="relAte"></div>
-        <div class="field"><label>Conta</label><select id="relConta"><option value="">Todas</option></select></div>
+        <div class="field"><label>De</label><input type="date" id="relDe" onchange="Relatorio.render()"></div>
+        <div class="field"><label>Até</label><input type="date" id="relAte" onchange="Relatorio.render()"></div>
+        <div class="field"><label>Conta</label><select id="relConta" onchange="Relatorio.render()"><option value="">Todas</option></select></div>
         <button class="btn secondary" onclick="Relatorio.render()">Atualizar</button>
         <button class="btn" onclick="window.print()">🖨️ Imprimir</button>
       </div>
@@ -1425,7 +1425,7 @@ footer strong{color:var(--text-dim);font-weight:700;letter-spacing:.02em;}
 <footer>
   <strong>Yampex</strong> · Gestão Financeira — Explosão Alimentos<br>
   <span>Conciliação bancária, previsões e análise de resultado. Dados armazenados na sua Planilha Google via Apps Script.</span><br>
-  <span class="versao-html" id="rodapeVersao" title="Versão do Yampex (arquivo Yampex_2.5.2.html)">Versão 2.5.2</span>
+  <span class="versao-html" id="rodapeVersao" title="Versão do Yampex (arquivo Yampex_2.5.3.html)">Versão 2.5.3</span>
 </footer>
 
 <div class="toast-wrap" id="toastWrap"></div>
@@ -7268,7 +7268,8 @@ const DRE = {
     if (!m) { box.innerHTML = ''; document.getElementById('dreAvisos').innerHTML = ''; bt.forEach(b => { b.disabled = true; }); return; }
     bt.forEach(b => { b.disabled = false; });
     const { A, P } = m;
-    document.getElementById('dreAvisos').innerHTML = m.avisos.map(a => `<div class="dre-aviso">⚠️ ${Contabilidade.esc(a)}</div>`).join('');
+    const info = m.todas ? '' : `<div class="dre-aviso" style="background:#eff6ff;border-color:#bfdbfe;color:#1e3a8a;">ℹ️ Só ${m.contasIds.length} de ${State.contas.length} bancos estão marcados (${Contabilidade.esc(m.contaTexto)}). Para comparar com a aba Análises, escolha lá a mesma conta — a Análises só filtra uma conta por vez, ou todas.</div>`;
+    document.getElementById('dreAvisos').innerHTML = info + m.avisos.map(a => `<div class="dre-aviso">⚠️ ${Contabilidade.esc(a)}</div>`).join('');
     const cab = m.comparar
       ? `<th>Descrição</th><th class="num">${fmtData(m.de)}<br>a ${fmtData(m.ate)}</th><th class="num">AV%</th><th class="num">${fmtData(m.per.de)}<br>a ${fmtData(m.per.ate)}</th><th class="num">AV%</th><th class="num">AH%</th>`
       : `<th>Descrição</th><th class="num">Valor (R$)</th><th class="num">AV%</th>`;
