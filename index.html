@@ -64,6 +64,29 @@ tr.tx-row:hover{background:#f9fafb;cursor:pointer;}
 .ctb-tabela th,.ctb-tabela td{border-bottom:1px solid var(--border);padding:5px 10px;text-align:left;white-space:nowrap;}
 .ctb-tabela th{background:var(--bg);font-size:11.5px;text-transform:uppercase;letter-spacing:.03em;}
 .ctb-tabela .num{text-align:right;font-variant-numeric:tabular-nums;}
+.dre-prev{border-collapse:collapse;width:100%;font-size:12.5px;}
+.dre-prev th{background:#0f2a4a;color:#fff;font-size:11px;padding:6px 10px;text-align:left;font-weight:600;line-height:1.3;}
+.dre-prev td{padding:5px 10px;border-bottom:1px solid var(--border);white-space:nowrap;}
+.dre-prev .num{text-align:right;font-variant-numeric:tabular-nums;}
+.dre-prev td:first-child{white-space:normal;}
+.dre-prev .neg{color:#b91c1c;}
+.dre-prev tr.dre-grp td{font-weight:700;}
+.dre-prev tr.dre-tot td{font-weight:700;background:#eaf0f9;border-top:2px solid #0f2a4a;color:#0f2a4a;}
+.dre-prev tr.dre-fin td{font-weight:700;background:#0f2a4a;color:#fff;font-size:13px;}
+.dre-prev tr.dre-fin td.neg{color:#fecaca;}
+.dre-prev tr.dre-det td{color:#4b5563;font-size:12px;}
+.dre-prev tr.dre-det td:first-child{padding-left:26px;}
+.dre-prev tr.dre-det2 td{color:#6b7280;font-size:11.5px;}
+.dre-prev tr.dre-det2 td:first-child{padding-left:44px;}
+.dre-contas{display:flex;flex-wrap:wrap;gap:8px;}
+.dre-contas label{display:flex;align-items:center;gap:6px;border:1px solid var(--border);border-radius:999px;padding:5px 12px;font-size:13px;cursor:pointer;background:var(--panel);}
+.dre-contas label.on{border-color:#1d4ed8;background:#eff6ff;color:#1e3a8a;font-weight:600;}
+.dre-aviso{background:#fffbeb;border:1px solid #fde68a;color:#92400e;border-radius:8px;padding:8px 12px;font-size:12.5px;margin-bottom:8px;}
+.dre-doc-grupo{font-size:11.5px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--text-dim);margin:14px 0 8px;}
+.dre-doc-lista{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:10px;}
+.dre-doc{border:1px solid var(--border);border-radius:10px;padding:12px;display:grid;gap:10px;background:var(--panel);}
+.dre-doc-nome{font-weight:600;font-size:13.5px;}
+.dre-baixar:disabled{opacity:.5;cursor:not-allowed;}
 .ctb-baixar:disabled{opacity:.5;cursor:not-allowed;}
 .badge.dividida{background:#fce7f3;color:#db2777;}
 .valC{color:var(--green);font-weight:600;}
@@ -709,7 +732,7 @@ footer strong{color:var(--text-dim);font-weight:700;letter-spacing:.02em;}
     <input type="password" id="loginSenha" placeholder="senha de acesso" autocomplete="current-password">
     <button class="btn" id="loginEntrar" onclick="Auth.entrar()">Entrar</button>
     <div class="login-erro" id="loginErro"></div>
-    <div class="login-versao versao-html">Versão Yampex_38.html</div>
+    <div class="login-versao versao-html">Versão 2.5.2</div>
     <div class="login-rodape">
       <label><input type="checkbox" id="loginLembrar" checked> manter conectado neste computador</label>
       <button type="button" onclick="UI.openConfig()">⚙ URL do servidor</button>
@@ -728,6 +751,7 @@ footer strong{color:var(--text-dim);font-weight:700;letter-spacing:.02em;}
   <button class="tab" data-tab="financiamentos">Financiamentos</button>
   <button class="tab" data-tab="relatorio">Relatório de Gestão</button>
   <button class="tab" data-tab="contabilidade">Contabilidade</button>
+  <button class="tab" data-tab="dre">DRE e Documentos</button>
   <button class="tab" data-tab="metodologia">ℹ️ Como Calculamos</button>
   <button class="tab" data-tab="regras">Regras</button>
   <button class="tab" data-tab="plano">Plano de Contas</button>
@@ -1255,6 +1279,93 @@ footer strong{color:var(--text-dim);font-weight:700;letter-spacing:.02em;}
     </div>
   </section>
 
+  <section id="tab-dre" class="tab-content hidden">
+    <div class="panel no-print">
+      <h2>DRE — Demonstração do Resultado do Exercício</h2>
+      <p class="muted" style="margin-top:-6px;font-size:12.5px;">
+        Escolha o período e o sócio que assina e gere o PDF para imprimir ou baixar: cabeçalho com os dados da empresa,
+        resumo, DRE completo (com comparação com o período anterior), indicadores, notas explicativas e linha de assinatura.
+        Os números são os mesmos das abas Análises e Relatório (regime de caixa, só o que está conciliado).
+      </p>
+      <div class="row" style="flex-wrap:wrap;gap:10px;align-items:flex-end;">
+        <div class="field" style="flex:1 1 100%;"><label>Bancos / contas que entram no DRE <span class="muted" style="text-transform:none;letter-spacing:0;font-weight:500;">(a seleção fica salva)</span></label>
+          <div id="dreContas" class="dre-contas"></div>
+          <div class="row" style="gap:10px;margin-top:4px;font-size:12px;">
+            <a href="#" onclick="DRE.marcarContas(true);return false;">marcar todas</a>
+            <a href="#" onclick="DRE.marcarContas(false);return false;">desmarcar todas</a>
+          </div>
+        </div>
+        <div class="field"><label>Mês</label>
+          <div class="row" style="gap:4px;flex-wrap:nowrap;align-items:center;">
+            <button class="btn secondary" type="button" title="Mês anterior" onclick="DRE.mesNav(-1)" style="padding:6px 11px;">‹</button>
+            <select id="dreMesSel" onchange="DRE.mesMudou()"></select>
+            <select id="dreAnoSel" onchange="DRE.mesMudou()"></select>
+            <button class="btn secondary" type="button" title="Próximo mês" onclick="DRE.mesNav(1)" style="padding:6px 11px;">›</button>
+          </div>
+        </div>
+        <div class="field"><label>De</label><input type="date" id="dreDe" onchange="DRE.dataMudou()"></div>
+        <div class="field"><label>Até</label><input type="date" id="dreAte" onchange="DRE.dataMudou()"></div>
+      </div>
+      <div class="row" style="flex-wrap:wrap;gap:8px;margin-top:10px;">
+        <button class="btn secondary" onclick="DRE.atalho('mesAnterior')">Mês anterior</button>
+        <button class="btn secondary" onclick="DRE.atalho('trimestre')">Último trimestre</button>
+        <button class="btn secondary" onclick="DRE.atalho('anoAnterior')">Ano anterior</button>
+        <button class="btn secondary" onclick="DRE.atalho('ano')">Este ano</button>
+      </div>
+      <div class="row" style="flex-wrap:wrap;gap:14px;align-items:flex-end;margin-top:14px;">
+        <div class="field"><label>Sócio que assina</label><select id="dreSocio" onchange="DRE.lembrarSocio()"></select></div>
+        <div class="field"><label>Nível de detalhe</label>
+          <select id="dreDetalhe" onchange="DRE.render()">
+            <option value="grupos">Só os grupos (resumido)</option>
+            <option value="sub" selected>Com subgrupos</option>
+            <option value="contas">Com subgrupos e contas</option>
+          </select>
+        </div>
+        <label style="display:flex;gap:6px;align-items:center;font-size:13px;"><input type="checkbox" id="dreComparar" checked onchange="DRE.render()"> comparar com o período anterior</label>
+        <label style="display:flex;gap:6px;align-items:center;font-size:13px;"><input type="checkbox" id="dreIndic" checked> incluir indicadores</label>
+        <label style="display:flex;gap:6px;align-items:center;font-size:13px;"><input type="checkbox" id="dreNotas" checked> incluir notas explicativas</label>
+      </div>
+      <div class="row" style="flex-wrap:wrap;gap:10px;margin-top:16px;">
+        <button class="btn dre-baixar" onclick="DRE.baixarPdf()">⬇ Baixar PDF</button>
+        <button class="btn secondary dre-baixar" onclick="DRE.imprimir()">🖨️ Imprimir</button>
+      </div>
+      <details style="margin-top:16px;">
+        <summary style="cursor:pointer;font-weight:600;font-size:13px;">Dados da empresa e dos sócios (aparecem no PDF — salvos automaticamente neste computador)</summary>
+        <div class="row" style="flex-wrap:wrap;gap:10px;margin-top:10px;">
+          <div class="field" style="flex:2;min-width:220px;"><label>Razão social / nome</label><input type="text" id="dreEmpRazao" style="width:100%;" onchange="DRE.salvarEmpresa()"></div>
+          <div class="field" style="flex:1;min-width:160px;"><label>CNPJ</label><input type="text" id="dreEmpCnpj" style="width:100%;" placeholder="00.000.000/0000-00" onchange="DRE.salvarEmpresa()"></div>
+          <div class="field" style="flex:1;min-width:140px;"><label>Inscrição estadual</label><input type="text" id="dreEmpIe" style="width:100%;" onchange="DRE.salvarEmpresa()"></div>
+        </div>
+        <div class="row" style="flex-wrap:wrap;gap:10px;margin-top:8px;">
+          <div class="field" style="flex:2;min-width:220px;"><label>Endereço</label><input type="text" id="dreEmpEnd" style="width:100%;" onchange="DRE.salvarEmpresa()"></div>
+          <div class="field" style="flex:1;min-width:110px;"><label>CEP</label><input type="text" id="dreEmpCep" style="width:100%;" onchange="DRE.salvarEmpresa()"></div>
+        </div>
+        <div class="row" style="flex-wrap:wrap;gap:10px;margin-top:8px;">
+          <div class="field" style="flex:2;min-width:220px;"><label>E-mail</label><input type="text" id="dreEmpEmail" style="width:100%;" onchange="DRE.salvarEmpresa()"></div>
+          <div class="field" style="flex:1;min-width:160px;"><label>Cidade/UF (local da assinatura)</label><input type="text" id="dreEmpCidade" style="width:100%;" placeholder="Cidade/UF" onchange="DRE.salvarEmpresa()"></div>
+        </div>
+        <div class="row" style="flex-wrap:wrap;gap:10px;margin-top:8px;">
+          <div class="field" style="flex:1;min-width:160px;"><label>CPF — Igor (opcional)</label><input type="text" id="dreCpfigor" style="width:100%;" onchange="DRE.salvarEmpresa()"></div>
+          <div class="field" style="flex:1;min-width:160px;"><label>CPF — Romar (opcional)</label><input type="text" id="dreCpfromar" style="width:100%;" onchange="DRE.salvarEmpresa()"></div>
+          <div class="field" style="flex:1;min-width:160px;"><label>CPF — Celismar (opcional)</label><input type="text" id="dreCpfcelismar" style="width:100%;" onchange="DRE.salvarEmpresa()"></div>
+        </div>
+        <p class="muted" style="font-size:12px;">O que ficar em branco simplesmente não aparece no documento.</p>
+      </details>
+    </div>
+
+    <div class="panel">
+      <h2>Prévia</h2>
+      <div id="dreAvisos"></div>
+      <div id="drePrevia"></div>
+    </div>
+
+    <div class="panel no-print">
+      <h2>Documentos da empresa</h2>
+      <p class="muted" style="margin-top:-6px;font-size:12.5px;">Arquivos guardados no Google Drive. "Abrir" mostra o documento; "Baixar" faz o download direto. Precisa estar logado na conta Google que tem acesso aos arquivos. Os documentos dos sócios são pessoais — compartilhe com cuidado.</p>
+      <div id="dreDocumentos"></div>
+    </div>
+  </section>
+
   <section id="tab-relatorio" class="tab-content hidden">
     <div class="panel no-print">
       <h2>Relatório de Gestão</h2>
@@ -1314,7 +1425,7 @@ footer strong{color:var(--text-dim);font-weight:700;letter-spacing:.02em;}
 <footer>
   <strong>Yampex</strong> · Gestão Financeira — Explosão Alimentos<br>
   <span>Conciliação bancária, previsões e análise de resultado. Dados armazenados na sua Planilha Google via Apps Script.</span><br>
-  <span class="versao-html" id="rodapeVersao" title="Versão deste arquivo HTML">Versão Yampex_38.html</span>
+  <span class="versao-html" id="rodapeVersao" title="Versão do Yampex (arquivo Yampex_2.5.2.html)">Versão 2.5.2</span>
 </footer>
 
 <div class="toast-wrap" id="toastWrap"></div>
@@ -2517,6 +2628,7 @@ const UI = {
     if (nome === 'tendencia') Tendencia.render();
     if (nome === 'financiamentos') Financiamentos.render();
     if (nome === 'relatorio') { Relatorio.init(); Relatorio.render(); }
+    if (nome === 'dre') { DRE.popularSelects(); DRE.render(); }
     if (nome === 'contabilidade') { Contabilidade.popularSelects(); Contabilidade.render(); }
     if (nome === 'regras') Regras.render();
     if (nome === 'plano') PlanoContasUI.render();
@@ -2572,8 +2684,20 @@ const App = {
     State.previsoes = dados.previsoes || [];
     State.divisoes = dados.divisoes || [];
     State.financiamentos = dados.financiamentos || [];
+    this.corrigirCodigosData();
     if (dados.assinatura) State.assinatura = dados.assinatura;
     State.carregado = true;
+  },
+
+  // O Google Sheets às vezes "adivinha" que um código como 4.1.2 é uma data (4/jan/2002) e o devolve como
+  // "4.1.2002" (ou 7.2.12 → "7.2.2012"). Aqui, ao carregar os dados, todo código que não existe no plano de
+  // contas mas que "parece data" é reconstruído (e só é aceito se o resultado existir no plano). Vale pra
+  // todas as telas: Conciliar, Conciliadas, Análises, Relatório, Tendência, DRE, Contabilidade.
+  corrigirCodigosData() {
+    const mapa = new Map(State.planoContas.map(p => [p.codigo, p]));
+    if (!mapa.size) return;
+    const fix = o => { if (o && o.codigo) o.codigo = Contabilidade.corrigirCodigo(o.codigo, mapa); };
+    [State.transacoes, State.divisoes, State.previsoes, State.regras, State.financiamentos].forEach(l => (l || []).forEach(fix));
   },
 
   redesenharTudo() {
@@ -2587,6 +2711,7 @@ const App = {
     Financiamentos.popularSelects();
     Tendencia.popularSelects();
     Contabilidade.popularSelects();
+    DRE.popularSelects();
     const abaAtiva = document.querySelector('nav .tab.active')?.dataset.tab;
     if (abaAtiva) UI.mudarAba(abaAtiva);
   },
@@ -3884,8 +4009,10 @@ function metasIndicadoresAtuais() {
    de cálculo em dois lugares (ver comentário completo sobre a lógica do DRE dentro desta função).
    ====================================================================== */
 function calcularDRE(de, ate, conta) {
+  // "conta" pode ser '' (todas), um contaId ou uma LISTA de contaIds (vários bancos)
   const dentroDoFiltro = t => {
-    if (conta && t.conta !== conta) return false;
+    if (Array.isArray(conta)) { if (!conta.includes(t.conta)) return false; }
+    else if (conta && t.conta !== conta) return false;
     if (de && t.data < de) return false;
     if (ate && t.data > ate) return false;
     return true;
@@ -6243,7 +6370,7 @@ const Contabilidade = {
   COLUNAS: ['Data', 'Banco', 'Documento', 'Descrição', 'Código', 'Conta contábil', 'Tipo', 'Valor'],
   // larguras dos caracteres (Helvetica, 1000 unidades por corpo, códigos 32..255 em Windows-1252)
   LARGURAS_HELV: [278,278,355,556,556,889,667,191,333,333,389,584,278,333,278,278,556,556,556,556,556,556,556,556,556,556,278,278,584,584,584,556,1015,667,667,722,722,667,611,778,722,278,500,667,556,833,722,778,667,778,722,667,611,722,667,944,667,667,611,278,278,278,469,556,333,556,556,500,556,556,278,556,556,222,222,500,222,833,556,556,556,556,333,500,278,556,500,722,500,500,500,334,260,334,584,761,556,761,222,556,333,1000,556,556,333,1000,667,333,1000,761,611,761,761,222,222,333,333,350,556,1000,333,1000,500,333,944,761,500,667,278,333,556,556,556,556,260,556,333,737,370,556,584,333,737,333,400,584,333,333,333,556,537,278,333,333,365,556,834,834,834,611,667,667,667,667,667,667,1000,722,667,667,667,667,278,278,278,278,722,722,778,778,778,778,778,584,778,722,722,722,722,667,667,611,556,556,556,556,556,556,889,500,556,556,556,556,278,278,278,278,556,556,556,556,556,556,556,584,611,556,556,556,556,500,556,500],
-  CP1252_ALTO: { 8364:128, 8218:130, 402:131, 8222:132, 8230:133, 8224:134, 8225:135, 710:136, 8240:137, 352:138, 8249:139, 338:140, 381:142, 8216:145, 8217:146, 8220:147, 8221:148, 8226:149, 8211:150, 8212:151, 732:152, 8482:153, 353:154, 8250:155, 339:156, 382:158, 376:159 },
+  CP1252_ALTO: { 8722:150, 8364:128, 8218:130, 402:131, 8222:132, 8230:133, 8224:134, 8225:135, 710:136, 8240:137, 352:138, 8249:139, 338:140, 381:142, 8216:145, 8217:146, 8220:147, 8221:148, 8226:149, 8211:150, 8212:151, 732:152, 8482:153, 353:154, 8250:155, 339:156, 382:158, 376:159 },
 
   init() { /* nada a registrar: os controles usam onclick */ },
 
@@ -6686,6 +6813,689 @@ const Contabilidade = {
     const bytes = new Uint8Array(pdf.length);
     for (let i = 0; i < pdf.length; i++) bytes[i] = pdf.charCodeAt(i) & 255;
     this.baixar(bytes, 'application/pdf', this.nomeArquivo(r, 'pdf'));
+  }
+};
+/* ======================================================================
+   PDF — gerador próprio (sem biblioteca): páginas A4 com texto, linhas e retângulos coloridos,
+   só com as fontes padrão do PDF (Helvetica), então o arquivo abre em qualquer leitor e imprime igual.
+   Coordenadas: x da esquerda, y a partir do TOPO da página (mais intuitivo pra montar relatório). */
+class PdfDocumento {
+  constructor(largura, altura) { this.W = largura; this.H = altura; this.paginas = []; this.p = null; this.info = {}; }
+  novaPagina() { this.p = []; this.paginas.push(this.p); return this.paginas.length - 1; }
+  irParaPagina(i) { this.p = this.paginas[i]; }
+  static cor(hex) {
+    const n = parseInt(hex.slice(1), 16);
+    return [(n >> 16) & 255, (n >> 8) & 255, n & 255].map(v => (v / 255).toFixed(3)).join(' ');
+  }
+  static esc(win) { return win.replace(/\\/g, '\\\\').replace(/\(/g, '\\(').replace(/\)/g, '\\)'); }
+  largura(txt, fonte, tam) {
+    const win = Contabilidade.paraWinAnsi(txt);
+    const tab = fonte === 'F2' ? PdfDocumento.LARG_BOLD : Contabilidade.LARGURAS_HELV;
+    let w = 0;
+    for (let i = 0; i < win.length; i++) { const c = win.charCodeAt(i); w += (c >= 32 ? tab[c - 32] : 278) || 556; }
+    return w * tam / 1000;
+  }
+  // corta o texto com "…" (três pontos) se não couber na largura
+  caber(txt, fonte, tam, maxW) {
+    txt = String(txt);
+    if (this.largura(txt, fonte, tam) <= maxW) return txt;
+    while (txt.length > 1 && this.largura(txt + '...', fonte, tam) > maxW) txt = txt.slice(0, -1);
+    return txt.trimEnd() + '...';
+  }
+  quebrar(txt, fonte, tam, maxW) {
+    const palavras = String(txt).split(/\s+/).filter(Boolean), linhas = [];
+    let atual = '';
+    for (const pal of palavras) {
+      const teste = atual ? atual + ' ' + pal : pal;
+      if (this.largura(teste, fonte, tam) <= maxW || !atual) atual = teste; else { linhas.push(atual); atual = pal; }
+    }
+    if (atual) linhas.push(atual);
+    return linhas;
+  }
+  texto(x, y, txt, o) {
+    o = o || {};
+    const fonte = o.fonte || 'F1', tam = o.tam || 9, alinhar = o.alinhar || 'l';
+    txt = String(txt == null ? '' : txt);
+    if (!txt) return;
+    const w = this.largura(txt, fonte, tam);
+    if (alinhar === 'r') x -= w; else if (alinhar === 'c') x -= w / 2;
+    const win = PdfDocumento.esc(Contabilidade.paraWinAnsi(txt));
+    this.p.push(`${PdfDocumento.cor(o.cor || '#1f2430')} rg BT /${fonte} ${tam} Tf 1 0 0 1 ${x.toFixed(2)} ${(this.H - y).toFixed(2)} Tm (${win}) Tj ET`);
+  }
+  retangulo(x, y, w, h, o) {
+    o = o || {};
+    const yb = (this.H - y - h).toFixed(2), base = `${x.toFixed(2)} ${yb} ${w.toFixed(2)} ${h.toFixed(2)} re`;
+    if (o.preenchimento) this.p.push(`${PdfDocumento.cor(o.preenchimento)} rg ${base} f`);
+    if (o.borda) this.p.push(`${PdfDocumento.cor(o.borda)} RG ${o.esp || 0.6} w ${base} S`);
+  }
+  linha(x1, y1, x2, y2, o) {
+    o = o || {};
+    this.p.push(`${PdfDocumento.cor(o.cor || '#cbd5e1')} RG ${o.esp || 0.6} w ${x1.toFixed(2)} ${(this.H - y1).toFixed(2)} m ${x2.toFixed(2)} ${(this.H - y2).toFixed(2)} l S`);
+  }
+  construir() {
+    const objs = [];
+    objs.push('<< /Type /Catalog /Pages 2 0 R >>');
+    objs.push(null);
+    objs.push('<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>');
+    objs.push('<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding >>');
+    objs.push('<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Oblique /Encoding /WinAnsiEncoding >>');
+    const inf = this.info, d = new Date(), z = n => String(n).padStart(2, '0');
+    const dataPdf = `D:${d.getFullYear()}${z(d.getMonth() + 1)}${z(d.getDate())}${z(d.getHours())}${z(d.getMinutes())}${z(d.getSeconds())}`;
+    const s = v => PdfDocumento.esc(Contabilidade.paraWinAnsi(v || ''));
+    objs.push(`<< /Title (${s(inf.titulo)}) /Author (${s(inf.autor)}) /Subject (${s(inf.assunto)}) /Creator (Yampex) /Producer (Yampex) /CreationDate (${dataPdf}) >>`);
+    const filhos = [];
+    this.paginas.forEach(ops => {
+      const cs = ops.join('\n');
+      const nConteudo = objs.length + 2;
+      objs.push(`<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${this.W} ${this.H}] /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R >> >> /Contents ${nConteudo} 0 R >>`);
+      filhos.push(objs.length);
+      objs.push(`<< /Length ${cs.length} >>\nstream\n${cs}\nendstream`);
+    });
+    objs[1] = `<< /Type /Pages /Kids [${filhos.map(n => n + ' 0 R').join(' ')}] /Count ${filhos.length} >>`;
+    let pdf = '%PDF-1.4\n';
+    const offs = [];
+    objs.forEach((o, i) => { offs.push(pdf.length); pdf += `${i + 1} 0 obj\n${o}\nendobj\n`; });
+    const xref = pdf.length;
+    pdf += `xref\n0 ${objs.length + 1}\n0000000000 65535 f \n` + offs.map(o => String(o).padStart(10, '0') + ' 00000 n \n').join('');
+    pdf += `trailer\n<< /Size ${objs.length + 1} /Root 1 0 R /Info 6 0 R >>\nstartxref\n${xref}\n%%EOF\n`;
+    const bytes = new Uint8Array(pdf.length);
+    for (let i = 0; i < pdf.length; i++) bytes[i] = pdf.charCodeAt(i) & 255;
+    return bytes;
+  }
+}
+PdfDocumento.LARG_BOLD = [278,333,474,556,556,889,722,238,333,333,389,584,278,333,278,278,556,556,556,556,556,556,556,556,556,556,333,333,584,584,584,611,975,722,722,722,722,667,611,778,722,278,556,722,611,833,722,778,667,778,722,667,611,722,667,944,667,667,611,333,278,333,584,556,333,556,611,556,611,556,333,611,611,278,278,556,278,889,611,611,611,611,389,556,333,611,556,778,556,556,500,389,280,389,584,761,556,761,278,556,500,1000,556,556,333,1000,667,333,1000,761,611,761,761,278,278,500,500,350,556,1000,333,1000,556,333,944,761,500,667,278,333,556,556,556,556,280,556,333,737,370,556,584,333,737,333,400,584,333,333,333,611,556,278,333,333,365,556,834,834,834,611,722,722,722,722,722,722,1000,722,667,667,667,667,278,278,278,278,722,722,778,778,778,778,778,584,778,722,722,722,722,667,667,611,556,556,556,556,556,556,889,556,556,556,556,556,278,278,278,278,611,611,611,611,611,611,611,584,611,611,611,611,611,556,611,556];
+
+/* ======================================================================
+   FILTRO DE MÊS reutilizável: ‹ [mês] [ano] › — usa os campos <prefixo>De, <prefixo>Ate,
+   <prefixo>MesSel e <prefixo>AnoSel; "aoMudar" é chamado depois que De/Até são preenchidos. */
+const FiltroMes = {
+  montar(pref) {
+    const selM = document.getElementById(pref + 'MesSel'), selA = document.getElementById(pref + 'AnoSel');
+    if (!selM || !selA) return;
+    if (!selM.options.length) selM.innerHTML = '<option value="">— mês —</option>' + Contabilidade.MESES.map((m, i) => `<option value="${i + 1}">${m}</option>`).join('');
+    const hoje = new Date().getFullYear();
+    let min = hoje, max = hoje + 1;
+    State.transacoes.forEach(t => { const a = +String(t.data || '').slice(0, 4); if (a) { if (a < min) min = a; if (a > max) max = a; } });
+    const atual = selA.value;
+    selA.innerHTML = '<option value="">ano</option>';
+    for (let a = max; a >= min; a--) selA.insertAdjacentHTML('beforeend', `<option value="${a}">${a}</option>`);
+    if (atual) { this.garantirAno(pref, +atual); selA.value = atual; }
+  },
+  garantirAno(pref, a) {
+    const selA = document.getElementById(pref + 'AnoSel');
+    if ([...selA.options].some(o => +o.value === a)) return;
+    const op = document.createElement('option'); op.value = a; op.textContent = a;
+    selA.insertBefore(op, [...selA.options].find(o => o.value && +o.value < a) || null);
+  },
+  sincronizar(pref) {
+    const selM = document.getElementById(pref + 'MesSel'), selA = document.getElementById(pref + 'AnoSel');
+    if (!selM || !selA) return;
+    const de = document.getElementById(pref + 'De').value, ate = document.getElementById(pref + 'Ate').value;
+    let cheio = false, a = 0, m = 0;
+    if (de && ate) {
+      [a, m] = de.split('-').map(Number);
+      const ult = new Date(Date.UTC(a, m, 0)).getUTCDate(), mm = String(m).padStart(2, '0');
+      cheio = de === `${a}-${mm}-01` && ate === `${a}-${mm}-${String(ult).padStart(2, '0')}`;
+    }
+    if (cheio) { this.garantirAno(pref, a); selM.value = String(m); selA.value = String(a); } else { selM.value = ''; selA.value = ''; }
+  },
+  aplicar(pref, a, m, aoMudar) {
+    const ult = new Date(Date.UTC(a, m, 0)).getUTCDate(), mm = String(m).padStart(2, '0');
+    document.getElementById(pref + 'De').value = `${a}-${mm}-01`;
+    document.getElementById(pref + 'Ate').value = `${a}-${mm}-${String(ult).padStart(2, '0')}`;
+    this.sincronizar(pref);
+    if (aoMudar) aoMudar();
+  },
+  escolheu(pref, aoMudar) {
+    const m = +document.getElementById(pref + 'MesSel').value, a = +document.getElementById(pref + 'AnoSel').value;
+    if (m && a) this.aplicar(pref, a, m, aoMudar);
+  },
+  nav(pref, delta, aoMudar) {
+    let m = +document.getElementById(pref + 'MesSel').value, a = +document.getElementById(pref + 'AnoSel').value;
+    if (!m || !a) {
+      const de = document.getElementById(pref + 'De').value;
+      if (de) [a, m] = de.split('-').map(Number); else { const h = new Date(); a = h.getFullYear(); m = h.getMonth() + 1; }
+    }
+    m += delta;
+    if (m < 1) { m = 12; a--; }
+    if (m > 12) { m = 1; a++; }
+    this.garantirAno(pref, a);
+    this.aplicar(pref, a, m, aoMudar);
+  }
+};
+
+/* ======================================================================
+   DRE — Demonstração do Resultado do Exercício (PDF para imprimir/baixar) + documentos da empresa
+   ======================================================================
+   Os números vêm de calcularDRE (a mesma conta das abas Análises e Relatório), então nunca divergem.
+   Base: movimentação bancária conciliada, regime de CAIXA — o documento diz isso numa nota. */
+const DRE = {
+  SOCIOS: [
+    { id: 'igor', nome: 'Igor Arão Gomes Silva' },
+    { id: 'romar', nome: 'Romar Divino da Silva' },
+    { id: 'celismar', nome: 'Celismar Arão Gomes' }
+  ],
+  DOCUMENTOS: [
+    { grupo: 'Empresa', nome: 'Cartão CNPJ', url: 'https://drive.google.com/file/d/1kbnEVBkiOLowyH5dRx7e1QLgAc11jzie/view?usp=drive_link' },
+    { grupo: 'Empresa', nome: 'Certidão de matrícula', url: 'https://drive.google.com/file/d/12imcqwid03SsXWAtz-EKW3BYfUmn5eaX/view?usp=drive_link' },
+    { grupo: 'Empresa', nome: 'Inscrição estadual', url: 'https://drive.google.com/file/d/1bK_S6pJCYpdHldefQzi2YWgV9dwaQF8Z/view?usp=drive_link' },
+    { grupo: 'Empresa', nome: 'Contrato social — quinta alteração', url: 'https://drive.google.com/file/d/1KbvZzjzjAILAsMXIV1kSA17hpDw70dys/view?usp=drive_link' },
+    { grupo: 'Sócios', nome: 'CNH — Igor', url: 'https://drive.google.com/file/d/1A3ecnQCGQxBq95RJti-KEqGo-pRqEa7Q/view?usp=drive_link' },
+    { grupo: 'Sócios', nome: 'CNH — Romar', url: 'https://drive.google.com/file/d/12NBSfw4EwkJXZSvrZbSyTyeMaOyJ_CD2/view?usp=drive_link' },
+    { grupo: 'Sócios', nome: 'CNH — Celismar', url: 'https://drive.google.com/file/d/12exgl1llGXghcBswH_m9AjRrc4Cx55-C/view?usp=drive_link' }
+  ],
+  EMP_KEY: 'yampex_empresa',
+  SOCIO_KEY: 'yampex_dre_socio',
+
+  // ---- dados da empresa (guardados neste navegador; aparecem no cabeçalho do PDF) ------------
+  empresa() {
+    let salvo = {};
+    try { salvo = JSON.parse(localStorage.getItem(this.EMP_KEY) || '{}') || {}; } catch (e) {}
+    // valores padrão = dados da empresa e dos sócios; o que for alterado na tela fica salvo no navegador e vale no lugar
+    const pad = {
+      razao: 'PRODUTOS ALIMENTICIOS EXPLOSAO LTDA', cnpj: '01.121.126/0001-87', ie: '10280834-1',
+      endereco: 'Av. Leão XIII, 623, Quadra A, Lote 9A/10A, Parque Cristo Redentor, Trindade-GO', cep: '75387-607',
+      email: 'administracao@explosaoalimentos.com.br', cidade: 'Trindade/GO',
+      cpf: { igor: '701.639.901-07', romar: '251.227.971-53', celismar: '347.255.121-68' }
+    };
+    const r = { cpf: Object.assign({}, pad.cpf) };
+    ['razao', 'cnpj', 'ie', 'endereco', 'cep', 'email', 'cidade'].forEach(k => { r[k] = (salvo[k] !== undefined && salvo[k] !== null && salvo[k] !== '') ? salvo[k] : pad[k]; });
+    Object.keys(pad.cpf).forEach(k => { if (salvo.cpf && salvo.cpf[k]) r.cpf[k] = salvo.cpf[k]; });
+    return r;
+  },
+  salvarEmpresa() {
+    const g = id => (document.getElementById(id).value || '').trim();
+    const dados = {
+      razao: g('dreEmpRazao'), cnpj: g('dreEmpCnpj'), ie: g('dreEmpIe'), endereco: g('dreEmpEnd'), cep: g('dreEmpCep'), email: g('dreEmpEmail'), cidade: g('dreEmpCidade'),
+      cpf: { igor: g('dreCpfigor'), romar: g('dreCpfromar'), celismar: g('dreCpfcelismar') }
+    };
+    try { localStorage.setItem(this.EMP_KEY, JSON.stringify(dados)); } catch (e) {}
+  },
+  preencherEmpresa() {
+    const e = this.empresa();
+    const set = (id, v) => { const el = document.getElementById(id); if (el && document.activeElement !== el) el.value = v; };
+    set('dreEmpRazao', e.razao); set('dreEmpCnpj', e.cnpj); set('dreEmpIe', e.ie); set('dreEmpEnd', e.endereco); set('dreEmpCep', e.cep); set('dreEmpEmail', e.email); set('dreEmpCidade', e.cidade);
+    this.SOCIOS.forEach(s => set('dreCpf' + s.id, e.cpf[s.id] || ''));
+  },
+
+  // ---- tela --------------------------------------------------------------------------------
+  popularSelects() {
+    if (!document.getElementById('dreContas')) return;
+    this.montarContas();
+    const so = document.getElementById('dreSocio');
+    if (!so.options.length) {
+      so.innerHTML = this.SOCIOS.map(s => `<option value="${s.id}">${s.nome}</option>`).join('');
+      try { const sv = localStorage.getItem(this.SOCIO_KEY); if (sv && this.SOCIOS.some(s => s.id === sv)) so.value = sv; } catch (e) {}
+    }
+    this.preencherEmpresa();
+    this.montarDocumentos();
+    FiltroMes.montar('dre');
+    if (!document.getElementById('dreDe').value || !document.getElementById('dreAte').value) this.atalho('mesAnterior', true);
+    FiltroMes.sincronizar('dre');
+  },
+
+  // ---- seleção de bancos (vários): fica salva no navegador; conta nova aparece marcada ----------
+  CONTAS_KEY: 'yampex_dre_contas',
+  contasSalvas() {
+    try { return JSON.parse(localStorage.getItem(this.CONTAS_KEY) || 'null') || null; } catch (e) { return null; }
+  },
+  montarContas() {
+    const box = document.getElementById('dreContas');
+    const salvo = this.contasSalvas();
+    // se a tela já tem marcação, preserva; senão usa o que está salvo (contas ainda não conhecidas entram marcadas)
+    const jaVistas = box.dataset.ids ? box.dataset.ids.split('|') : null;
+    const naTela = jaVistas ? new Set([...box.querySelectorAll('input:checked')].map(i => i.value)) : null;
+    const marcada = id => naTela ? (naTela.has(id) || !jaVistas.includes(id)) : (salvo ? (salvo.sel.includes(id) || !salvo.conhecidas.includes(id)) : true);
+    if (State.contas.length) box.dataset.ids = State.contas.map(c => c.contaId).join('|');
+    box.innerHTML = State.contas.map(c => `<label class="${marcada(c.contaId) ? 'on' : ''}"><input type="checkbox" value="${Contabilidade.esc(c.contaId)}" ${marcada(c.contaId) ? 'checked' : ''} onchange="DRE.contaMudou()"> ${Contabilidade.esc(c.nome)}${c.banco ? ' <span class="muted" style="font-weight:400;">— ' + Contabilidade.esc(c.banco) + '</span>' : ''}</label>`).join('')
+      || '<span class="muted">Nenhuma conta cadastrada ainda.</span>';
+  },
+  contasSelecionadas() {
+    return [...document.querySelectorAll('#dreContas input:checked')].map(i => i.value);
+  },
+  contaMudou() {
+    document.querySelectorAll('#dreContas label').forEach(l => l.classList.toggle('on', l.querySelector('input').checked));
+    try { localStorage.setItem(this.CONTAS_KEY, JSON.stringify({ sel: this.contasSelecionadas(), conhecidas: State.contas.map(c => c.contaId) })); } catch (e) {}
+    this.render();
+  },
+  marcarContas(sim) {
+    document.querySelectorAll('#dreContas input').forEach(i => { i.checked = sim; });
+    this.contaMudou();
+  },
+
+  montarDocumentos() {
+    const box = document.getElementById('dreDocumentos');
+    if (!box || box.dataset.pronto) return;
+    box.dataset.pronto = '1';
+    const idDe = url => (url.match(/\/d\/([^/]+)/) || [])[1] || '';
+    const grupos = [...new Set(this.DOCUMENTOS.map(d => d.grupo))];
+    box.innerHTML = grupos.map(g => `
+      <div class="dre-doc-grupo">${g}</div>
+      <div class="dre-doc-lista">` + this.DOCUMENTOS.filter(d => d.grupo === g).map(d => `
+        <div class="dre-doc">
+          <div class="dre-doc-nome">📄 ${Contabilidade.esc(d.nome)}</div>
+          <div class="row" style="gap:6px;">
+            <a class="btn secondary" href="${Contabilidade.esc(d.url)}" target="_blank" rel="noopener">Abrir</a>
+            <a class="btn" href="https://drive.google.com/uc?export=download&id=${idDe(d.url)}" target="_blank" rel="noopener">⬇ Baixar</a>
+          </div>
+        </div>`).join('') + '</div>').join('');
+  },
+
+  atalho(qual, silencioso) {
+    const h = new Date(), a = h.getFullYear(), m = h.getMonth(); // m: 0-11
+    const iso = d => d.toISOString().slice(0, 10);
+    let ini, fim;
+    if (qual === 'trimestre') { // último trimestre civil completo
+      const tAtual = Math.floor(m / 3);
+      const ano = tAtual === 0 ? a - 1 : a, t = tAtual === 0 ? 3 : tAtual - 1;
+      ini = new Date(Date.UTC(ano, t * 3, 1)); fim = new Date(Date.UTC(ano, t * 3 + 3, 0));
+    } else if (qual === 'anoAnterior') { ini = new Date(Date.UTC(a - 1, 0, 1)); fim = new Date(Date.UTC(a - 1, 11, 31)); }
+    else if (qual === 'ano') { ini = new Date(Date.UTC(a, 0, 1)); fim = new Date(Date.UTC(a, 11, 31)); }
+    else { ini = new Date(Date.UTC(a, m - 1, 1)); fim = new Date(Date.UTC(a, m, 0)); }
+    document.getElementById('dreDe').value = iso(ini);
+    document.getElementById('dreAte').value = iso(fim);
+    FiltroMes.sincronizar('dre');
+    if (!silencioso) this.render();
+  },
+  dataMudou() { FiltroMes.sincronizar('dre'); this.render(); },
+  mesMudou() { FiltroMes.escolheu('dre', () => this.render()); },
+  mesNav(d) { FiltroMes.nav('dre', d, () => this.render()); },
+
+  // ---- período anterior de mesma duração ---------------------------------------------------
+  periodoAnterior(de, ate) {
+    const [a1, m1, d1] = de.split('-').map(Number), [a2, m2, d2] = ate.split('-').map(Number);
+    const iso = d => d.toISOString().slice(0, 10);
+    const ult = new Date(Date.UTC(a2, m2, 0)).getUTCDate();
+    if (d1 === 1 && d2 === ult) { // meses cheios: volta o mesmo número de meses
+      const n = (a2 - a1) * 12 + (m2 - m1) + 1;
+      return { de: iso(new Date(Date.UTC(a1, m1 - 1 - n, 1))), ate: iso(new Date(Date.UTC(a1, m1 - 1, 0))) };
+    }
+    const ini = Date.UTC(a1, m1 - 1, d1), fim = Date.UTC(a2, m2 - 1, d2);
+    const dias = Math.round((fim - ini) / 86400000) + 1;
+    return { de: iso(new Date(ini - dias * 86400000)), ate: iso(new Date(ini - 86400000)) };
+  },
+
+  // "Setembro de 2026", "Exercício 2026" ou '' (período livre)
+  referencia(de, ate) {
+    const [a1, m1, d1] = de.split('-').map(Number), [a2, m2, d2] = ate.split('-').map(Number);
+    const ult = new Date(Date.UTC(a2, m2, 0)).getUTCDate();
+    if (d1 !== 1 || d2 !== ult) return '';
+    if (a1 === a2 && m1 === 1 && m2 === 12) return `Exercício de ${a1}`;
+    if (a1 === a2 && m1 === m2) return `${Contabilidade.MESES[m1 - 1]} de ${a1}`;
+    if (a1 === a2 && m2 - m1 === 2 && (m1 - 1) % 3 === 0) return `${(m1 - 1) / 3 + 1}º trimestre de ${a1}`;
+    return '';
+  },
+
+  // ---- modelo: as linhas do DRE, iguais para a tela e para o PDF -----------------------------
+  modelo(silencioso) {
+    const de = document.getElementById('dreDe').value, ate = document.getElementById('dreAte').value;
+    const contasIds = this.contasSelecionadas();
+    const todas = contasIds.length === State.contas.length;
+    const conta = todas ? '' : contasIds; // '' = todas; senão, lista dos bancos marcados
+    if (!contasIds.length) { if (!silencioso) toast('Marque pelo menos um banco.', 'err'); return null; }
+    if (!de || !ate) { if (!silencioso) toast('Escolha o período.', 'err'); return null; }
+    if (de > ate) { if (!silencioso) toast('A data inicial é depois da final.', 'err'); return null; }
+    if (!State.carregado) { if (!silencioso) toast('Os dados ainda não carregaram.', 'err'); return null; }
+    const comparar = document.getElementById('dreComparar').checked;
+    const detalhe = document.getElementById('dreDetalhe').value; // grupos | sub | contas
+    const per = comparar ? this.periodoAnterior(de, ate) : null;
+    const A = calcularDRE(de, ate, conta);
+    const P = per ? calcularDRE(per.de, per.ate, conta) : null;
+    const idx = montarIndicesTransacoes();
+    const nomePlano = c => (idx.mapaPlano.get(c) || {}).nome || '';
+
+    // soma (em centavos) dos itens do DRE por código truncado em "prof" níveis (0 = código inteiro)
+    const somarPor = (dre, filtro, prof) => {
+      const m = new Map();
+      if (!dre) return m;
+      dre.itens.forEach(i => {
+        if (!i.codigo || !filtro(i)) return;
+        const cod = prof ? i.codigo.split('.').slice(0, prof).join('.') : i.codigo;
+        m.set(cod, (m.get(cod) || 0) + paraCentavos(i.valor));
+      });
+      return m;
+    };
+    const grupoDe = i => i.codigo.split('.')[0];
+    const ehTrib = i => i.codigo === '4.1' || i.codigo.startsWith('4.1.');
+    const linhas = [];
+    const pushDet = (filtro, prof) => {
+      if (detalhe === 'grupos') return;
+      const nivelSub = somarPor(A, filtro, prof), nivelSubP = somarPor(P, filtro, prof);
+      const folha = somarPor(A, filtro, 0), folhaP = somarPor(P, filtro, 0);
+      const chaves = [...new Set([...nivelSub.keys(), ...nivelSubP.keys()])].sort((a, b) => a.localeCompare(b, 'pt-BR', { numeric: true }));
+      chaves.forEach(cod => {
+        const v = (nivelSub.get(cod) || 0) / 100, a = P ? (nivelSubP.get(cod) || 0) / 100 : null;
+        if (Math.abs(v) < 0.005 && (a === null || Math.abs(a) < 0.005)) return;
+        linhas.push({ t: 'det', label: `${cod}  ${nomePlano(cod)}`.trim(), v, a });
+        if (detalhe === 'contas') {
+          const fs = [...new Set([...folha.keys(), ...folhaP.keys()])].filter(f => f !== cod && f.startsWith(cod + '.')).sort((x, y) => x.localeCompare(y, 'pt-BR', { numeric: true }));
+          fs.forEach(f => {
+            const fv = (folha.get(f) || 0) / 100, fa = P ? (folhaP.get(f) || 0) / 100 : null;
+            if (Math.abs(fv) < 0.005 && (fa === null || Math.abs(fa) < 0.005)) return;
+            linhas.push({ t: 'det2', label: `${f}  ${nomePlano(f)}`.trim(), v: fv, a: fa });
+          });
+        }
+      });
+    };
+    const par = (fnA, fnP) => ({ v: fnA(A), a: P ? fnP(P) : null });
+
+    // valores principais (todos "com sinal": dedução negativa, como aparece no DRE impresso)
+    const v41 = D => somarReais(D.itens.filter(i => i.codigo && ehTrib(i)), i => i.valor);
+    const vCustosOutros = D => -D.custosVariaveis - v41(D);
+    const recLiq = D => D.receita + v41(D);
+
+    const add = (t, label, fn) => { const p = par(fn, fn); linhas.push({ t, label, v: p.v, a: p.a }); };
+
+    add('grp', 'RECEITA BRUTA', D => D.receita);
+    pushDet(i => grupoDe(i) === '3', 2);
+    add('grp', '(−) Custos tributários e financeiros sobre vendas', D => v41(D));
+    pushDet(ehTrib, 3);
+    add('tot', '(=) RECEITA LÍQUIDA', recLiq);
+    add('grp', '(−) Custos variáveis', D => vCustosOutros(D));
+    pushDet(i => grupoDe(i) === '4' && !ehTrib(i), 2);
+    add('tot', '(=) MARGEM DE CONTRIBUIÇÃO', D => D.margemContribuicao);
+    add('grp', '(−) Despesas fixas', D => -D.despesasFixas);
+    pushDet(i => grupoDe(i) === '5', 2);
+    add('tot', '(=) LUCRO OPERACIONAL', D => D.lucroOperacional);
+    add('grp', '(−) Investimentos', D => -D.investimentos);
+    pushDet(i => grupoDe(i) === '6', 2);
+    add('grp', '(+/−) Movimentações não operacionais', D => D.naoOpLiquido);
+    if (detalhe !== 'grupos') {
+      const ent = i => grupoDe(i) === '7' && i.tipo === 'C', sai = i => grupoDe(i) === '7' && i.tipo === 'D';
+      const eA = somarReais(A.itens.filter(i => i.codigo && ent(i)), i => i.valor), eP = P ? somarReais(P.itens.filter(i => i.codigo && ent(i)), i => i.valor) : null;
+      const sA = somarReais(A.itens.filter(i => i.codigo && sai(i)), i => i.valor), sP = P ? somarReais(P.itens.filter(i => i.codigo && sai(i)), i => i.valor) : null;
+      if (Math.abs(eA) > 0.004 || (eP !== null && Math.abs(eP) > 0.004)) { linhas.push({ t: 'det', label: 'Entradas não operacionais (empréstimos recebidos etc.)', v: eA, a: eP }); pushDet(ent, 3); }
+      if (Math.abs(sA) > 0.004 || (sP !== null && Math.abs(sP) > 0.004)) { linhas.push({ t: 'det', label: 'Saídas não operacionais (parcelas, juros, multas etc.)', v: sA, a: sP }); pushDet(sai, 3); }
+    }
+    add('fin', '(=) RESULTADO LÍQUIDO DO PERÍODO', D => D.resultadoLiquido);
+
+    // ---- indicadores ----
+    const pct = (x, base) => base ? x / base * 100 : null;
+    const ind = [
+      ['Margem de contribuição', pct(A.margemContribuicao, A.receita), P ? pct(P.margemContribuicao, P.receita) : null],
+      ['Margem operacional', pct(A.lucroOperacional, A.receita), P ? pct(P.lucroOperacional, P.receita) : null],
+      ['Margem líquida', pct(A.resultadoLiquido, A.receita), P ? pct(P.resultadoLiquido, P.receita) : null],
+      ['Despesas fixas sobre a receita', pct(A.despesasFixas, A.receita), P ? pct(P.despesasFixas, P.receita) : null],
+      ['Custos variáveis sobre a receita', pct(A.custosVariaveis, A.receita), P ? pct(P.custosVariaveis, P.receita) : null]
+    ];
+    const peDe = D => (D.receita > 0 && D.margemContribuicao > 0) ? D.despesasFixas / (D.margemContribuicao / D.receita) : null;
+    const [a1, m1] = de.split('-').map(Number), [a2, m2] = ate.split('-').map(Number);
+    const meses = (a2 - a1) * 12 + (m2 - m1) + 1;
+    const extras = [];
+    const pe = peDe(A);
+    if (pe !== null) extras.push(['Ponto de equilíbrio operacional', pe, P ? peDe(P) : null, 'moeda']);
+    if (meses > 1) extras.push(['Receita média por mês', A.receita / meses, P ? P.receita / meses : null, 'moeda']);
+    if (meses > 1) extras.push(['Resultado líquido médio por mês', A.resultadoLiquido / meses, P ? P.resultadoLiquido / meses : null, 'moeda']);
+
+    // ---- avisos e notas ----
+    const pend = A.pendentesForaFiltro;
+    const totPend = somarReais(pend, t => Math.abs(Number(t.valor) || 0));
+    const avisos = [];
+    if (pend.length) avisos.push(`${pend.length === 1 ? '1 transação pendente' : pend.length + ' transações pendentes'} de classificação no período (R$ ${this.nf(totPend)} em valor absoluto) ficou fora do DRE — concilie antes de emitir.`.replace('ficou fora', pend.length === 1 ? 'ficou fora' : 'ficaram fora'));
+    if (A.divididasDessincronizadas) avisos.push(`${A.divididasDessincronizadas} transação(ões) dividida(s) com soma diferente do valor original.`);
+    if (P && P.pendentesForaFiltro.length) avisos.push(`O período anterior tem ${P.pendentesForaFiltro.length} pendência(s) de classificação — a comparação pode mudar depois de conciliar.`);
+    const contasUsadas = contasIds.map(id => contaNome(id));
+    const notas = [];
+    notas.push(`Demonstração elaborada a partir da movimentação bancária das contas ${todas ? 'cadastradas' : 'selecionadas'} (${contasUsadas.join(', ') || '—'}), conciliada e classificada no plano de contas no sistema Yampex. Adota o regime de CAIXA (valores efetivamente recebidos e pagos), sem apropriação por competência; não substitui as demonstrações contábeis elaboradas pelo contador responsável.`);
+    notas.push('Receita bruta: grupo 3 do plano de contas. Custos tributários e financeiros sobre vendas: subgrupo 4.1 (impostos, taxas de cartão e de boleto etc.). Custos variáveis: demais contas do grupo 4. Despesas fixas: grupo 5. Margem de contribuição = receita bruta − grupo 4. Lucro operacional = margem de contribuição − despesas fixas.');
+    notas.push('Investimentos (grupo 6) e movimentações não operacionais (grupo 7: empréstimos, consórcios, juros e multas) ficam abaixo do lucro operacional e afetam apenas o resultado líquido do período.');
+    notas.push('Valores entre parênteses são deduções ou resultados negativos. AV% = análise vertical (percentual sobre a receita bruta do próprio período)' + (P ? '; AH% = análise horizontal (variação em relação ao período anterior).' : '.'));
+    if (A.transferenciasForaFiltro.length) notas.push(`${A.transferenciasForaFiltro.length} transferência(s) entre contas próprias no período foram desconsideradas por serem movimentação interna.`);
+    if (Math.abs(A.acertoCaixa) > 0.004) notas.push(`Acertos de caixa (grupo 13) de R$ ${this.nf(A.acertoCaixa)} não compõem o resultado.`);
+    if (pe !== null) notas.push('Ponto de equilíbrio operacional = despesas fixas ÷ (margem de contribuição ÷ receita bruta): a receita necessária no período para que a margem de contribuição cubra as despesas fixas.');
+    if (pend.length) notas.push(`${pend.length === 1 ? 'Existe 1 transação bancária ainda sem classificação' : `Existem ${pend.length} transações bancárias ainda sem classificação`} no período, no valor absoluto de R$ ${this.nf(totPend)}, que não ${pend.length === 1 ? 'está refletida' : 'estão refletidas'} nesta demonstração.`);
+
+    return {
+      de, ate, conta, todas, contasIds, contaTexto: todas ? 'Todas as contas' : contasUsadas.join(', '), comparar, detalhe, per, A, P,
+      linhas, ind, extras, avisos, notas, referencia: this.referencia(de, ate), meses
+    };
+  },
+
+  // ---- formatação ----------------------------------------------------------------------------
+  nf(v) { return v.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); },
+  fv(v) { if (v === null || v === undefined) return ''; if (Math.abs(v) < 0.005) return '-'; return v < 0 ? `(${this.nf(-v)})` : this.nf(v); },
+  fp(p) { if (p === null || p === undefined || !isFinite(p)) return '—'; if (Math.abs(p) < 0.0005) return '-'; const s = Math.abs(p).toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + '%'; return p < -0.049 ? `(${s})` : s; },
+  fcurto(iso) { const [a, m, d] = iso.split('-'); return `${d}/${m}/${a.slice(2)}`; },
+  av(v, rec) { return (rec && Math.abs(v) >= 0.005) ? v / rec * 100 : (rec ? 0 : null); },
+  ah(v, a) { return (a === null || a === undefined || Math.abs(a) < 0.005 || (v < 0) !== (a < 0)) ? null : (v / a - 1) * 100; },
+
+  // ---- prévia na tela ----------------------------------------------------------------------------
+  render() {
+    const box = document.getElementById('drePrevia');
+    if (!box) return;
+    const m = this.modelo(true);
+    const bt = document.querySelectorAll('.dre-baixar');
+    if (!m) { box.innerHTML = ''; document.getElementById('dreAvisos').innerHTML = ''; bt.forEach(b => { b.disabled = true; }); return; }
+    bt.forEach(b => { b.disabled = false; });
+    const { A, P } = m;
+    document.getElementById('dreAvisos').innerHTML = m.avisos.map(a => `<div class="dre-aviso">⚠️ ${Contabilidade.esc(a)}</div>`).join('');
+    const cab = m.comparar
+      ? `<th>Descrição</th><th class="num">${fmtData(m.de)}<br>a ${fmtData(m.ate)}</th><th class="num">AV%</th><th class="num">${fmtData(m.per.de)}<br>a ${fmtData(m.per.ate)}</th><th class="num">AV%</th><th class="num">AH%</th>`
+      : `<th>Descrição</th><th class="num">Valor (R$)</th><th class="num">AV%</th>`;
+    const linhas = m.linhas.map(l => {
+      const cls = 'dre-' + l.t;
+      const lab = l.t === 'fin' ? l.label + (l.v >= 0 ? ' — LUCRO' : ' — PREJUÍZO') : l.label;
+      const cor = v => v < -0.004 ? ' neg' : '';
+      let tds = `<td>${Contabilidade.esc(lab)}</td><td class="num${cor(l.v)}">${this.fv(l.v)}</td><td class="num">${this.fp(this.av(l.v, A.receita))}</td>`;
+      if (m.comparar) tds += `<td class="num${cor(l.a)}">${this.fv(l.a)}</td><td class="num">${this.fp(this.av(l.a, P.receita))}</td><td class="num">${this.fp(this.ah(l.v, l.a))}</td>`;
+      return `<tr class="${cls}">${tds}</tr>`;
+    }).join('');
+    const kp = (rot, v, base) => `<div class="stat-card"><div class="n${v < 0 ? ' neg' : ''}">${fmtMoeda(v)}</div><div class="l">${rot}${base ? ' · ' + this.fp(this.av(v, base)) : ''}</div></div>`;
+    const ref = m.referencia ? ` · ${m.referencia}` : '';
+    box.innerHTML = `
+      <p class="muted" style="font-size:12.5px;margin:0 0 10px;">${Contabilidade.esc(m.contaTexto)} · ${fmtData(m.de)} a ${fmtData(m.ate)}${ref}${m.comparar ? ` · comparando com ${fmtData(m.per.de)} a ${fmtData(m.per.ate)}` : ''}</p>
+      <div class="stat-cards">${kp('receita bruta', A.receita, 0)}${kp('margem de contribuição', A.margemContribuicao, A.receita)}${kp('lucro operacional', A.lucroOperacional, A.receita)}${kp('resultado líquido', A.resultadoLiquido, A.receita)}</div>
+      <div style="overflow-x:auto;"><table class="dre-prev"><thead><tr>${cab}</tr></thead><tbody>${linhas}</tbody></table></div>`;
+  },
+
+  // ---- PDF ------------------------------------------------------------------------------------------
+  gerarPdf() {
+    const m = this.modelo(false);
+    if (!m) return null;
+    const emp = this.empresa();
+    const socio = this.SOCIOS.find(s => s.id === document.getElementById('dreSocio').value) || this.SOCIOS[0];
+    const comNotas = document.getElementById('dreNotas').checked, comInd = document.getElementById('dreIndic').checked;
+    const versao = (document.getElementById('rodapeVersao') || {}).textContent || 'Yampex';
+    const agora = new Date(), z = n => String(n).padStart(2, '0');
+    const emissao = `${z(agora.getDate())}/${z(agora.getMonth() + 1)}/${agora.getFullYear()} ${z(agora.getHours())}:${z(agora.getMinutes())}`;
+    const MESES = Contabilidade.MESES.map(x => x.toLowerCase());
+    const dataExtenso = `${agora.getDate()} de ${MESES[agora.getMonth()]} de ${agora.getFullYear()}`;
+
+    const W = 595, H = 842, M = 40, CW = W - 2 * M, TOPO_CONT = 58, LIM = H - 52;
+    const NAVY = '#0f2a4a', AZUL = '#1d4ed8', CINZA = '#6b7280', TEXTO = '#1f2430', LINHA = '#cbd5e1', CLARO = '#eaf0f9', VERM = '#b91c1c', VERDE = '#15803d';
+    const doc = new PdfDocumento(W, H);
+    doc.info = { titulo: `DRE - ${emp.razao} - ${fmtData(m.de)} a ${fmtData(m.ate)}`, autor: emp.razao, assunto: 'Demonstração do Resultado do Exercício' };
+    let y = 0;
+
+    // colunas da tabela
+    const col = m.comparar
+      ? { desc: 230, atual: 78, av: 42, ant: 78, av2: 42, ah: 45 }
+      : { desc: 335, atual: 100, av: 80 };
+    const dir = {}; // x da borda direita (alinhamento à direita) de cada coluna
+    { let x = M; Object.keys(col).forEach(k => { x += col[k]; dir[k] = x - 5; }); }
+
+    const cabecalhoContinuacao = () => {
+      doc.retangulo(0, 0, W, 6, { preenchimento: NAVY });
+      doc.texto(M, 30, emp.razao, { fonte: 'F2', tam: 9, cor: NAVY });
+      doc.texto(W - M, 30, `DRE · ${fmtData(m.de)} a ${fmtData(m.ate)}`, { tam: 8, cor: CINZA, alinhar: 'r' });
+      doc.linha(M, 38, W - M, 38, { cor: LINHA });
+      y = TOPO_CONT;
+    };
+    const cabecalhoTabela = () => {
+      doc.retangulo(M, y, CW, 28, { preenchimento: NAVY });
+      doc.texto(M + 6, y + 17, 'DESCRIÇÃO', { fonte: 'F2', tam: 8, cor: '#ffffff' });
+      const dois = (x, t1, t2) => { doc.texto(x, t2 ? y + 11 : y + 17, t1, { fonte: 'F2', tam: 7.5, cor: '#ffffff', alinhar: 'r' }); if (t2) doc.texto(x, y + 21, t2, { tam: 6.5, cor: '#cbd5e1', alinhar: 'r' }); };
+      if (m.comparar) {
+        dois(dir.atual, 'ATUAL', `${this.fcurto(m.de)} a ${this.fcurto(m.ate)}`); dois(dir.av, 'AV %');
+        dois(dir.ant, 'ANTERIOR', `${this.fcurto(m.per.de)} a ${this.fcurto(m.per.ate)}`); dois(dir.av2, 'AV %'); dois(dir.ah, 'AH %');
+      } else { dois(dir.atual, 'VALOR (R$)'); dois(dir.av, 'AV %'); }
+      y += 28;
+    };
+    const garantir = (h, comTabela) => {
+      if (y + h <= LIM) return;
+      doc.novaPagina(); cabecalhoContinuacao();
+      if (comTabela) cabecalhoTabela();
+    };
+
+    // ===== página 1: cabeçalho =====
+    doc.novaPagina();
+    doc.retangulo(0, 0, W, 10, { preenchimento: NAVY });
+    doc.retangulo(0, 10, W, 2.5, { preenchimento: AZUL });
+    doc.texto(M, 46, doc.caber(emp.razao, 'F2', 15, 410), { fonte: 'F2', tam: 15, cor: NAVY });
+    let yy = 60;
+    const ids = [emp.cnpj ? `CNPJ: ${emp.cnpj}` : '', emp.ie ? `Inscrição Estadual: ${emp.ie}` : ''].filter(Boolean).join('   ·   ');
+    if (ids) { doc.texto(M, yy, ids, { tam: 9, cor: CINZA }); yy += 12; }
+    if (emp.endereco) { doc.texto(M, yy, doc.caber(emp.endereco, 'F1', 8.5, 420), { tam: 8.5, cor: CINZA }); yy += 11; }
+    const contato = [emp.cep ? `CEP ${emp.cep}` : '', emp.email].filter(Boolean).join('   ·   ');
+    if (contato) { doc.texto(M, yy, contato, { tam: 8.5, cor: CINZA }); yy += 11; }
+    doc.texto(W - M, 46, 'DRE', { fonte: 'F2', tam: 24, cor: AZUL, alinhar: 'r' });
+    doc.texto(W - M, 60, 'Documento gerencial', { tam: 8, cor: CINZA, alinhar: 'r' });
+    y = Math.max(yy, 74) + 6;
+    doc.linha(M, y, W - M, y, { cor: NAVY, esp: 1 });
+    y += 30;
+    doc.texto(W / 2, y, 'DEMONSTRAÇÃO DO RESULTADO DO EXERCÍCIO', { fonte: 'F2', tam: 14, cor: NAVY, alinhar: 'c' });
+    y += 18;
+    doc.texto(W / 2, y, `Período: ${fmtData(m.de)} a ${fmtData(m.ate)}`, { fonte: 'F2', tam: 10.5, cor: TEXTO, alinhar: 'c' });
+    y += 14;
+    if (m.referencia) { doc.texto(W / 2, y, m.referencia, { tam: 9.5, cor: TEXTO, alinhar: 'c' }); y += 13; }
+    const sub = `Regime de caixa · valores em reais (R$) · ${m.todas ? '' : (m.contasIds.length > 1 ? 'Contas: ' : 'Conta: ')}${m.contaTexto}`;
+    doc.texto(W / 2, y, doc.caber(sub, 'F1', 8.5, CW), { tam: 8.5, cor: CINZA, alinhar: 'c' });
+    y += 20;
+
+    // ===== cartões-resumo =====
+    const { A, P } = m;
+    const cartoes = [
+      ['RECEITA BRUTA', A.receita, null, P ? P.receita : null],
+      ['MARGEM DE CONTRIBUIÇÃO', A.margemContribuicao, A.receita, P ? P.margemContribuicao : null],
+      ['LUCRO OPERACIONAL', A.lucroOperacional, A.receita, P ? P.lucroOperacional : null],
+      ['RESULTADO LÍQUIDO', A.resultadoLiquido, A.receita, P ? P.resultadoLiquido : null]
+    ];
+    const cw = (CW - 3 * 8) / 4;
+    cartoes.forEach((c, i) => {
+      const x = M + i * (cw + 8);
+      doc.retangulo(x, y, cw, 58, { preenchimento: '#f8fafc', borda: LINHA });
+      doc.retangulo(x, y, 3, 58, { preenchimento: c[1] < 0 ? VERM : AZUL });
+      doc.texto(x + 10, y + 14, c[0], { fonte: 'F2', tam: 6.8, cor: CINZA });
+      doc.texto(x + 10, y + 30, 'R$ ' + this.fv(c[1]), { fonte: 'F2', tam: 11.5, cor: c[1] < 0 ? VERM : NAVY });
+      if (c[2]) doc.texto(x + 10, y + 43, `${this.fp(this.av(c[1], c[2]))} da receita`, { tam: 7.2, cor: CINZA });
+      if (c[3] !== null) {
+        const v = this.ah(c[1], c[3]);
+        doc.texto(x + 10, y + 53, v === null ? 'vs anterior: n/d' : `${v >= 0 ? '+' : '-'}${this.fp(Math.abs(v))} vs anterior`, { tam: 7.2, cor: CINZA });
+      }
+    });
+    y += 74;
+
+    // ===== tabela do DRE =====
+    cabecalhoTabela();
+    m.linhas.forEach(l => {
+      const alt = { grp: 17, tot: 19, fin: 25, det: 13.5, det2: 12.5 }[l.t];
+      garantir(alt + 2, true);
+      const recA = A.receita, recP = P ? P.receita : 0;
+      const neg = l.v < -0.004;
+      let fonte = 'F1', tam = 8.5, corTxt = '#374151', indent = 6, rotulo = l.label;
+      if (l.t === 'grp') { fonte = 'F2'; tam = 9; corTxt = TEXTO; }
+      if (l.t === 'tot') { fonte = 'F2'; tam = 9.5; corTxt = NAVY; doc.retangulo(M, y, CW, alt, { preenchimento: CLARO }); doc.linha(M, y, M + CW, y, { cor: NAVY, esp: 0.8 }); }
+      if (l.t === 'fin') { fonte = 'F2'; tam = 10.5; corTxt = '#ffffff'; doc.retangulo(M, y, CW, alt, { preenchimento: l.v >= 0 ? '#14532d' : '#7f1d1d' }); rotulo = l.label.replace(' DO PERÍODO', '') + (l.v >= 0 ? ' — LUCRO' : ' — PREJUÍZO'); }
+      if (l.t === 'det') { indent = 18; }
+      if (l.t === 'det2') { indent = 30; tam = 8; corTxt = CINZA; }
+      const by = y + alt / 2 + tam * 0.35;
+      doc.texto(M + indent, by, doc.caber(rotulo, fonte, tam, col.desc - indent - 6), { fonte, tam, cor: corTxt });
+      const corV = l.t === 'fin' ? '#ffffff' : (l.t === 'tot' && neg ? VERM : (l.t === 'tot' ? NAVY : (neg && l.t === 'grp' ? TEXTO : corTxt)));
+      doc.texto(dir.atual, by, this.fv(l.v), { fonte, tam, cor: corV, alinhar: 'r' });
+      doc.texto(dir.av, by, this.fp(this.av(l.v, recA)), { fonte: l.t === 'det' || l.t === 'det2' ? 'F1' : fonte, tam: tam - 0.5, cor: l.t === 'fin' ? '#e5e7eb' : CINZA, alinhar: 'r' });
+      if (m.comparar) {
+        doc.texto(dir.ant, by, this.fv(l.a), { fonte, tam, cor: corV, alinhar: 'r' });
+        doc.texto(dir.av2, by, this.fp(this.av(l.a, recP)), { fonte: l.t === 'det' || l.t === 'det2' ? 'F1' : fonte, tam: tam - 0.5, cor: l.t === 'fin' ? '#e5e7eb' : CINZA, alinhar: 'r' });
+        const h = this.ah(l.v, l.a);
+        doc.texto(dir.ah, by, h === null ? '—' : this.fp(h), { fonte: 'F1', tam: tam - 0.5, cor: l.t === 'fin' ? '#e5e7eb' : CINZA, alinhar: 'r' });
+      }
+      if (l.t !== 'tot' && l.t !== 'fin') doc.linha(M, y + alt, M + CW, y + alt, { cor: '#e5e7eb', esp: 0.4 });
+      y += alt;
+    });
+    y += 16;
+
+    // ===== indicadores =====
+    const titulo = txt => { garantir(40); doc.texto(M, y, txt, { fonte: 'F2', tam: 9.5, cor: NAVY }); doc.linha(M, y + 4, W - M, y + 4, { cor: AZUL, esp: 1 }); y += 17; };
+    if (comInd) {
+      titulo('INDICADORES');
+      const itens = [...m.ind.map(i => [i[0], this.fp(i[1]), i[2] === null ? null : this.fp(i[2])]),
+        ...m.extras.map(e => [e[0], 'R$ ' + this.fv(e[1]), e[2] === null ? null : 'R$ ' + this.fv(e[2])])];
+      doc.texto(dir.atual + 5, y, 'ATUAL', { fonte: 'F2', tam: 7, cor: CINZA, alinhar: 'r' });
+      if (m.comparar) doc.texto(dir.ant + 5, y, 'ANTERIOR', { fonte: 'F2', tam: 7, cor: CINZA, alinhar: 'r' });
+      y += 14;
+      itens.forEach((it, i) => {
+        garantir(15);
+        if (i % 2 === 0) doc.retangulo(M, y - 9, CW, 14, { preenchimento: '#f8fafc' });
+        doc.texto(M + 6, y + 1, doc.caber(it[0], 'F1', 8.5, col.desc + 10), { tam: 8.5 });
+        doc.texto(dir.atual + 5, y + 1, it[1], { fonte: 'F2', tam: 8.5, cor: NAVY, alinhar: 'r' });
+        if (m.comparar && it[2] !== null) doc.texto(dir.ant + 5, y + 1, it[2], { tam: 8.5, cor: CINZA, alinhar: 'r' });
+        y += 14;
+      });
+      y += 12;
+    }
+
+    // ===== notas =====
+    if (comNotas) {
+      titulo('NOTAS EXPLICATIVAS');
+      m.notas.forEach((n, i) => {
+        const ls = doc.quebrar(n, 'F1', 8, CW - 16);
+        garantir(ls.length * 10.5 + 5);
+        doc.texto(M, y, `${i + 1}.`, { fonte: 'F2', tam: 8, cor: NAVY });
+        ls.forEach((ln, k) => doc.texto(M + 16, y + k * 10.5, ln, { tam: 8, cor: '#374151' }));
+        y += ls.length * 10.5 + 4;
+      });
+      y += 8;
+    }
+
+    // ===== assinatura (nunca separada do resto: se não couber, vai inteira pra próxima página) =====
+    garantir(150);
+    y += 6;
+    const local = `${emp.cidade ? emp.cidade + ', ' : ''}${dataExtenso}.`;
+    doc.texto(W / 2, y, local, { tam: 9.5, alinhar: 'c' });
+    y += 62;
+    doc.linha(W / 2 - 125, y, W / 2 + 125, y, { cor: TEXTO, esp: 0.8 });
+    y += 14;
+    doc.texto(W / 2, y, socio.nome, { fonte: 'F2', tam: 10.5, cor: NAVY, alinhar: 'c' });
+    y += 12;
+    const cpf = emp.cpf[socio.id];
+    doc.texto(W / 2, y, `Sócio${cpf ? ' · CPF ' + cpf : ''}`, { tam: 8.5, cor: CINZA, alinhar: 'c' });
+    y += 11;
+    doc.texto(W / 2, y, `${emp.razao}${emp.cnpj ? ' · CNPJ ' + emp.cnpj : ''}`, { tam: 8.5, cor: CINZA, alinhar: 'c' });
+
+    // ===== rodapé de todas as páginas (agora que se sabe o total) =====
+    const n = doc.paginas.length;
+    for (let i = 0; i < n; i++) {
+      doc.irParaPagina(i);
+      doc.linha(M, H - 38, W - M, H - 38, { cor: LINHA });
+      doc.texto(M, H - 26, `Gerado pelo Yampex · ${versao.replace(/^Versão\s*/, 'versão ')} · emitido em ${emissao}`, { tam: 7.2, cor: CINZA });
+      doc.texto(W - M, H - 26, `Página ${i + 1} de ${n}`, { fonte: 'F2', tam: 7.8, cor: CINZA, alinhar: 'r' });
+    }
+    return { bytes: doc.construir(), m };
+  },
+
+  nomeArquivo(m) {
+    const c = m.todas ? 'todas-as-contas' : m.contaTexto;
+    const slug = String(c).normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^A-Za-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 60).replace(/-+$/, '');
+    const br = iso => iso.split('-').reverse().join('-');
+    return `DRE_${slug}_${br(m.de)}_a_${br(m.ate)}.pdf`;
+  },
+
+  lembrarSocio() { try { localStorage.setItem(this.SOCIO_KEY, document.getElementById('dreSocio').value); } catch (e) {} },
+
+  baixarPdf() {
+    const r = this.gerarPdf(); if (!r) return;
+    const nome = this.nomeArquivo(r.m);
+    Contabilidade.baixar(r.bytes, 'application/pdf', nome);
+  },
+
+  // abre o PDF numa aba nova (o visualizador do navegador tem o botão de imprimir); se o navegador
+  // bloquear a aba, baixa o arquivo
+  imprimir() {
+    const r = this.gerarPdf(); if (!r) return;
+    const url = URL.createObjectURL(new Blob([r.bytes], { type: 'application/pdf' }));
+    const w = window.open(url, '_blank');
+    if (!w) { toast('O navegador bloqueou a nova aba — baixando o PDF para você imprimir.', 'err'); this.baixarPdf(); }
+    setTimeout(() => URL.revokeObjectURL(url), 60000);
   }
 };
 
