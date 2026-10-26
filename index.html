@@ -732,7 +732,7 @@ footer strong{color:var(--text-dim);font-weight:700;letter-spacing:.02em;}
     <input type="password" id="loginSenha" placeholder="senha de acesso" autocomplete="current-password">
     <button class="btn" id="loginEntrar" onclick="Auth.entrar()">Entrar</button>
     <div class="login-erro" id="loginErro"></div>
-    <div class="login-versao versao-html">Versão 2.5.3</div>
+    <div class="login-versao versao-html">Versão 2.6.0</div>
     <div class="login-rodape">
       <label><input type="checkbox" id="loginLembrar" checked> manter conectado neste computador</label>
       <button type="button" onclick="UI.openConfig()">⚙ URL do servidor</button>
@@ -1192,7 +1192,22 @@ footer strong{color:var(--text-dim);font-weight:700;letter-spacing:.02em;}
   <!-- FINANCIAMENTOS -->
   <section id="tab-financiamentos" class="tab-content hidden">
     <div class="panel">
-      <h2>Cadastrar financiamento / consórcio</h2>
+      <h2>Cadastrar a partir do extrato</h2>
+      <p class="muted" style="margin-top:-6px;font-size:12.5px;">
+        Não precisa digitar nada: o sistema lista as saídas que se repetem no seu histórico. Clique em
+        <strong>Cadastrar</strong> na do financiamento, diga <strong>qual parcela</strong> é aquele lançamento e
+        <strong>quantas parcelas</strong> tem no total — as anteriores e as próximas são calculadas sozinhas.
+      </p>
+      <div class="row" style="flex-wrap:wrap;gap:10px;align-items:flex-end;">
+        <div class="field"><label>Conta</label><select id="fhContaFiltro" onchange="FinHistUI.renderLista()"></select></div>
+        <div class="field" style="flex:1;min-width:180px;"><label>Buscar na descrição</label><input type="text" id="fhBusca" placeholder="ex: giro, consorcio, financ..." oninput="FinHistUI.renderLista()" style="width:100%;"></div>
+        <label style="display:flex;gap:6px;align-items:center;font-size:13px;padding-bottom:8px;"><input type="checkbox" id="fhSoRecorrentes" checked onchange="FinHistUI.renderLista()"> só recorrentes (3+ meses, valor parecido)</label>
+      </div>
+      <div id="fhLista" style="margin-top:10px;"></div>
+    </div>
+
+    <div class="panel">
+      <h2>Cadastro manual (se não estiver no extrato)</h2>
       <p class="muted" style="margin-top:-6px;font-size:12.5px;">
         Cadastre uma vez (nome, conta, código, valor da parcela, total de parcelas e quantas já foram pagas) e o
         sistema continua sozinho: a cada extrato importado, ele reconhece a parcela daquele mês (mesma conta +
@@ -1425,7 +1440,7 @@ footer strong{color:var(--text-dim);font-weight:700;letter-spacing:.02em;}
 <footer>
   <strong>Yampex</strong> · Gestão Financeira — Explosão Alimentos<br>
   <span>Conciliação bancária, previsões e análise de resultado. Dados armazenados na sua Planilha Google via Apps Script.</span><br>
-  <span class="versao-html" id="rodapeVersao" title="Versão do Yampex (arquivo Yampex_2.5.3.html)">Versão 2.5.3</span>
+  <span class="versao-html" id="rodapeVersao" title="Versão do Yampex (arquivo Yampex_2.6.0.html)">Versão 2.6.0</span>
 </footer>
 
 <div class="toast-wrap" id="toastWrap"></div>
@@ -1541,6 +1556,39 @@ footer strong{color:var(--text-dim);font-weight:700;letter-spacing:.02em;}
     <div class="row" style="justify-content:flex-end;margin-top:16px;">
       <button class="btn secondary" id="mctCancelar">Cancelar</button>
       <button class="btn" id="mctConfirmar">Confirmar mesmo assim</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: Cadastrar financiamento a partir do extrato -->
+<div class="modal-bg hidden" id="modalFinHist">
+  <div class="modal" style="max-width:900px;">
+    <h3>Cadastrar financiamento a partir do extrato</h3>
+    <p class="muted" style="font-size:12.5px;margin-top:2px;">Escolha o lançamento, diga qual parcela ele é e o total. O resto aparece abaixo para você conferir.</p>
+    <div class="row" style="flex-wrap:wrap;gap:10px;align-items:flex-end;margin-top:10px;">
+      <div class="field" style="flex:1;min-width:260px;"><label>Lançamento de referência</label><select id="fhLanc" style="width:100%;" onchange="FinHistUI.lancMudou()"></select></div>
+      <div class="field" style="width:120px;"><label>Esta é a parcela nº</label><input type="number" min="1" step="1" id="fhN" style="width:100%;" oninput="FinHistUI.paramMudou()"></div>
+      <div class="field" style="width:120px;"><label>de (total)</label><input type="number" min="1" step="1" id="fhTotal" style="width:100%;" oninput="FinHistUI.paramMudou()"></div>
+    </div>
+    <div class="row" style="flex-wrap:wrap;gap:10px;align-items:flex-end;margin-top:8px;">
+      <div class="field" style="flex:1;min-width:200px;"><label>Nome</label><input type="text" id="fhNome" style="width:100%;"></div>
+      <div class="field" style="min-width:150px;"><label>Tipo</label>
+        <select id="fhTipo" style="width:100%;"><option value="Empréstimo">Empréstimo</option><option value="Financiamento">Financiamento</option><option value="Consórcio">Consórcio</option></select></div>
+      <div class="field" style="flex:1;min-width:240px;"><label>Código do plano de contas</label><div id="fhCodigoWrap"></div></div>
+      <div class="field" style="width:130px;"><label>Variação de valor aceita (%)</label><input type="number" min="0" max="50" step="1" id="fhTol" value="10" style="width:100%;" oninput="FinHistUI.paramMudou()"></div>
+    </div>
+    <div id="fhResumo" style="margin-top:12px;font-size:13.5px;"></div>
+    <div style="overflow:auto;max-height:42vh;margin-top:8px;">
+      <table>
+        <thead><tr><th style="width:34px;"></th><th>Parcela</th><th>Mês</th><th>Data</th><th>Descrição</th><th style="text-align:right;">Valor</th><th>Situação</th></tr></thead>
+        <tbody id="fhTabela"></tbody>
+      </table>
+    </div>
+    <div id="fhNotas" class="muted" style="font-size:12px;margin-top:6px;"></div>
+    <label style="display:flex;gap:6px;align-items:center;margin-top:10px;font-size:13px;"><input type="checkbox" id="fhClassificar" checked> classificar com este código as parcelas achadas que ainda estão pendentes</label>
+    <div class="row" style="justify-content:flex-end;gap:8px;margin-top:14px;">
+      <button class="btn secondary" onclick="FinHistUI.fechar()">Cancelar</button>
+      <button class="btn" onclick="FinHistUI.confirmar()">Cadastrar financiamento</button>
     </div>
   </div>
 </div>
@@ -5009,6 +5057,7 @@ const Financiamentos = {
         ? State.contas.map(c => `<option value="${c.contaId}">${c.nome}</option>`).join('')
         : '<option value="">Importe um extrato primeiro para cadastrar uma conta</option>';
     }
+    FinHistUI.popularSelects();
     const wrapCodigo = document.getElementById('finCodigoWrap');
     if (!wrapCodigo) return;
     const codigosDisponiveis = codigosFolha();
@@ -5094,6 +5143,7 @@ const Financiamentos = {
   },
 
   render() {
+    FinHistUI.renderLista();
     const concluido = f => f.ativo === false || f.parcelaAtual >= f.totalParcelas;
     const ativos = State.financiamentos.filter(f => !concluido(f));
     const concluidos = State.financiamentos.filter(concluido);
@@ -5121,6 +5171,332 @@ const Financiamentos = {
     if (elAtivos) elAtivos.innerHTML = ativos.length ? ativos.map(cardHtml).join('') : '<div class="empty-state">Nenhum financiamento ativo cadastrado.</div>';
     const elConcluidos = document.getElementById('finListaConcluidos');
     if (elConcluidos) elConcluidos.innerHTML = concluidos.length ? concluidos.map(cardHtml).join('') : '<div class="empty-state">Nenhum financiamento concluído ainda.</div>';
+  }
+};
+
+/* ======================================================================
+   FINANCIAMENTO A PARTIR DO EXTRATO — o sistema acha as outras parcelas no histórico
+   ======================================================================
+   Você aponta UM lançamento (ex.: "BB GIRO FLEX  1.245,00"), diz "esta é a parcela 5 de 60" e o resto é
+   automático: procura no histórico os lançamentos do mesmo financiamento (mesma conta, descrição parecida,
+   valor igual ou perto), numera as parcelas pelo mês (anteriores: 4, 3, 2… / posteriores: 6, 7…), avisa de
+   meses sem lançamento, e prevê as próximas. Lógica pura (sem tela) pra poder ser testada. */
+const FinHist = {
+  TOL_PADRAO: 10, // % de diferença de valor aceita entre parcelas do mesmo financiamento
+
+  norm(s) {
+    return String(s == null ? '' : s).normalize('NFD').replace(/[̀-ͯ]/g, '').toUpperCase()
+      .replace(/[0-9]+/g, ' ').replace(/[^A-Z]+/g, ' ').replace(/\s+/g, ' ').trim();
+  },
+  tokens(s) { return [...new Set(this.norm(s).split(' ').filter(t => t.length >= 2))]; },
+  jaccard(a, b) {
+    if (!a.length || !b.length) return 0;
+    const B = new Set(b); let i = 0;
+    a.forEach(x => { if (B.has(x)) i++; });
+    return i / (a.length + b.length - i);
+  },
+  mesIdx(iso) { const [y, m] = iso.split('-').map(Number); return y * 12 + m - 1; },
+  // mesmo dia, n meses depois (dia 31 vira o último dia do mês curto)
+  somarMeses(iso, n) {
+    const [y, m, d] = iso.split('-').map(Number);
+    const t = y * 12 + (m - 1) + n, ny = Math.floor(t / 12), nm = ((t % 12) + 12) % 12;
+    const ult = new Date(Date.UTC(ny, nm + 1, 0)).getUTCDate();
+    return `${ny}-${String(nm + 1).padStart(2, '0')}-${String(Math.min(d, ult)).padStart(2, '0')}`;
+  },
+  elegivel(t) { return t.valor < 0 && t.status !== 'Transferencia' && t.status !== 'Dividida' && t.data; },
+
+  // saídas que se repetem: agrupa por conta + descrição parecida (palavras iguais; números não contam,
+  // então "BB GIRO FLEX PARC 03" e "BB GIRO FLEX PARC 04" caem no mesmo grupo)
+  grupos(transacoes, contaFiltro, tolPct) {
+    const tol = (tolPct == null ? this.TOL_PADRAO : tolPct) / 100;
+    const clusters = [];
+    transacoes.forEach(t => {
+      if (!this.elegivel(t) || (contaFiltro && t.conta !== contaFiltro)) return;
+      const tk = this.tokens(t.descricao);
+      if (!tk.length) return;
+      let c = clusters.find(x => x.conta === t.conta && this.jaccard(x.tk, tk) >= 0.6);
+      if (!c) { c = { conta: t.conta, tk, list: [] }; clusters.push(c); }
+      c.list.push(t);
+    });
+    return clusters.map(c => {
+      const list = c.list;
+      list.sort((a, b) => (a.data < b.data ? 1 : a.data > b.data ? -1 : 0)); // mais recente primeiro
+      const meses = new Set(list.map(t => this.mesIdx(t.data))).size;
+      const vals = list.map(t => Math.abs(t.valor));
+      const min = Math.min(...vals), max = Math.max(...vals);
+      return { chave: c.conta + '|' + c.tk.slice().sort().join(' '), conta: c.conta, list, meses, ultimo: list[0], min, max, estavel: max <= min * (1 + tol) + 0.005 };
+    }).sort((a, b) => b.meses - a.meses || (a.ultimo.data < b.ultimo.data ? 1 : -1));
+  },
+
+  // Monta a linha do tempo das parcelas. p = { base, N, total, tolPct, transacoes }
+  analisar(p) {
+    const { base, N, total, transacoes } = p;
+    const tol = (p.tolPct == null ? this.TOL_PADRAO : p.tolPct) / 100;
+    const V = Math.abs(base.valor), tk = this.tokens(base.descricao);
+    const mb = this.mesIdx(base.data), diaBase = Number(base.data.slice(8));
+    const parecida = t => t.chaveUnica !== base.chaveUnica && t.conta === base.conta && this.elegivel(t)
+      && Math.abs(Math.abs(t.valor) - V) <= V * tol + 0.005 && this.jaccard(this.tokens(t.descricao), tk) >= 0.6;
+
+    let menorMes = Infinity;
+    transacoes.forEach(t => { if (t.conta === base.conta && t.data) menorMes = Math.min(menorMes, this.mesIdx(t.data)); });
+
+    const porMes = new Map();
+    let mesmoMesDaBase = 0, foraDoTotal = 0;
+    transacoes.filter(parecida).forEach(t => {
+      const m = this.mesIdx(t.data);
+      if (m === mb) { mesmoMesDaBase++; return; }
+      const parc = N + (m - mb);
+      if (parc < 1 || parc > total) { foraDoTotal++; return; }
+      if (!porMes.has(parc)) porMes.set(parc, []);
+      porMes.get(parc).push(t);
+    });
+    const achadas = new Map();
+    achadas.set(N, { tx: base, base: true, extras: mesmoMesDaBase });
+    porMes.forEach((arr, parc) => {
+      arr.sort((a, b) => Math.abs(Number(a.data.slice(8)) - diaBase) - Math.abs(Number(b.data.slice(8)) - diaBase));
+      achadas.set(parc, { tx: arr[0], base: false, extras: arr.length - 1 });
+    });
+    const pMax = Math.max(N, ...achadas.keys());
+    const rows = [];
+    for (let parc = 1; parc <= pMax; parc++) {
+      const mes = mb + (parc - N);
+      if (achadas.has(parc)) rows.push(Object.assign({ p: parc, mes, tipo: achadas.get(parc).base ? 'base' : 'achada' }, achadas.get(parc)));
+      else if (mes < menorMes) rows.push({ p: parc, mes, tipo: 'anterior' });
+      else rows.push({ p: parc, mes, tipo: 'nao_achada' });
+    }
+    return { rows, foraDoTotal, mesmoMesDaBase, menorMes };
+  },
+
+  // Resumo conforme as caixas marcadas: off = Set de números de parcela desmarcados
+  resumo(analise, N, total, off) {
+    const marcadas = analise.rows.filter(r => (r.tipo === 'base' || r.tipo === 'achada') && !(off && off.has(r.p)));
+    const ult = marcadas.reduce((a, r) => (r.p > a.p ? r : a), { p: N });
+    const parcelaAtual = Math.max(N, ult.p || N);
+    const rUlt = marcadas.find(r => r.p === parcelaAtual) || marcadas.find(r => r.tipo === 'base');
+    const concluido = parcelaAtual >= total;
+    return {
+      parcelaAtual, concluido, falta: Math.max(0, total - parcelaAtual),
+      ultimaTx: rUlt ? rUlt.tx : null,
+      proximaData: (!concluido && rUlt) ? this.somarMeses(rUlt.tx.data, 1) : ''
+    };
+  },
+
+  tipoSugerido(desc) {
+    const n = this.norm(desc);
+    if (/CONSORCI/.test(n)) return 'Consórcio';
+    if (/FINANC|CDC|LEASING/.test(n)) return 'Financiamento';
+    return 'Empréstimo';
+  },
+  nomeSugerido(desc) {
+    return this.norm(desc).split(' ').filter(Boolean)
+      .map(w => (w.length <= 3 ? w : w[0] + w.slice(1).toLowerCase())).join(' ');
+  }
+};
+
+/* ======================================================================
+   TELA "CADASTRAR A PARTIR DO EXTRATO" (usa FinHist, acima)
+   ====================================================================== */
+const FinHistUI = {
+  _grupos: [], _grupo: null, _analise: null, _off: new Set(), _combo: null, _valido: false,
+  MESES: ['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'],
+
+  rotuloMes(idx) { return this.MESES[idx % 12] + '/' + Math.floor(idx / 12); },
+  esc(s) { return String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); },
+
+  popularSelects() {
+    const sel = document.getElementById('fhContaFiltro');
+    if (!sel) return;
+    const atual = sel.value;
+    sel.innerHTML = '<option value="">Todas as contas</option>' + State.contas.map(c => `<option value="${c.contaId}">${this.esc(c.nome)}</option>`).join('');
+    sel.value = State.contas.some(c => c.contaId === atual) ? atual : '';
+  },
+
+  jaCadastrado(g) {
+    const v = Math.abs(g.ultimo.valor);
+    return State.financiamentos.some(f => f.conta === g.ultimo.conta && Math.abs(f.valorParcela - v) <= v * 0.01 + 0.005
+      && (f.ativo !== false) && FinHist.jaccard(FinHist.tokens(f.nome), FinHist.tokens(g.ultimo.descricao)) > 0);
+  },
+
+  renderLista() {
+    const el = document.getElementById('fhLista');
+    if (!el) return;
+    const conta = document.getElementById('fhContaFiltro')?.value || '';
+    const termo = FinHist.norm(document.getElementById('fhBusca')?.value || '');
+    const so = document.getElementById('fhSoRecorrentes')?.checked;
+    let gs = FinHist.grupos(State.transacoes, conta, FinHist.TOL_PADRAO);
+    if (so) gs = gs.filter(g => g.meses >= 3 && g.estavel);
+    if (termo) gs = gs.filter(g => FinHist.norm(g.ultimo.descricao).includes(termo));
+    const total = gs.length;
+    gs = gs.slice(0, 60);
+    this._grupos = gs;
+    if (!State.transacoes.length) { el.innerHTML = '<div class="empty-state">Importe um extrato primeiro.</div>'; return; }
+    if (!gs.length) { el.innerHTML = '<div class="empty-state">Nenhuma saída recorrente encontrada com esse filtro. Desmarque “só recorrentes” para ver tudo.</div>'; return; }
+    el.innerHTML = `<div style="overflow-x:auto;"><table>
+      <thead><tr><th>Descrição</th><th>Conta</th><th style="text-align:right;">Valor</th><th>Histórico</th><th></th></tr></thead>
+      <tbody>${gs.map((g, i) => {
+        const u = g.ultimo;
+        const faixa = g.estavel ? fmtMoeda(Math.abs(u.valor)) : `${fmtMoeda(g.min)} a ${fmtMoeda(g.max)}`;
+        return `<tr>
+          <td>${this.esc(u.descricao)}${this.jaCadastrado(g) ? ' <span class="muted" style="font-size:11px;">· já cadastrado</span>' : ''}</td>
+          <td>${this.esc(contaNome(u.conta))}</td>
+          <td style="text-align:right;white-space:nowrap;">${faixa}</td>
+          <td class="muted" style="font-size:12px;white-space:nowrap;">${g.meses} ${g.meses === 1 ? 'mês' : 'meses'} · último ${fmtData(u.data)}</td>
+          <td style="text-align:right;"><button class="btn secondary small" onclick="FinHistUI.abrir(${i})">Cadastrar</button></td>
+        </tr>`;
+      }).join('')}</tbody></table></div>
+      ${total > gs.length ? `<p class="muted" style="font-size:12px;">Mostrando ${gs.length} de ${total} — use a busca para filtrar.</p>` : ''}`;
+  },
+
+  abrir(i) {
+    const g = this._grupos[i];
+    if (!g) return;
+    this._grupo = g;
+    this._off = new Set();
+    const sel = document.getElementById('fhLanc');
+    sel.innerHTML = g.list.map((t, k) => `<option value="${k}">${fmtData(t.data)} · ${fmtMoeda(Math.abs(t.valor))} · ${this.esc(t.descricao)}</option>`).join('');
+    sel.value = '0';
+    document.getElementById('fhN').value = '';
+    document.getElementById('fhTotal').value = '';
+    document.getElementById('fhTol').value = String(FinHist.TOL_PADRAO);
+    document.getElementById('fhClassificar').checked = true;
+    const wrap = document.getElementById('fhCodigoWrap');
+    const itens = codigosFolha();
+    if (this._combo) this._combo.trocarItens(itens);
+    else {
+      this._combo = criarComboCodigo({ id: 'fhCodigo', itens, placeholder: 'digite o código ou o nome...' });
+      wrap.appendChild(this._combo);
+    }
+    this.lancMudou(true);
+    document.getElementById('modalFinHist').classList.remove('hidden');
+    setTimeout(() => document.getElementById('fhN').focus(), 50);
+  },
+
+  fechar() { document.getElementById('modalFinHist').classList.add('hidden'); },
+
+  base() { return this._grupo ? this._grupo.list[Number(document.getElementById('fhLanc').value) || 0] : null; },
+
+  // trocou o lançamento de referência: sugere nome, tipo e código a partir dele
+  lancMudou(primeira) {
+    const b = this.base();
+    if (!b) return;
+    if (primeira) {
+      document.getElementById('fhNome').value = FinHist.nomeSugerido(b.descricao);
+      document.getElementById('fhTipo').value = FinHist.tipoSugerido(b.descricao);
+    }
+    const comCodigo = this._grupo.list.find(t => t.codigo && t.status === 'Conciliado');
+    const cod = b.codigo || (comCodigo ? comCodigo.codigo : '');
+    if (cod || primeira) this._combo.definirCodigo(cod || '');
+    this._off = new Set();
+    this.recalcular();
+  },
+
+  paramMudou() { this._off = new Set(); this.recalcular(); },
+
+  alternar(p) { if (this._off.has(p)) this._off.delete(p); else this._off.add(p); this.recalcular(); },
+
+  params() {
+    const N = parseInt(document.getElementById('fhN').value, 10);
+    const total = parseInt(document.getElementById('fhTotal').value, 10);
+    const tol = Math.max(0, Math.min(50, parseFloat(document.getElementById('fhTol').value) || 0));
+    return { N, total, tol };
+  },
+
+  recalcular() {
+    const b = this.base();
+    const corpo = document.getElementById('fhTabela');
+    const resumo = document.getElementById('fhResumo');
+    const notas = document.getElementById('fhNotas');
+    if (!b) return;
+    const { N, total, tol } = this.params();
+    this._valido = false;
+    if (!(N >= 1) || !(total >= N)) {
+      this._analise = null;
+      corpo.innerHTML = '';
+      notas.textContent = '';
+      resumo.innerHTML = '<span class="muted">Informe o número desta parcela e o total de parcelas (o total precisa ser maior ou igual à parcela).</span>';
+      return;
+    }
+    const a = FinHist.analisar({ base: b, N, total, tolPct: tol, transacoes: State.transacoes });
+    this._analise = a;
+    this._valido = true;
+    const r = FinHist.resumo(a, N, total, this._off);
+    const valor = r.ultimaTx ? Math.abs(r.ultimaTx.valor) : Math.abs(b.valor);
+
+    // linhas: junta as "anteriores ao histórico" seguidas numa só
+    const linhas = [];
+    let i = 0;
+    while (i < a.rows.length) {
+      const row = a.rows[i];
+      if (row.tipo === 'anterior') {
+        let j = i; while (j + 1 < a.rows.length && a.rows[j + 1].tipo === 'anterior') j++;
+        const p1 = a.rows[i].p, p2 = a.rows[j].p;
+        linhas.push(`<tr class="muted"><td></td><td>${p1 === p2 ? p1 : p1 + ' a ' + p2}</td><td>${this.rotuloMes(a.rows[i].mes)}${p1 === p2 ? '' : ' a ' + this.rotuloMes(a.rows[j].mes)}</td><td colspan="3">antes do início do histórico importado</td><td>conta como paga</td></tr>`);
+        i = j + 1; continue;
+      }
+      if (row.tipo === 'nao_achada') {
+        linhas.push(`<tr><td></td><td>${row.p}</td><td>${this.rotuloMes(row.mes)}</td><td colspan="3" style="color:var(--amber,#b45309);">nenhum lançamento parecido neste mês</td><td style="color:var(--amber,#b45309);">conta como paga ⚠</td></tr>`);
+      } else {
+        const t = row.tx, marcada = !this._off.has(row.p);
+        const sit = (t.status === 'Conciliado' ? 'conciliado ' + this.esc(t.codigo || '') : this.esc(t.status || 'Pendente'))
+          + (row.base ? ' · <strong>referência</strong>' : '') + (row.extras ? ` · +${row.extras} parecido(s) ignorado(s)` : '');
+        linhas.push(`<tr ${marcada ? '' : 'class="muted"'}><td><input type="checkbox" ${marcada ? 'checked' : ''} ${row.base ? 'disabled' : ''} onchange="FinHistUI.alternar(${row.p})"></td>
+          <td>${row.p}</td><td>${this.rotuloMes(row.mes)}</td><td>${fmtData(t.data)}</td><td>${this.esc(t.descricao)}</td>
+          <td style="text-align:right;white-space:nowrap;">${fmtMoeda(Math.abs(t.valor))}</td><td style="font-size:12px;">${sit}</td></tr>`);
+      }
+      i++;
+    }
+    corpo.innerHTML = linhas.join('');
+
+    resumo.innerHTML = r.concluido
+      ? `<strong>Parcela ${r.parcelaAtual}/${total}</strong> — este financiamento já está <strong>concluído</strong> (todas as parcelas pagas).`
+      : `<strong>Parcela atual ${r.parcelaAtual}/${total}</strong> · falta pagar <strong>${r.falta} × ${fmtMoeda(valor)} = ${fmtMoeda(r.falta * valor)}</strong> · próxima parcela prevista em <strong>${fmtData(r.proximaData)}</strong>`;
+    const n = [];
+    if (a.mesmoMesDaBase) n.push(`${a.mesmoMesDaBase} outro(s) lançamento(s) parecido(s) no mesmo mês da referência foi/foram ignorado(s).`);
+    if (a.foraDoTotal) n.push(`${a.foraDoTotal} lançamento(s) parecido(s) cairiam fora da parcela 1 a ${total} e foram ignorados.`);
+    if (a.rows.some(x => x.tipo === 'nao_achada')) n.push('Meses sem lançamento contam como parcela paga (pode ter sido paga por outra conta ou em outro mês).');
+    notas.textContent = n.join(' ');
+  },
+
+  confirmar() {
+    const b = this.base();
+    if (!b || !this._valido || !this._analise) { toast('Informe a parcela e o total de parcelas.', 'err'); return; }
+    const { N, total } = this.params();
+    const nome = document.getElementById('fhNome').value.trim();
+    const tipo = document.getElementById('fhTipo').value;
+    const codigo = document.getElementById('fhCodigo')?.value || '';
+    if (!nome) { toast('Informe o nome do financiamento.', 'err'); return; }
+    if (!codigo) { toast('Escolha o código do plano de contas.', 'err'); return; }
+    const r = FinHist.resumo(this._analise, N, total, this._off);
+    if (!r.ultimaTx) { toast('Nenhum lançamento marcado.', 'err'); return; }
+    const valorParcela = arred2(Math.abs(r.ultimaTx.valor));
+    const proximaData = r.concluido ? '' : r.proximaData;
+    const classificar = document.getElementById('fhClassificar').checked;
+    const marcadas = this._analise.rows.filter(x => (x.tipo === 'base' || x.tipo === 'achada') && !this._off.has(x.p)).map(x => x.tx);
+    const pendentes = classificar ? marcadas.filter(t => t.status === 'Pendente') : [];
+
+    this.fechar();
+    Api.post('criarFinanciamento', {
+      nome, tipo, conta: b.conta, codigo, valorParcela, totalParcelas: total, parcelaAtual: r.parcelaAtual,
+      proximaData, periodicidadeDias: 30
+    }).then(res => {
+      State.financiamentos.push({
+        id: res.id, nome, tipo, conta: b.conta, codigo, valorParcela, totalParcelas: total, parcelaAtual: r.parcelaAtual,
+        proximaData, periodicidadeDias: 30, ativo: r.parcelaAtual < total, criadoEm: new Date().toISOString()
+      });
+      pendentes.forEach(t => {
+        const anterior = { codigo: t.codigo, status: t.status, regraAplicada: t.regraAplicada };
+        t.codigo = codigo; t.status = 'Conciliado'; t.regraAplicada = t.regraAplicada || 'Manual';
+        Fila.add({
+          action: 'conciliar',
+          payload: { chaveUnica: t.chaveUnica, codigo, status: 'Conciliado', tipo: t.tipo },
+          aoFalhar() { Object.assign(t, anterior); Conciliacao.render(); Cache.agendar(); }
+        });
+      });
+      Financiamentos.render();
+      if (pendentes.length) Conciliacao.render();
+      Cache.agendar();
+      toast(`Financiamento “${nome}” cadastrado: parcela ${r.parcelaAtual}/${total}` + (pendentes.length ? ` · ${pendentes.length} lançamento(s) classificado(s).` : '.'), 'ok');
+    }).catch(e => toast('Erro: ' + e.message, 'err'));
   }
 };
 
