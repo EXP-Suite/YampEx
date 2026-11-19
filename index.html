@@ -731,7 +731,7 @@ footer strong{color:var(--text-dim);font-weight:700;letter-spacing:.02em;}
     <input type="password" id="loginSenha" placeholder="senha de acesso" autocomplete="current-password">
     <button class="btn" id="loginEntrar" onclick="Auth.entrar()">Entrar</button>
     <div class="login-erro" id="loginErro"></div>
-    <div class="login-versao versao-html">Versão 2.6.1</div>
+    <div class="login-versao versao-html">Versão 2.7.0</div>
     <div class="login-rodape">
       <label><input type="checkbox" id="loginLembrar" checked> manter conectado neste computador</label>
       <button type="button" onclick="UI.openConfig()">⚙ URL do servidor</button>
@@ -837,9 +837,10 @@ footer strong{color:var(--text-dim);font-weight:700;letter-spacing:.02em;}
       <p class="muted" style="margin-top:-6px;font-size:12.5px;">
         Já sabe de um pagamento ou recebimento real — INSS, Simples Nacional, um boleto, um PIX que você mesmo fez —
         e quer lançar agora, sem esperar o extrato do banco? Preencha a conta, o valor e o código: o lançamento entra
-        <strong>direto na aba Conciliar, já conciliado</strong>. Se o extrato <span class="mono">.ofx</span> desse
-        período trouxer depois essa mesma transação (mesma conta, mesmo dia, mesmo valor), o sistema reconhece e não
-        duplica.
+        <strong>direto na aba Conciliar, já conciliado</strong>. Quando o extrato <span class="mono">.ofx</span> trouxer
+        depois essa transação (mesma conta, mesmo valor, até 5 dias de diferença), o sistema <strong>confirma</strong>:
+        o lançamento passa a ser o do banco, com o código que você escolheu (mesmo que o nome no extrato seja genérico),
+        e não duplica. <strong>Escolha a conta com atenção</strong> — ela começa em branco de propósito.
       </p>
       <div class="rule-form">
         <div class="field"><label>Conta</label><select id="prevConta"></select></div>
@@ -857,7 +858,7 @@ footer strong{color:var(--text-dim);font-weight:700;letter-spacing:.02em;}
         Transferiu dinheiro entre duas contas da própria empresa (ex: Banco do Brasil → Inter)? Cadastre aqui e as
         <strong>duas pontas entram direto, já conciliadas</strong> — sem esperar nenhum dos dois extratos. Se o
         extrato <span class="mono">.ofx</span> de qualquer uma das contas trouxer depois essa mesma transação (mesma
-        conta, mesmo dia, mesmo valor), o sistema reconhece e não duplica.
+        conta, mesmo valor, até 3 dias de diferença), o sistema confirma a ponta com a do banco e não duplica.
       </p>
       <div class="rule-form">
         <div class="field"><label>Conta de origem (saiu de)</label><select id="transfContaOrigem"></select></div>
@@ -870,9 +871,11 @@ footer strong{color:var(--text-dim);font-weight:700;letter-spacing:.02em;}
     </div>
     <div class="panel">
       <h2>Lançamentos previstos</h2>
+      <div id="prevAlertaSemConf"></div>
       <div class="pill-filter" id="filtroPrevistos" style="margin-bottom:12px;">
         <button data-v="" class="active">Todos</button>
-        <button data-v="Pendente">Aguardando</button>
+        <button data-v="__sem__">Sem confirmação do extrato</button>
+        <button data-v="Pendente">Aguardando (parcelas)</button>
         <button data-v="Conciliado">Já bateu</button>
       </div>
       <div style="overflow-x:auto;">
@@ -1439,7 +1442,7 @@ footer strong{color:var(--text-dim);font-weight:700;letter-spacing:.02em;}
 <footer>
   <strong>Yampex</strong> · Gestão Financeira — Explosão Alimentos<br>
   <span>Conciliação bancária, previsões e análise de resultado. Dados armazenados na sua Planilha Google via Apps Script.</span><br>
-  <span class="versao-html" id="rodapeVersao" title="Versão do Yampex (arquivo Yampex_2.6.1.html)">Versão 2.6.1</span>
+  <span class="versao-html" id="rodapeVersao" title="Versão do Yampex (arquivo Yampex_2.7.0.html)">Versão 2.7.0</span>
 </footer>
 
 <div class="toast-wrap" id="toastWrap"></div>
@@ -1543,6 +1546,55 @@ footer strong{color:var(--text-dim);font-weight:700;letter-spacing:.02em;}
     <div class="row" style="justify-content:space-between;margin-top:16px;">
       <button class="btn secondary" onclick="UI.closeConciliar()">Cancelar</button>
       <button class="btn" id="mcSalvar" onclick="Conciliacao.salvarModal()">Salvar conciliação</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: Aviso genérico com confirmação -->
+<div class="modal-bg hidden" id="modalAviso">
+  <div class="modal" style="max-width:560px;">
+    <h3 id="avisoTitulo">Atenção</h3>
+    <div id="avisoCorpo" style="font-size:13.5px;line-height:1.5;"></div>
+    <div class="row" style="justify-content:flex-end;margin-top:16px;">
+      <button class="btn secondary" id="avisoCancelar">Cancelar</button>
+      <button class="btn" id="avisoConfirmar">Continuar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: Vincular previsto a um lançamento do extrato -->
+<div class="modal-bg hidden" id="modalVincular">
+  <div class="modal" style="max-width:820px;">
+    <h3>Vincular previsto ao extrato</h3>
+    <p class="muted" id="vincResumo" style="font-size:13px;margin-top:2px;"></p>
+    <div style="overflow:auto;max-height:46vh;margin-top:8px;">
+      <table>
+        <thead><tr><th style="width:30px;"></th><th>Data</th><th>Descrição no extrato</th><th>Situação</th><th style="text-align:right;">Valor</th><th style="text-align:right;">Diferença</th></tr></thead>
+        <tbody id="vincLista"></tbody>
+      </table>
+    </div>
+    <p class="muted" style="font-size:12px;margin-top:8px;">O lançamento escolhido recebe o código do previsto, e o previsto "adiantado" sai do saldo para não contar duas vezes. O nome que você deu fica na observação.</p>
+    <div class="row" style="justify-content:flex-end;gap:8px;margin-top:12px;">
+      <button class="btn secondary" onclick="Previstos.fecharVincular()">Cancelar</button>
+      <button class="btn" onclick="Previstos.confirmarVincular()">Vincular</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: possíveis transferências achadas na importação -->
+<div class="modal-bg hidden" id="modalTransfSug">
+  <div class="modal" style="max-width:900px;">
+    <h3>Possíveis transferências entre contas</h3>
+    <p class="muted" style="font-size:13px;margin-top:2px;">Estes lançamentos recém-importados têm, em outra conta, um lançamento do mesmo valor e sentido oposto em até 2 dias. Se for transferência entre as suas contas, marque: as duas pontas ficam como transferência e <strong>nenhuma é contada como receita ou despesa</strong>. Se for pagamento de verdade entre as empresas, deixe desmarcado.</p>
+    <div style="overflow:auto;max-height:50vh;margin-top:8px;">
+      <table>
+        <thead><tr><th style="width:30px;"></th><th>Lançamento importado</th><th>Possível outra ponta</th><th style="text-align:right;">Valor</th></tr></thead>
+        <tbody id="transfSugLista"></tbody>
+      </table>
+    </div>
+    <div class="row" style="justify-content:flex-end;gap:8px;margin-top:12px;">
+      <button class="btn secondary" onclick="Importar.fecharTransfSug()">Agora não</button>
+      <button class="btn" onclick="Importar.confirmarTransfSug()">Marcar selecionadas como transferência</button>
     </div>
   </div>
 </div>
@@ -2096,6 +2148,22 @@ function mensagemTipoDivergente(codigo, tipoTransacao) {
 // Mostra o popup #modalConfirmarTipo e devolve uma Promise: true se confirmou, false se
 // cancelou. Usado em todo lugar que agora deixa escolher um código de qualquer tipo
 // (Conciliar — classificar e dividir —, Previstos e Regras).
+// Popup genérico com HTML: devolve true se o usuário confirmou, false se cancelou.
+function avisoDialog(titulo, html, textoConfirmar) {
+  return new Promise(resolve => {
+    document.getElementById('avisoTitulo').textContent = titulo;
+    document.getElementById('avisoCorpo').innerHTML = html;
+    const modal = document.getElementById('modalAviso');
+    const btnOk = document.getElementById('avisoConfirmar'), btnNo = document.getElementById('avisoCancelar');
+    btnOk.textContent = textoConfirmar || 'Continuar';
+    function limpar() { modal.classList.add('hidden'); btnOk.removeEventListener('click', ok); btnNo.removeEventListener('click', no); }
+    function ok() { limpar(); resolve(true); }
+    function no() { limpar(); resolve(false); }
+    btnOk.addEventListener('click', ok); btnNo.addEventListener('click', no);
+    modal.classList.remove('hidden');
+  });
+}
+
 function confirmarTipoDialog(mensagem) {
   return new Promise(resolve => {
     document.getElementById('mctMensagem').textContent = mensagem;
@@ -2570,6 +2638,10 @@ function separarNovasDoArquivo(transacoesAlvo, usarDiaValor) {
   const porChave = new Set(State.transacoes.map(t => t.chaveUnica));
   const disponiveis = new Map();
   State.transacoes.forEach(t => {
+    // previstos e pontas de transferência criados na mão NÃO contam aqui: o lançamento do extrato
+    // precisa chegar ao servidor para CONFIRMAR o previsto (e não ser descartado deixando o previsto
+    // para sempre sem confirmação). Ver acharConfirmacoes e importarTransacoes_.
+    if (Previstos.ehFantasma(t)) return;
     const k = chaveDiaValor(t);
     disponiveis.set(k, (disponiveis.get(k) || 0) + 1);
   });
@@ -2591,6 +2663,47 @@ function separarNovasDoArquivo(transacoesAlvo, usarDiaValor) {
     novas.push(t);
   });
   return { novas, repetidasPorChave, repetidasPorDiaValor };
+}
+
+// Espelha, no navegador, a confirmação que o servidor faz na importação: qual previsto / ponta de
+// transferência já lançado cada transação nova do extrato vai confirmar (mesma conta, mesmo valor,
+// até 5 dias para previsto e 3 para transferência). Serve para mostrar o resultado ANTES de importar.
+function acharConfirmacoes(novas) {
+  const fant = State.transacoes.filter(t => Previstos.ehFantasma(t) && t.regraAplicada !== 'PrevistoManual').map(t => ({ t, usada: false, prev: /\|PREV-/.test(t.chaveUnica) }));
+  const out = [];
+  novas.forEach(n => {
+    let melhor = null, menor = Infinity;
+    fant.forEach(f => {
+      if (f.usada || f.t.conta !== n.conta) return;
+      if (Math.abs(Number(f.t.valor) - Number(n.valor)) > 0.01) return;
+      const dd = Math.abs(Math.round((new Date(n.data + 'T00:00:00') - new Date(f.t.data + 'T00:00:00')) / 86400000));
+      if (dd > (f.prev ? 5 : 3)) return;
+      if (dd < menor) { menor = dd; melhor = f; }
+    });
+    if (melhor) { melhor.usada = true; out.push({ nova: n, fant: melhor.t }); }
+  });
+  return out;
+}
+
+// Detecta extrato importado na conta errada: se boa parte das transações do arquivo (mesmo dia, mesmo
+// valor e descrição igual no começo) já existe em OUTRA conta, é quase certo que é o mesmo extrato.
+function detectarContaErrada(transacoesAlvo, contaIdAlvo) {
+  if (transacoesAlvo.length < 5) return null;
+  // tira o prefixo "Conciliação - " do histórico importado do sistema antigo e compara as 20 primeiras letras
+  const norm = d => String(d || '').replace(/^Concilia[çc][ãa]o\s*-\s*/i, '').replace(/[^A-Za-z]/g, '').toUpperCase().slice(0, 20);
+  const chaveT = t => t.data + '|' + Number(t.valor).toFixed(2) + '|' + norm(t.descricao);
+  const porConta = new Map();
+  State.transacoes.forEach(t => {
+    if (t.conta === contaIdAlvo || Previstos.ehFantasma(t) || t.status === 'Transferencia') return;
+    if (!porConta.has(t.conta)) porConta.set(t.conta, new Set());
+    porConta.get(t.conta).add(chaveT(t));
+  });
+  let melhor = null;
+  porConta.forEach((set, conta) => {
+    const n = transacoesAlvo.filter(t => set.has(chaveT(t))).length;
+    if (!melhor || n > melhor.n) melhor = { conta, n };
+  });
+  return (melhor && melhor.n >= 5 && melhor.n >= transacoesAlvo.length * 0.5) ? melhor : null;
 }
 
 /* ======================================================================
@@ -2946,6 +3059,8 @@ const Importar = {
     const novasNoArquivo = separado.novas;
     const duplicadasNoArquivo = separado.repetidasPorChave.length + separado.repetidasPorDiaValor.length;
 
+    const confirmacoes = acharConfirmacoes(novasNoArquivo);
+    const contaErrada = detectarContaErrada(transacoesAlvo, contaIdAlvo);
     let autoContagem = 0;
     novasNoArquivo.forEach(t => {
       const regra = encontrarRegraParaTransacao(t);
@@ -2957,6 +3072,7 @@ const Importar = {
       <div class="stat-card"><div class="n">${novasNoArquivo.length}</div><div class="l">novas para importar</div></div>
       <div class="stat-card"><div class="n">${duplicadasNoArquivo}</div><div class="l">já existem (serão ignoradas)</div></div>
       <div class="stat-card"><div class="n">${autoContagem}</div><div class="l">já reconhecidas automaticamente</div></div>
+      ${confirmacoes.length ? `<div class="stat-card"><div class="n">${confirmacoes.length}</div><div class="l">confirmam previstos / transferências que você já lançou (não duplicam)</div></div>` : ''}
       ${resultado.ignoradasSaldo ? `<div class="stat-card"><div class="n">${resultado.ignoradasSaldo}</div><div class="l">linha(s) de "saldo do dia" ignoradas</div></div>` : ''}
       ${resultado.ignoradasChequeCompensacao ? `<div class="stat-card"><div class="n">${resultado.ignoradasChequeCompensacao}</div><div class="l">linha(s) de cheque em compensação ignoradas (só informativas — o saldo real só entra depois, como "Dep cheque caixa agência")</div></div>` : ''}
     `;
@@ -2964,6 +3080,21 @@ const Importar = {
     // detalha o que foi barrado pela regra de dia+valor, para dar pra conferir antes de importar
     const info = document.getElementById('importDupInfo');
     const porDiaValor = separado.repetidasPorDiaValor;
+    const htmlConfirm = confirmacoes.length ? `
+        <div class="aviso-dup" style="border-color:var(--green,#16a34a);">
+          <strong>${confirmacoes.length} transação(ões)</strong> do arquivo vão <strong>confirmar lançamentos que você já fez</strong>
+          (previsto ou transferência): passam a ser o lançamento do banco, mantendo o código que você escolheu — não duplicam.
+          <ul>${confirmacoes.slice(0, 8).map(c => `<li>${fmtData(c.nova.data)} · <strong>${fmtMoeda(c.nova.valor)}</strong> · ${c.nova.descricao}
+            <span class="muted">← ${c.fant.descricao || 'lançado antes'}${c.fant.data !== c.nova.data ? ' (lançado em ' + fmtData(c.fant.data) + ')' : ''}</span></li>`).join('')}</ul>
+          ${confirmacoes.length > 8 ? `<span class="muted">…e mais ${confirmacoes.length - 8}.</span>` : ''}
+        </div>` : '';
+    const htmlContaErrada = contaErrada ? `
+        <div class="aviso-dup" style="border-color:var(--red);background:#fef2f2;">
+          <strong>⚠ Confira a conta escolhida.</strong> ${contaErrada.n} das ${transacoesAlvo.length} transações deste arquivo já existem em
+          <strong>${contaNome(contaErrada.conta)}</strong> com o mesmo dia, valor e descrição. Se este for o extrato dessa outra conta,
+          importar aqui vai <strong>duplicar o saldo</strong>.
+        </div>` : '';
+    this._contaErrada = contaErrada;
     if (porDiaValor.length) {
       const amostra = porDiaValor.slice(0, 8).map(t =>
         `<li>${fmtData(t.data)} · <strong>${fmtMoeda(t.valor)}</strong> · ${t.descricao}</li>`).join('');
@@ -2974,15 +3105,24 @@ const Importar = {
           ${separado.repetidasPorChave.length ? `<br><span class="muted">Outras ${separado.repetidasPorChave.length} foram reconhecidas pelo identificador do banco.</span>` : ''}
           <ul>${amostra}</ul>
           ${porDiaValor.length > 8 ? `<span class="muted">…e mais ${porDiaValor.length - 8}.</span>` : ''}
-        </div>`;
+        </div>` + htmlConfirm + htmlContaErrada;
     } else {
-      info.innerHTML = '';
+      info.innerHTML = htmlConfirm + htmlContaErrada;
     }
 
     const btn = document.getElementById('btnConfirmarImport');
     btn.disabled = !novasNoArquivo.length;
     btn.textContent = novasNoArquivo.length ? `Importar ${novasNoArquivo.length} transação(ões)` : 'Nada novo para importar';
-    btn.onclick = () => this.confirmarImport(contaIdAlvo, ehNova, novasNoArquivo, usarDiaValor);
+    btn.onclick = async () => {
+      if (this._contaErrada) {
+        const ok = await avisoDialog('Extrato possivelmente na conta errada',
+          `<p>${this._contaErrada.n} transações deste arquivo já existem em <strong>${contaNome(this._contaErrada.conta)}</strong> (mesmo dia, valor e descrição).</p>
+           <p>Você escolheu importar em <strong>${ehNova ? 'uma conta nova' : contaNome(contaIdAlvo)}</strong>. Se o arquivo é o extrato de ${contaNome(this._contaErrada.conta)}, cancele e escolha essa conta.</p>`,
+          'Importar mesmo assim');
+        if (!ok) return;
+      }
+      this.confirmarImport(contaIdAlvo, ehNova, novasNoArquivo, usarDiaValor);
+    };
   },
 
   async confirmarImport(contaIdAlvo, ehNova, novasNoArquivo, usarDiaValor) {
@@ -2998,7 +3138,8 @@ const Importar = {
       await Api.post('criarConta', payloadConta);
       const res = await Api.post('importarTransacoes', { transacoes: novasNoArquivo, dedupDiaValor: usarDiaValor !== false });
       this.salvarMapaConta(resultado.contaId, contaIdAlvo);
-      const extraPrevistas = res.previstasVinculadas ? ` ${res.previstasVinculadas} já veio conciliada com um lançamento previsto.` : '';
+      const extraPrevistas = (res.previstasVinculadas ? ` ${res.previstasVinculadas} já veio conciliada com um lançamento previsto.` : '')
+        + (res.confirmadas ? ` ${res.confirmadas} confirmou previsto/transferência que você já tinha lançado.` : '');
       const extraDiaValor = res.ignoradasDiaValor ? ` ${res.ignoradasDiaValor} ignorada(s) por já existirem com o mesmo dia e valor.` : '';
       // financiamentos/consórcios reconhecidos automaticamente nessa importação — o contador de
       // parcelas de cada um já avançou sozinho (ver aba Financiamentos e importarTransacoes_).
@@ -3019,10 +3160,37 @@ const Importar = {
       document.getElementById('fileInput').value = '';
       Lotes.registrarImportacao(novasNoArquivo.map(t => t.chaveUnica), contaIdAlvo, nome);
       UI.mudarAba('conciliar');
+      if (res.possiveisTransferencias && res.possiveisTransferencias.length) this.abrirTransfSug(res.possiveisTransferencias);
     } catch (e) {
       toast('Erro ao importar: ' + e.message, 'err');
       btn.disabled = false; btn.textContent = 'Tentar novamente';
     }
+  },
+
+  // ---- possíveis transferências entre contas (sugestão; nada é marcado sem você confirmar) ----
+  _transfSug: [],
+  abrirTransfSug(lista) {
+    this._transfSug = lista;
+    document.getElementById('transfSugLista').innerHTML = lista.map((p, i) => `<tr>
+      <td><input type="checkbox" id="tsg${i}"></td>
+      <td>${fmtData(p.data)} · ${contaNome(p.conta)}<br><span class="muted" style="font-size:12px;">${p.descricao}</span></td>
+      <td>${fmtData(p.contraData)} · ${contaNome(p.contraConta)}<br><span class="muted" style="font-size:12px;">${p.contraDescricao}</span></td>
+      <td style="text-align:right;" class="${p.valor > 0 ? 'valC' : 'valD'}">${fmtMoeda(p.valor)}</td></tr>`).join('');
+    document.getElementById('modalTransfSug').classList.remove('hidden');
+  },
+  fecharTransfSug() { document.getElementById('modalTransfSug').classList.add('hidden'); },
+  async confirmarTransfSug() {
+    const marcadas = this._transfSug.filter((p, i) => document.getElementById('tsg' + i)?.checked);
+    if (!marcadas.length) { this.fecharTransfSug(); return; }
+    let ok = 0;
+    for (const p of marcadas) {
+      try { await Api.post('marcarTransferencia', { chaveUnica: p.chaveUnica, contaRelacionada: p.contraConta }); ok++; }
+      catch (e) { toast('Erro ao marcar uma transferência: ' + e.message, 'err'); }
+    }
+    this.fecharTransfSug();
+    await App.recarregarTransacoes();
+    Conciliacao.render();
+    toast(`${ok} transferência(s) marcada(s) nas duas contas.`, 'ok');
   }
 };
 
@@ -4812,7 +4980,7 @@ const Saldo = {
         return `<tr><td>${c.nome}</td><td class="muted" style="text-align:right;">sem dado (antes de ${fmtData(c.dataSaldoInicial)})</td></tr>`;
       }
       saldosValidos.push(saldo);
-      return `<tr><td>${c.nome}</td><td style="text-align:right;font-weight:600;">${fmtMoeda(saldo)}</td></tr>`;
+      return `<tr><td>${c.nome}${Previstos.avisoSaldo(c.contaId, dataAlvo)}</td><td style="text-align:right;font-weight:600;">${fmtMoeda(saldo)}</td></tr>`;
     }).join('');
     const total = somarReais(saldosValidos);
 
@@ -5002,7 +5170,7 @@ const Conferencia = {
       return;
     }
 
-    cont.innerHTML = `
+    cont.innerHTML = Previstos.avisoSaldo(contaId, ate) + `
       <div style="overflow-x:auto;">
         <table>
           <thead><tr><th>Dia</th><th>Data</th><th style="text-align:right;">Saldo</th><th></th></tr></thead>
@@ -6262,10 +6430,82 @@ const Previstos = {
     this.atualizarCodigosDisponiveis();
     const selConta = document.getElementById('prevConta');
     if (selConta) {
-      selConta.innerHTML = State.contas.length
-        ? State.contas.map(c => `<option value="${c.contaId}">${c.nome}</option>`).join('')
-        : '<option value="">Importe um extrato primeiro para cadastrar uma conta</option>';
+      const atual = selConta.value;
+      // começa SEMPRE em branco: escolher a conta é uma decisão consciente a cada lançamento
+      // (um previsto lançado na conta errada conta o dinheiro duas vezes no saldo)
+      selConta.innerHTML = '<option value="">— escolha a conta —</option>' +
+        State.contas.map(c => `<option value="${c.contaId}">${c.nome}</option>`).join('');
+      if (State.contas.some(c => c.contaId === atual)) selConta.value = atual;
     }
+    this.atualizarBadge();
+  },
+
+  // "fantasma" = lançamento criado na mão (previsto ou ponta de transferência) que ainda não foi
+  // confirmado por um extrato: a chave contém |PREV- ou |TRANSF-. Depois da confirmação a chave
+  // passa a ser a do banco.
+  ehFantasma(t) { return !!t && /\|(PREV|TRANSF)-/.test(t.chaveUnica || ''); },
+
+  diasDesde(dataIso) {
+    if (!dataIso) return 0;
+    const hoje = new Date(); hoje.setHours(0, 0, 0, 0);
+    const d = new Date(dataIso + 'T00:00:00');
+    return Math.round((hoje - d) / 86400000);
+  },
+
+  // previstos (não transferências) já contando no saldo, sem confirmação do extrato — exceto os que
+  // você marcou como "lançamento manual, não vem do banco" (regraAplicada = PrevistoManual)
+  semConfirmacao() {
+    const aceitos = new Set();
+    State.transacoes.forEach(t => { if (t.regraAplicada === 'PrevistoManual' && /\|PREV-/.test(t.chaveUnica || '')) aceitos.add(t.chaveUnica); });
+    return State.previsoes.filter(p => p.status === 'Conciliado' && /\|PREV-/.test(p.chaveUnicaVinculada || '') && !aceitos.has(p.chaveUnicaVinculada));
+  },
+
+  // data do último lançamento REAL (de extrato) de cada conta: se o extrato já passou da data do
+  // previsto (+5 dias) e a transação não apareceu, o previsto está "vencido" sem confirmação
+  _ultimaDataReal() {
+    const m = new Map();
+    State.transacoes.forEach(t => {
+      if (this.ehFantasma(t)) return;
+      if (!m.has(t.conta) || t.data > m.get(t.conta)) m.set(t.conta, t.data);
+    });
+    return m;
+  },
+  vencidos() {
+    const ult = this._ultimaDataReal();
+    return this.semConfirmacao().filter(p => {
+      const ate = ult.get(p.conta);
+      if (!ate) return false;
+      const lim = new Date(p.dataPrevista + 'T00:00:00'); lim.setDate(lim.getDate() + 5);
+      return new Date(ate + 'T00:00:00') >= lim;
+    });
+  },
+
+  // aviso curto "este saldo inclui R$ X de N previstos ainda sem confirmação do extrato" (vazio se não houver)
+  avisoSaldo(contaId, ate) {
+    const fs = this.semConfirmacao().filter(p => (!contaId || p.conta === contaId) && (!ate || p.dataPrevista <= ate));
+    if (!fs.length) return '';
+    return `<div style="font-size:11.5px;color:#92400e;margin-top:3px;">⚠ inclui ${fmtMoeda(somarReais(fs.map(p => p.valor)))} de ${fs.length} previsto(s) ainda sem confirmação do extrato (aba Previstos)</div>`;
+  },
+
+  atualizarBadge() {
+    const btn = document.querySelector("nav .tab[data-tab='previstos']");
+    if (!btn) return;
+    const n = this.vencidos().length;
+    btn.textContent = n ? `Previstos ⚠ ${n}` : 'Previstos';
+    btn.title = n ? `${n} previsto(s) que o extrato já deveria ter trazido — confira` : '';
+  },
+
+  // procura lançamentos parecidos antes de salvar: mesmo valor em OUTRA conta (até 3 dias) ou igual
+  // na mesma conta (mesmo dia). É o que pega o previsto lançado na conta errada ou lançado duas vezes.
+  similares(conta, data, valor) {
+    const mesmaConta = [], outraConta = [];
+    State.transacoes.forEach(t => {
+      if (Math.abs(Number(t.valor) - valor) > 0.005) return;
+      const dd = Math.abs(Math.round((new Date(t.data + 'T00:00:00') - new Date(data + 'T00:00:00')) / 86400000));
+      if (t.conta === conta) { if (dd === 0) mesmaConta.push(t); }
+      else if (dd <= 3 && t.status !== 'Transferencia') outraConta.push(t);
+    });
+    return { mesmaConta, outraConta };
   },
 
   // campo de busca com autocompletar no lugar da lista suspensa: dá pra digitar um pedaço do
@@ -6303,7 +6543,7 @@ const Previstos = {
     const valorAbs = arred2(Math.abs(parseFloat(document.getElementById('prevValor').value)));
     const codigo = document.getElementById('prevCodigo').value;
     const descricao = document.getElementById('prevDescricao').value.trim();
-    if (!conta) { toast('Cadastre/importe ao menos uma conta antes (aba Importar).', 'err'); return; }
+    if (!conta) { toast('Escolha a conta do lançamento.', 'err'); return; }
     if (!dataPrevista) { toast('Escolha a data prevista.', 'err'); return; }
     if (!valorAbs || isNaN(valorAbs)) { toast('Informe o valor.', 'err'); return; }
     if (!codigo) { toast('Escolha o código destino.', 'err'); return; }
@@ -6312,6 +6552,15 @@ const Previstos = {
       if (!confirmado) return;
     }
     const valor = tipo === 'D' ? -valorAbs : valorAbs;
+    const sim = this.similares(conta, dataPrevista, valor);
+    if (sim.mesmaConta.length || sim.outraConta.length) {
+      const li = t => `<li>${fmtData(t.data)} · <strong>${fmtMoeda(t.valor)}</strong> · ${contaNome(t.conta)} · ${t.descricao}${this.ehFantasma(t) ? ' <span class="muted">(previsto ainda sem confirmação)</span>' : ''}</li>`;
+      let html = `<p>Você vai lançar <strong>${fmtMoeda(valor)}</strong> em <strong>${contaNome(conta)}</strong> no dia ${fmtData(dataPrevista)}.</p>`;
+      if (sim.mesmaConta.length) html += `<p style="color:var(--red);font-weight:600;">Já existe lançamento IGUAL nesta conta no mesmo dia (pode ser duplicado):</p><ul>${sim.mesmaConta.slice(0, 5).map(li).join('')}</ul>`;
+      if (sim.outraConta.length) html += `<p style="color:var(--red);font-weight:600;">Existe lançamento do MESMO valor em OUTRA conta (até 3 dias de diferença) — confira se a conta escolhida é a certa:</p><ul>${sim.outraConta.slice(0, 5).map(li).join('')}</ul>`;
+      const ok = await avisoDialog('Confira antes de salvar', html, 'Salvar mesmo assim');
+      if (!ok) return;
+    }
     try {
       const res = await Api.post('criarPrevisao', { conta, dataPrevista, valor, tipo, codigo, descricao });
       State.previsoes.push({
@@ -6325,32 +6574,115 @@ const Previstos = {
       });
       document.getElementById('prevValor').value = '';
       document.getElementById('prevDescricao').value = '';
+      document.getElementById('prevConta').value = ''; // força escolher a conta de novo no próximo
       this.render();
       Cache.agendar();
-      toast('Lançamento cadastrado e já conciliado. Se o extrato real trouxer a mesma transação depois, ela não duplica.', 'ok');
+      toast('Lançamento cadastrado e já conciliado. Quando o extrato trouxer essa transação, ela é confirmada (sem duplicar).', 'ok');
     } catch (e) { toast('Erro: ' + e.message, 'err'); }
   },
 
   render() {
+    this.atualizarBadge();
+    const velhos = this.vencidos();
+    const idsVencidos = new Set(velhos.map(p => p.id));
+    const aceitos = new Set(State.transacoes.filter(t => t.regraAplicada === 'PrevistoManual').map(t => t.chaveUnica));
+    const alerta = document.getElementById('prevAlertaSemConf');
+    if (alerta) {
+      const total = somarReais(velhos.map(p => p.valor));
+      alerta.innerHTML = velhos.length
+        ? `<div class="aviso-dup"><strong>${velhos.length} previsto(s) que o extrato já deveria ter trazido</strong> (${fmtMoeda(total)}) — o extrato da conta já passou da data deles e a transação não apareceu, mas eles contam no saldo.
+           Valor diferente (multa, juros)? Use <strong>Vincular ao extrato</strong>. Lançado na conta errada ou duplicado? <strong>Excluir</strong>. Lançamento que não passa pelo banco (ajuste, dinheiro)? <strong>É manual</strong>.</div>`
+        : '';
+    }
     let lista = [...State.previsoes];
-    if (this.filtroAtual) lista = lista.filter(p => p.status === this.filtroAtual);
+    if (this.filtroAtual === '__sem__') lista = lista.filter(p => p.status === 'Conciliado' && /\|PREV-/.test(p.chaveUnicaVinculada || '') && !aceitos.has(p.chaveUnicaVinculada));
+    else if (this.filtroAtual) lista = lista.filter(p => p.status === this.filtroAtual);
     lista.sort((a, b) => (a.dataPrevista || '').localeCompare(b.dataPrevista || ''));
     document.getElementById('corpoPrevistos').innerHTML = lista.map(p => {
       const info = State.planoContas.find(x => x.codigo === p.codigo);
       const bateu = p.status === 'Conciliado';
+      const ehPrevGhost = bateu && /\|PREV-/.test(p.chaveUnicaVinculada || '');
+      const manual = ehPrevGhost && aceitos.has(p.chaveUnicaVinculada);
+      const fantasma = ehPrevGhost && !manual;
+      const statusHtml = !bateu
+        ? '<span class="badge pendente">aguardando</span>'
+        : manual
+          ? '<span class="badge conciliado" title="Marcado como lançamento manual, que não passa pelo banco">✓ manual (conferido)</span>'
+          : fantasma
+            ? (idsVencidos.has(p.id)
+                ? '<span class="badge pendente" style="background:#fef3c7;color:#92400e;" title="O extrato da conta já passou dessa data e não trouxe essa transação, mas ela já conta no saldo">⚠ não apareceu no extrato</span>'
+                : '<span class="badge pendente" title="Já conta no saldo; será confirmado quando o extrato trouxer a transação">⏳ aguardando o extrato</span>')
+            : '<span class="badge conciliado">✓ confirmado no extrato</span>';
       return `<tr>
         <td>${contaNome(p.conta)}</td>
         <td>${fmtData(p.dataPrevista)}</td>
         <td>${p.descricao || '<span class="muted">—</span>'}</td>
         <td><span class="mono">${p.codigo}</span> ${info ? info.nome : ''}</td>
         <td style="text-align:right;" class="${p.tipo === 'C' ? 'valC' : 'valD'}">${fmtMoeda(p.valor)}</td>
-        <td><span class="badge ${bateu ? 'conciliado' : 'pendente'}">${bateu ? '✓ já bateu' : 'aguardando'}</span></td>
+        <td>${statusHtml}</td>
         <td style="white-space:nowrap;">
-          ${bateu ? `<button class="btn secondary small" onclick="Previstos.desvincular('${p.id}')">Desvincular</button>` : ''}
+          ${fantasma ? `<button class="btn small" onclick="Previstos.abrirVincular('${p.id}')">Vincular ao extrato</button>
+          <button class="btn secondary small" title="Não vem do banco (ajuste, dinheiro...): parar de cobrar confirmação" onclick="Previstos.marcarManual('${p.id}')">É manual</button>` : ''}
+          ${bateu && !fantasma ? `<button class="btn secondary small" onclick="Previstos.desvincular('${p.id}')">Desvincular</button>` : ''}
           <button class="btn danger small" onclick="Previstos.excluir('${p.id}')">Excluir</button>
         </td>
       </tr>`;
     }).join('') || '<tr><td colspan="7" class="muted" style="text-align:center;padding:20px;">Nenhum lançamento previsto cadastrado ainda.</td></tr>';
+  },
+
+  async marcarManual(id) {
+    const p = State.previsoes.find(x => x.id === id);
+    if (!p) return;
+    try {
+      await Api.post('aceitarPrevistoSemExtrato', { previsaoId: id });
+      const t = State.transacoes.find(x => x.chaveUnica === p.chaveUnicaVinculada);
+      if (t) t.regraAplicada = 'PrevistoManual';
+      this.render(); Cache.agendar();
+      toast('Marcado como lançamento manual — não será mais cobrado.', 'ok');
+    } catch (e) { toast('Erro: ' + e.message, 'err'); }
+  },
+
+  // ---- vincular um previsto sem confirmação a um lançamento real do extrato ----
+  _vinc: null,
+  abrirVincular(id) {
+    const p = State.previsoes.find(x => x.id === id);
+    if (!p) return;
+    const cands = State.transacoes.filter(t =>
+      t.conta === p.conta && !this.ehFantasma(t) && t.status !== 'Transferencia' &&
+      ((t.valor > 0) === (p.valor > 0)) &&
+      Math.abs(Math.round((new Date(t.data + 'T00:00:00') - new Date(p.dataPrevista + 'T00:00:00')) / 86400000)) <= 10
+    ).map(t => ({ t, dif: arred2(t.valor - p.valor) }))
+     .sort((a, b) => Math.abs(a.dif) - Math.abs(b.dif) || a.t.data.localeCompare(b.t.data)).slice(0, 25);
+    this._vinc = { id, escolhida: null, cands };
+    document.getElementById('vincResumo').innerHTML =
+      `Previsto: <strong>${fmtMoeda(p.valor)}</strong> em ${contaNome(p.conta)} no dia ${fmtData(p.dataPrevista)}${p.descricao ? ' · “' + p.descricao + '”' : ''}. Escolha o lançamento do extrato que é esse pagamento:`;
+    document.getElementById('vincLista').innerHTML = cands.length
+      ? cands.map((c, i) => `<tr style="cursor:pointer;" onclick="document.getElementById('vincRadio${i}').checked=true;Previstos._vinc.escolhida=${i};">
+          <td><input type="radio" name="vincEsc" id="vincRadio${i}" onchange="Previstos._vinc.escolhida=${i}"></td>
+          <td>${fmtData(c.t.data)}</td><td>${c.t.descricao}</td>
+          <td class="muted">${c.t.status === 'Pendente' ? 'pendente' : (c.t.codigo ? 'já com código ' + c.t.codigo : c.t.status)}</td>
+          <td style="text-align:right;" class="${c.t.tipo === 'C' ? 'valC' : 'valD'}">${fmtMoeda(c.t.valor)}</td>
+          <td style="text-align:right;">${Math.abs(c.dif) < 0.005 ? '<span class="muted">igual</span>' : fmtMoeda(c.dif)}</td></tr>`).join('')
+      : '<tr><td colspan="6" class="muted" style="text-align:center;padding:16px;">Nenhum lançamento do extrato dessa conta, no mesmo sentido, em até 10 dias. Importe o extrato ou exclua o previsto.</td></tr>';
+    document.getElementById('modalVincular').classList.remove('hidden');
+  },
+  fecharVincular() { document.getElementById('modalVincular').classList.add('hidden'); this._vinc = null; },
+  async confirmarVincular() {
+    const v = this._vinc;
+    if (!v || v.escolhida === null) { toast('Escolha o lançamento do extrato.', 'err'); return; }
+    const p = State.previsoes.find(x => x.id === v.id);
+    const real = v.cands[v.escolhida].t;
+    try {
+      const res = await Api.post('vincularPrevistoAoExtrato', { previsaoId: v.id, chaveReal: real.chaveUnica });
+      const chaveFant = p.chaveUnicaVinculada;
+      State.transacoes = State.transacoes.filter(t => t.chaveUnica !== chaveFant);
+      real.codigo = p.codigo; real.status = 'Conciliado'; real.regraAplicada = 'Previsto'; real.previsaoId = p.id;
+      p.chaveUnicaVinculada = real.chaveUnica;
+      this.fecharVincular();
+      this.render();
+      Cache.agendar();
+      toast('Vinculado ao extrato.' + (res && res.diferencaValor ? ' Diferença de valor: ' + fmtMoeda(res.diferencaValor) + ' (o saldo agora segue o valor do banco).' : ''), 'ok');
+    } catch (e) { toast('Erro: ' + e.message, 'err'); }
   },
 
   // se o previsto foi um dos lançados já direto como conciliado (identificável pela chave
@@ -6412,13 +6744,16 @@ const Transferencias = {
   },
 
   popularSelects() {
-    const opcoes = State.contas.length
-      ? State.contas.map(c => `<option value="${c.contaId}">${c.nome}</option>`).join('')
-      : '<option value="">Importe um extrato primeiro para cadastrar uma conta</option>';
+    const opcoes = '<option value="">— escolha a conta —</option>' +
+      State.contas.map(c => `<option value="${c.contaId}">${c.nome}</option>`).join('');
     const selOrigem = document.getElementById('transfContaOrigem');
     const selDestino = document.getElementById('transfContaDestino');
-    if (selOrigem) selOrigem.innerHTML = opcoes;
-    if (selDestino) selDestino.innerHTML = opcoes;
+    [selOrigem, selDestino].forEach(sel => {
+      if (!sel) return;
+      const atual = sel.value;
+      sel.innerHTML = opcoes;
+      if (State.contas.some(c => c.contaId === atual)) sel.value = atual;
+    });
   },
 
   async criar() {
@@ -6427,7 +6762,7 @@ const Transferencias = {
     const data = document.getElementById('transfData').value;
     const valorAbs = arred2(Math.abs(parseFloat(document.getElementById('transfValor').value)));
     const descricao = document.getElementById('transfDescricao').value.trim();
-    if (!contaOrigem || !contaDestino) { toast('Cadastre/importe ao menos duas contas antes (aba Importar).', 'err'); return; }
+    if (!contaOrigem || !contaDestino) { toast('Escolha a conta de origem e a de destino.', 'err'); return; }
     if (contaOrigem === contaDestino) { toast('Escolha duas contas diferentes.', 'err'); return; }
     if (!data) { toast('Escolha a data.', 'err'); return; }
     if (!valorAbs || isNaN(valorAbs)) { toast('Informe o valor.', 'err'); return; }
